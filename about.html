@@ -1,5 +1,8 @@
 <!DOCTYPE html><html lang="en">
-<head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<head><meta charset="UTF-8"/>
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"/>
+<meta http-equiv="Pragma" content="no-cache"/>
+<meta http-equiv="Expires" content="0"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
 <title>About Us | CHM CHURCH OF GOD</title>
 <style>
 /* CHM CHURCH OF GOD — Cathedral Dusk Theme */
@@ -361,7 +364,17 @@ background:linear-gradient(150deg,var(--navy) 0%,var(--navy-mid) 50%,#112050 100
   .event-date-col{width:100%;flex-direction:row;gap:1rem;padding:1rem 1.25rem}
 }
 
-</style></head>
+</style>
+<script>
+(function () {
+  try {
+    sessionStorage.removeItem('chm_admin_return');
+    localStorage.setItem('chm_last_public_page', window.location.pathname || 'index.html');
+  } catch (e) {}
+})();
+</script>
+
+</head>
 <body>
 <div id="chm-header"></div>
 <div id="langMsg"></div>
