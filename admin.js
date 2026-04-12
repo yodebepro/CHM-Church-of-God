@@ -1,8 +1,8 @@
 /* CHM CHURCH OF GOD — Admin Panel JS */
 
 /* ── AUTH ─────────────────────────────────────── */
-const ADMIN_USER = 'chmadmin';
-const ADMIN_PASS = 'CHMGod2026!';
+const ADMIN_USER = 'admin';
+const ADMIN_PASS = 'CHM@2024';
 const SESSION_KEY = 'chm_admin_session';
 
 function isLoggedIn() {
