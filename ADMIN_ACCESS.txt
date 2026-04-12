@@ -1,0 +1,14 @@
+CHM CHURCH OF GOD ADMIN ACCESS
+
+Hidden admin URL after publishing:
+/admin/
+
+Direct login page:
+/admin/login.html
+
+Username: chmadmin
+Password: CHMGod2026!
+
+Important:
+This is a static GitHub-style demo login using browser-side protection.
+For true production-grade security, use the full backend version with server-side authentication.

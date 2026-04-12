@@ -327,7 +327,7 @@ tbody tr:hover { background: #f8fafc; }
     <div class="card" style="margin-bottom:1.5rem;border:2px solid var(--gold);">
       <div class="card-header" style="background:linear-gradient(135deg,var(--navy),#1a2f5e);">
         <div class="card-title" style="color:#fff;font-size:1.1rem;">🎬 Homepage Hero Background Video</div>
-        <span style="font-size:.78rem;color:rgba(255,255,255,.6);margin-left:auto;">Set the cinematic looping video on the public homepage</span>
+        <span style="font-size:.78rem;color:rgba(255,255,255,.6);margin-left:auto;">Set the cinematic looping video for the public homepage hero and the Welcome + Weekly Schedule section</span>
       </div>
       <div class="card-body" style="background:#fdfbf7;">
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;align-items:start;">
@@ -672,10 +672,10 @@ function saveHeroVideo() {
   const url = document.getElementById('heroVideoUrl').value.trim();
   if (url) {
     localStorage.setItem('chm_hero_video', url);
-    document.getElementById('heroVideoStatus').innerHTML = '<span style="color:var(--success);">✅ Video saved! It will appear as the hero background on the homepage.</span>';
+    document.getElementById('heroVideoStatus').innerHTML = '<span style="color:var(--success);">✅ Video saved! It will appear on the homepage hero and the cinematic Welcome + Weekly Schedule section.</span>';
   } else {
     localStorage.removeItem('chm_hero_video');
-    document.getElementById('heroVideoStatus').innerHTML = '<span style="color:var(--text-muted);">Video removed. Default animated background will show.</span>';
+    document.getElementById('heroVideoStatus').innerHTML = '<span style="color:var(--text-muted);">Video removed. The default visual background will show on both homepage sections.</span>';
   }
   showToast('Hero video settings saved');
 }

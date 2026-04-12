@@ -1,8 +1,11 @@
-<!DOCTYPE html><html lang="en">
-<head><meta charset="UTF-8"/>
-<title>Redirecting…</title>
-<meta http-equiv="refresh" content="0; url=../index.html"/>
-<script>window.location.replace('../index.html');</script>
-</head>
-<body><p>Redirecting to <a href="../index.html">CHM Church of God</a>…</p></body>
-</html>
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Admin | CHM Church of God</title>
+<script>
+(function(){
+  const SESSION_KEY='chm_admin_session';
+  const target = sessionStorage.getItem(SESSION_KEY)==='true' ? 'dashboard.html' : 'login.html';
+  window.location.replace(target);
+})();
+</script>
+</head><body><p>Opening admin…</p></body></html>
