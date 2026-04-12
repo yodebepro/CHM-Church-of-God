@@ -322,6 +322,47 @@ tbody tr:hover { background: #f8fafc; }
 <div class="main-content">
   <div class="top-bar"><div class="hamburger" id="hamburger"><span></span><span></span><span></span></div><div class="top-bar-title">⚙️ Settings</div></div>
   <div class="page-body">
+
+    <!-- HERO VIDEO — full width prominent card at top -->
+    <div class="card" style="margin-bottom:1.5rem;border:2px solid var(--gold);">
+      <div class="card-header" style="background:linear-gradient(135deg,var(--navy),#1a2f5e);">
+        <div class="card-title" style="color:#fff;font-size:1.1rem;">🎬 Homepage Hero Background Video</div>
+        <span style="font-size:.78rem;color:rgba(255,255,255,.6);margin-left:auto;">Set the cinematic looping video on the public homepage</span>
+      </div>
+      <div class="card-body" style="background:#fdfbf7;">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;align-items:start;">
+          <div>
+            <div class="form-group">
+              <label class="form-label" style="font-size:.85rem;">Direct MP4 Video URL <span style="color:var(--danger);">*</span></label>
+              <input type="url" class="form-input" id="heroVideoUrl" placeholder="https://… paste a direct .mp4 link here"/>
+              <div class="form-hint" style="margin-top:.5rem;">
+                💡 <strong>How to get a direct MP4 link:</strong><br/>
+                • <strong>Google Drive:</strong> Upload video → Share (Anyone with link) → copy the file ID from URL → use: <code style="background:#f1f5f9;padding:.1rem .3rem;border-radius:3px;font-size:.75rem;">https://drive.google.com/uc?export=download&id=YOUR_FILE_ID</code><br/>
+                • <strong>Dropbox:</strong> Share link → change <code>dl=0</code> to <code>dl=1</code> at end of URL<br/>
+                • <strong>Direct server/CDN:</strong> Any public .mp4 URL works
+              </div>
+            </div>
+            <div style="display:flex;gap:.75rem;flex-wrap:wrap;margin-top:1rem;">
+              <button class="top-bar-btn gold" style="font-size:.85rem;" onclick="saveHeroVideo()">💾 Save & Activate Video</button>
+              <button class="top-bar-btn outline" style="font-size:.85rem;" onclick="previewHeroVideo()">▶ Preview</button>
+              <button class="top-bar-btn" style="background:#fee2e2;color:var(--danger);font-size:.85rem;" onclick="clearHeroVideo()">✕ Remove Video</button>
+            </div>
+            <div id="heroVideoStatus" style="margin-top:.75rem;font-size:.82rem;"></div>
+          </div>
+          <div>
+            <div id="heroVideoPreview" style="display:none;">
+              <label class="form-label">Preview</label>
+              <video id="heroPreviewVid" controls muted loop style="width:100%;border-radius:10px;max-height:200px;object-fit:cover;background:#000;border:1px solid var(--border);"></video>
+            </div>
+            <div id="heroNoPreview" style="width:100%;height:160px;background:linear-gradient(135deg,var(--navy),#1e3a6e);border-radius:10px;display:flex;flex-direction:column;align-items:center;justify-content:center;color:rgba(255,255,255,.5);font-size:.85rem;gap:.5rem;">
+              <span style="font-size:2rem;">🎬</span>
+              <span>Video preview will appear here</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <div class="grid-2">
 
       <!-- Church Info -->
@@ -442,11 +483,11 @@ function isLoggedIn() {
   return sessionStorage.getItem(SESSION_KEY) === 'true';
 }
 function requireAuth() {
-  if (!isLoggedIn()) { window.location.href = 'index.html'; }
+  if (!isLoggedIn()) { window.location.href = 'login.html'; }
 }
 function logout() {
   sessionStorage.removeItem(SESSION_KEY);
-  window.location.href = 'index.html';
+  window.location.href = 'login.html';
 }
 
 /* ── SIDEBAR TOGGLE ───────────────────────────── */

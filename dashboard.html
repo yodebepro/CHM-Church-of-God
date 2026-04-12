@@ -373,6 +373,32 @@ tbody tr:hover { background: #f8fafc; }
 
   <div class="page-body">
 
+    <!-- Hero Video Manager — prominent at top -->
+    <div class="card" style="margin-bottom:2rem;border:2px solid var(--gold);">
+      <div class="card-header" style="background:linear-gradient(135deg,var(--navy),#1a2f5e);border-radius:8px 8px 0 0;">
+        <div class="card-title" style="color:#fff;font-size:1rem;">🎬 Homepage Hero Video</div>
+        <span style="font-size:.78rem;color:rgba(255,255,255,.6);">Cinematic looping background for the main page</span>
+      </div>
+      <div class="card-body" style="display:grid;grid-template-columns:1fr auto;gap:1.5rem;align-items:start;">
+        <div>
+          <div class="form-group" style="margin-bottom:.75rem;">
+            <label class="form-label">Video URL (direct MP4 link)</label>
+            <input type="url" class="form-input" id="dashVideoUrl" placeholder="https://… paste a direct .mp4 link" style="font-size:.85rem;"/>
+            <div class="form-hint">Paste any direct MP4 URL (Google Drive direct link, Dropbox, etc.). The video will autoplay, loop, and mute automatically on the homepage.</div>
+          </div>
+          <div style="display:flex;gap:.6rem;flex-wrap:wrap;">
+            <button class="top-bar-btn gold" onclick="saveDashVideo()">💾 Save &amp; Activate</button>
+            <button class="top-bar-btn outline" onclick="previewDashVideo()">▶ Preview</button>
+            <button class="top-bar-btn" style="background:#fee2e2;color:#ef4444;" onclick="clearDashVideo()">✕ Remove Video</button>
+          </div>
+          <div id="dashVideoStatus" style="margin-top:.6rem;font-size:.8rem;min-height:1.2em;"></div>
+        </div>
+        <div id="dashPreviewWrap" style="display:none;min-width:200px;">
+          <video id="dashPreviewVid" muted controls style="width:200px;height:112px;object-fit:cover;border-radius:8px;background:#000;display:block;"></video>
+        </div>
+      </div>
+    </div>
+
     <!-- Stats -->
     <div class="stats-grid">
       <div class="stat-card gold">
@@ -422,6 +448,7 @@ tbody tr:hover { background: #f8fafc; }
       <a href="gallery.html" class="quick-action"><div class="qa-icon">🖼</div><div class="qa-label">Add Photos</div></a>
       <a href="prayer-requests.html" class="quick-action"><div class="qa-icon">🙏</div><div class="qa-label">Prayer Requests</div></a>
       <a href="messages.html" class="quick-action"><div class="qa-icon">✉️</div><div class="qa-label">View Messages</div></a>
+      <a href="settings.html" class="quick-action"><div class="qa-icon">🎬</div><div class="qa-label">Hero Video</div></a>
       <a href="leaders.html" class="quick-action"><div class="qa-icon">👤</div><div class="qa-label">Manage Leaders</div></a>
       <a href="settings.html" class="quick-action"><div class="qa-icon">⚙️</div><div class="qa-label">Settings</div></a>
     </div>
@@ -493,11 +520,11 @@ function isLoggedIn() {
   return sessionStorage.getItem(SESSION_KEY) === 'true';
 }
 function requireAuth() {
-  if (!isLoggedIn()) { window.location.href = 'index.html'; }
+  if (!isLoggedIn()) { window.location.href = 'login.html'; }
 }
 function logout() {
   sessionStorage.removeItem(SESSION_KEY);
-  window.location.href = 'index.html';
+  window.location.href = 'login.html';
 }
 
 /* ── SIDEBAR TOGGLE ───────────────────────────── */
@@ -637,6 +664,44 @@ function loadStats() {
   if(pb && pr > 0) pb.textContent = pr;
   const mb = document.getElementById('msgBadge');
   if(mb && msg > 0) mb.textContent = msg;
+}
+// Hero Video Manager
+const dashVidInput = document.getElementById('dashVideoUrl');
+const dashStatus = document.getElementById('dashVideoStatus');
+const saved = localStorage.getItem('chm_hero_video') || '';
+if (dashVidInput && saved) {
+  dashVidInput.value = saved;
+  dashStatus.innerHTML = '<span style="color:#22c55e;">✅ Video is active on homepage.</span>';
+}
+function saveDashVideo() {
+  const url = document.getElementById('dashVideoUrl').value.trim();
+  if (url) {
+    localStorage.setItem('chm_hero_video', url);
+    dashStatus.innerHTML = '<span style="color:#22c55e;">✅ Saved! Video is now live on the homepage.</span>';
+    showToast('Hero video saved & activated ✓');
+  } else {
+    localStorage.removeItem('chm_hero_video');
+    dashStatus.innerHTML = '<span style="color:#64748b;">Video removed — default background restored.</span>';
+    showToast('Video removed');
+  }
+}
+function previewDashVideo() {
+  const url = document.getElementById('dashVideoUrl').value.trim();
+  if (!url) { showToast('Enter a video URL first', 'error'); return; }
+  const wrap = document.getElementById('dashPreviewWrap');
+  const vid = document.getElementById('dashPreviewVid');
+  vid.src = url;
+  wrap.style.display = 'block';
+  vid.play().catch(() => {
+    dashStatus.innerHTML = '<span style="color:#ef4444;">⚠️ Could not load — make sure the URL is a direct MP4 link.</span>';
+  });
+}
+function clearDashVideo() {
+  localStorage.removeItem('chm_hero_video');
+  document.getElementById('dashVideoUrl').value = '';
+  document.getElementById('dashPreviewWrap').style.display = 'none';
+  dashStatus.innerHTML = '<span style="color:#64748b;">Video removed.</span>';
+  showToast('Hero video cleared');
 }
 loadStats();
 </script>

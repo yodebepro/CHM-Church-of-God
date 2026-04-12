@@ -357,11 +357,11 @@ function isLoggedIn() {
   return sessionStorage.getItem(SESSION_KEY) === 'true';
 }
 function requireAuth() {
-  if (!isLoggedIn()) { window.location.href = 'index.html'; }
+  if (!isLoggedIn()) { window.location.href = 'login.html'; }
 }
 function logout() {
   sessionStorage.removeItem(SESSION_KEY);
-  window.location.href = 'index.html';
+  window.location.href = 'login.html';
 }
 
 /* ── SIDEBAR TOGGLE ───────────────────────────── */
