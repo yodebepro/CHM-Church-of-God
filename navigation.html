@@ -1,0 +1,108 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/><title>Navigation Editor | CHM Admin</title><link rel="stylesheet" href="admin.css"/><script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script><script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script><script src="firebase-config.js"></script></head><body><div class="admin-wrap"><aside class="sidebar" id="sidebar">
+  <div class="sidebar-brand">
+    <img src="logo-dark.png" alt="CHM" class="sidebar-logo-img" onerror="this.outerHTML='<div class=&quot;sidebar-logo-icon&quot;>✝</div>'"/>
+    <div class="sidebar-brand-text"><span class="sidebar-brand-name">CHM Church of God</span><span class="sidebar-brand-sub">Admin CMS</span></div>
+  </div>
+  <div class="sidebar-status"><span class="firebase-status status-offline">🟡 Checking connection…</span></div>
+  <div class="sidebar-section"><div class="sidebar-section-label">Main</div><a href="dashboard.html" class="sidebar-link"><span class="icon">🏠</span> Dashboard</a></div>
+  <div class="sidebar-section"><div class="sidebar-section-label">Content</div>
+    <a href="announcements.html" class="sidebar-link"><span class="icon">📢</span> Announcements</a>
+    <a href="events.html" class="sidebar-link"><span class="icon">📅</span> Events</a>
+    <a href="sermons.html" class="sidebar-link"><span class="icon">🎙</span> Sermons</a>
+    <a href="gallery.html" class="sidebar-link"><span class="icon">🖼</span> Gallery</a>
+    <a href="pages.html" class="sidebar-link"><span class="icon">📄</span> Page Content</a>
+    <a href="navigation.html" class="sidebar-link"><span class="icon">🧭</span> Navigation</a>
+  </div>
+  <div class="sidebar-section"><div class="sidebar-section-label">People</div>
+    <a href="leaders.html" class="sidebar-link"><span class="icon">👤</span> Leadership</a>
+    <a href="members.html" class="sidebar-link"><span class="icon">👥</span> Members</a>
+    <a href="ministries.html" class="sidebar-link"><span class="icon">⛪</span> Ministries</a>
+  </div>
+  <div class="sidebar-section"><div class="sidebar-section-label">Inbox</div>
+    <a href="prayer-requests.html" class="sidebar-link"><span class="icon">🙏</span> Prayer Requests</a>
+    <a href="messages.html" class="sidebar-link"><span class="icon">✉️</span> Messages</a>
+    <a href="giving.html" class="sidebar-link"><span class="icon">💰</span> Giving Records</a>
+  </div>
+  <div class="sidebar-section"><div class="sidebar-section-label">System</div>
+    <a href="settings.html" class="sidebar-link"><span class="icon">⚙️</span> Settings</a>
+    <a href="../index.html" class="sidebar-link" target="_blank"><span class="icon">🌐</span> View Website</a>
+  </div>
+  <div class="sidebar-footer"><div class="sidebar-user">
+    <div class="sidebar-avatar">A</div>
+    <div><div class="sidebar-user-name">Administrator</div><div class="sidebar-user-role">Super Admin</div></div>
+    <button class="sidebar-logout" data-logout title="Logout">⏻</button>
+  </div></div>
+</aside>
+<div class="main-content"><div class="top-bar"><button class="hamburger" id="hamburger"><span></span><span></span><span></span></button><div class="top-bar-title">🧭 Navigation Editor</div><div class="top-bar-actions"></div></div><div class="page-body"><div class="cms-card" style="margin-bottom:1.5rem;">
+  <div class="cms-card-header"><span class="section-label">Main Menu</span><div class="cms-card-title">🧭 Navigation Links — Home · About▾ · Ministries▾ · Media▾ · Events▾ · Give</div></div>
+  <div class="cms-card-body">
+    <div style="background:var(--gold-pale);border:1px solid rgba(200,145,58,.3);border-radius:10px;padding:1rem;font-size:.83rem;color:var(--navy);margin-bottom:1.25rem;">
+      📌 Edit nav link labels and URLs. Add/remove dropdown sub-items. Click <strong>Publish Navigation</strong> to go live on all pages.
+    </div>
+    <div id="navList"></div>
+    <button class="btn-outline" style="margin-top:.75rem;" onclick="addNavItem()">+ Add Nav Item</button>
+    <div style="display:flex;gap:.75rem;margin-top:1.5rem;padding-top:1.25rem;border-top:1px solid var(--border);flex-wrap:wrap;">
+      <button class="btn-save" onclick="saveNav()">💾 Save Draft</button>
+      <button class="btn-publish" onclick="publishNav()">🌐 Publish Navigation Live</button>
+    </div>
+  </div>
+</div>
+<div class="cms-card">
+  <div class="cms-card-header"><span class="section-label">Footer</span><div class="cms-card-title">📋 Footer Navigation Columns</div></div>
+  <div class="cms-card-body">
+    <p style="font-size:.83rem;color:var(--text-muted);margin-bottom:1.25rem;">These appear in the Explore, Media, and Connect columns of your footer.</p>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.25rem;">
+      <div class="form-group"><label class="form-label">Explore Column</label><textarea class="form-textarea" id="fExp" rows="7" placeholder="About Us|about.html&#10;Ministries|ministries.html&#10;Teams|teams.html&#10;Leadership|leaders.html"></textarea><div class="form-hint">Format: Label|URL — one per line</div></div>
+      <div class="form-group"><label class="form-label">Media Column</label><textarea class="form-textarea" id="fMed" rows="7" placeholder="Watch Live|watch-live.html&#10;Listen Live|listen-live.html&#10;Sermons|sermons.html&#10;Gallery|gallery.html"></textarea></div>
+    </div>
+    <button class="btn-publish" onclick="publishFooterNav()" style="margin-top:1rem;">🌐 Publish Footer Nav</button>
+  </div>
+</div></div></div></div><script src="admin.js"></script><script>requireAuth();
+
+const DEFAULT_NAV=[
+  {label:'Home',url:'index.html',dropdown:[]},
+  {label:'About',url:'about.html',dropdown:[{label:'Our Story & Beliefs',url:'about.html'},{label:'Leadership',url:'leaders.html'},{label:'Locations',url:'locations.html'}]},
+  {label:'Ministries',url:'ministries.html',dropdown:[{label:'All Ministries',url:'ministries.html'},{label:'Teams',url:'teams.html'},{label:'Departments',url:'departments.html'}]},
+  {label:'Media',url:'watch-live.html',dropdown:[{label:'Watch Live',url:'watch-live.html'},{label:'Listen Live',url:'listen-live.html'},{label:'Sermons',url:'sermons.html'},{label:'Gallery',url:'gallery.html'}]},
+  {label:'Events',url:'events.html',dropdown:[{label:'All Events',url:'events.html'},{label:'Announcements',url:'announcements.html'}]},
+  {label:'Give',url:'give.html',dropdown:[]},
+];
+let navItems=[];
+async function loadNav(){
+  const saved=await cfgGet('navigation');navItems=saved.items||JSON.parse(JSON.stringify(DEFAULT_NAV));
+  const fn=await cfgGet('footer_nav');
+  if(fn.explore)document.getElementById('fExp').value=fn.explore;
+  if(fn.media)document.getElementById('fMed').value=fn.media;
+  renderNav();
+}
+function renderNav(){
+  document.getElementById('navList').innerHTML=navItems.map((item,i)=>`
+    <div style="background:var(--off-white);border-radius:12px;padding:1rem;margin-bottom:.75rem;border-left:3px solid var(--gold);">
+      <div style="display:flex;gap:.6rem;align-items:center;margin-bottom:.5rem;flex-wrap:wrap;">
+        <span style="font-size:.7rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);min-width:50px;">Label</span>
+        <input type="text" class="form-input" style="flex:1;min-width:120px;" value="${item.label}" onchange="navItems[${i}].label=this.value"/>
+        <span style="font-size:.7rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--text-muted);min-width:30px;">URL</span>
+        <input type="text" class="form-input" style="flex:1;min-width:140px;" value="${item.url}" onchange="navItems[${i}].url=this.value"/>
+        <button class="action-btn delete" onclick="navItems.splice(${i},1);renderNav()">🗑</button>
+      </div>
+      ${item.dropdown&&item.dropdown.length?`
+        <div style="padding:.75rem;background:rgba(200,145,58,.06);border-radius:8px;border:1px dashed rgba(200,145,58,.3);">
+          <div style="font-size:.68rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);margin-bottom:.5rem;">Dropdown Sub-items</div>
+          ${item.dropdown.map((d,j)=>`<div style="display:flex;gap:.4rem;align-items:center;margin-bottom:.35rem;flex-wrap:wrap;">
+            <input type="text" class="form-input" style="flex:1;font-size:.8rem;" value="${d.label}" onchange="navItems[${i}].dropdown[${j}].label=this.value"/>
+            <input type="text" class="form-input" style="flex:1;font-size:.8rem;" value="${d.url}" onchange="navItems[${i}].dropdown[${j}].url=this.value"/>
+            <button class="action-btn delete" onclick="navItems[${i}].dropdown.splice(${j},1);renderNav()" style="font-size:.68rem;padding:.25rem .5rem;">✕</button>
+          </div>`).join('')}
+          <button class="btn-outline" style="font-size:.72rem;padding:.3rem .8rem;margin-top:.3rem;border-radius:20px;" onclick="navItems[${i}].dropdown.push({label:'New Link',url:'#'});renderNav()">+ Sub-item</button>
+        </div>`
+      :`<button class="btn-outline" style="font-size:.72rem;padding:.3rem .8rem;border-radius:20px;" onclick="navItems[${i}].dropdown=[{label:'Sub-item',url:'#'}];renderNav()">+ Add Dropdown</button>`}
+    </div>`).join('');
+}
+function addNavItem(){navItems.push({label:'New Page',url:'#',dropdown:[]});renderNav();}
+async function saveNav(){await cfgSave('navigation_draft',{items:navItems});showToast('Draft saved');}
+async function publishNav(){await cfgSave('navigation',{items:navItems});showToast('🌐 Navigation published to all pages!');}
+async function publishFooterNav(){
+  await cfgSave('footer_nav',{explore:document.getElementById('fExp').value,media:document.getElementById('fMed').value});
+  showToast('🌐 Footer nav published!');
+}
+loadNav();</script></body></html>

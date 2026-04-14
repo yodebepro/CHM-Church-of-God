@@ -471,3 +471,73 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 });
+
+/* ── CHM CMS LOADER — loads live published content from Firebase ── */
+(function(){
+  function initCMS(){
+    if(typeof firebase==='undefined'||typeof firebaseConfig==='undefined'||firebaseConfig.apiKey.includes('PASTE_YOUR'))return;
+    try{
+      if(!firebase.apps.length)firebase.initializeApp(firebaseConfig);
+      const db=firebase.firestore();
+      loadContent(db);
+    }catch(e){}
+  }
+  async function loadContent(db){
+    try{
+      // Colors
+      const c=(await db.collection('site_config').doc('colors').get()).data()||{};
+      if(c.navy)document.documentElement.style.setProperty('--navy',c.navy);
+      if(c.gold)document.documentElement.style.setProperty('--gold',c.gold);
+      if(c.text)document.documentElement.style.setProperty('--text',c.text);
+      if(c.bgCss||c.bg)document.body.style.background=c.bgCss||c.bg;
+
+      // Church info
+      const i=(await db.collection('site_config').doc('church_info').get()).data()||{};
+      if(i.addr)document.querySelectorAll('[data-cms="address"]').forEach(el=>el.textContent=i.addr);
+      if(i.phone)document.querySelectorAll('[data-cms="phone"]').forEach(el=>el.textContent=i.phone);
+      if(i.email)document.querySelectorAll('[data-cms="email"]').forEach(el=>el.textContent=i.email);
+
+      // Service times
+      const t=(await db.collection('site_config').doc('service_times').get()).data()||{};
+      if(t.sun)document.querySelectorAll('[data-cms="time-sun"]').forEach(el=>el.textContent=t.sun);
+      if(t.wed)document.querySelectorAll('[data-cms="time-wed"]').forEach(el=>el.textContent=t.wed);
+      if(t.fri)document.querySelectorAll('[data-cms="time-fri"]').forEach(el=>el.textContent=t.fri);
+      if(t.sat)document.querySelectorAll('[data-cms="time-sat"]').forEach(el=>el.textContent=t.sat);
+
+      // Hero video
+      const hd=(await db.collection('site_config').doc('hero').get()).data()||{};
+      const vid=hd.videoUrl||localStorage.getItem('chm_hero_video')||'';
+      if(vid)injectHeroVideo(vid);
+
+      // Homepage content
+      const pg=window.location.pathname.split('/').pop()||'index.html';
+      if(pg===''||pg==='index.html'){
+        const h=(await db.collection('site_config').doc('page_home').get()).data()||{};
+        if(h.eyebrow){const el=document.querySelector('.hero-eyebrow');if(el)el.innerHTML=h.eyebrow;}
+        if(h.title){const el=document.querySelector('.hero-title');if(el)el.innerHTML=h.title;}
+        if(h.verse){const el=document.querySelector('.hero-verse');if(el)el.innerHTML=h.verse;}
+      }
+
+      // Footer content
+      const f=(await db.collection('site_config').doc('page_footer').get()).data()||{};
+      if(f.about)document.querySelectorAll('.footer-about').forEach(el=>el.textContent=f.about);
+      if(f.copy)document.querySelectorAll('[data-cms="copyright"]').forEach(el=>el.textContent=f.copy);
+      if(f.bg)document.querySelectorAll('.site-footer').forEach(el=>el.style.background=f.bg);
+      if(f.text)document.querySelectorAll('.site-footer').forEach(el=>el.style.color=f.text);
+    }catch(e){}
+  }
+  function injectHeroVideo(url){
+    const hero=document.querySelector('.hero');
+    if(!hero||hero.querySelector('.hero-video-bg'))return;
+    const v=document.createElement('video');
+    v.autoplay=true;v.muted=true;v.loop=true;v.playsInline=true;v.className='hero-video-bg';
+    v.innerHTML=`<source src="${url}" type="video/mp4"/>`;
+    hero.insertBefore(v,hero.firstChild);
+  }
+  document.addEventListener('DOMContentLoaded',function(){
+    // localStorage fallback for hero video
+    const vid=localStorage.getItem('chm_hero_video');
+    if(vid)injectHeroVideo(vid);
+    if(typeof firebase!=='undefined')initCMS();
+  });
+})();
