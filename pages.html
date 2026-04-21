@@ -1,22 +1,27 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/><title>Page Content | CHM Admin</title><link rel="stylesheet" href="admin.css"/><script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script><script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script><script src="firebase-config.js"></script></head><body><div class="admin-wrap"><aside class="sidebar" id="sidebar">
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/><title>Page Content Editor | CHM Admin</title><link rel="stylesheet" href="admin.css"/><script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script src="firebase-config.js"></script></head><body><div class="admin-wrap">
+<aside class="sidebar" id="sidebar">
   <div class="sidebar-brand">
-    <img src="logo-dark.png" alt="CHM" class="sidebar-logo-img" onerror="this.outerHTML='<div class=&quot;sidebar-logo-icon&quot;>✝</div>'"/>
-    <div class="sidebar-brand-text"><span class="sidebar-brand-name">CHM Church of God</span><span class="sidebar-brand-sub">Admin CMS</span></div>
+    <img src="logo-dark.png" alt="CHM" class="brand-logo" onerror="this.outerHTML='<div class=&quot;brand-logo-fallback&quot;>✝</div>'"/>
+    <div class="brand-text"><span class="brand-name">CHM Church of God</span><span class="brand-sub">Admin Panel</span></div>
   </div>
-  <div class="sidebar-status"><span class="firebase-status status-offline">🟡 Checking connection…</span></div>
-  <div class="sidebar-section"><div class="sidebar-section-label">Main</div><a href="dashboard.html" class="sidebar-link"><span class="icon">🏠</span> Dashboard</a></div>
+  <div class="sidebar-conn"><span class="firebase-status status-offline">🟡 Checking…</span></div>
+  <div class="sidebar-section"><div class="sidebar-section-label">Main</div>
+    <a href="dashboard.html" class="sidebar-link"><span class="icon">🏠</span> Dashboard</a>
+  </div>
   <div class="sidebar-section"><div class="sidebar-section-label">Content</div>
-    <a href="announcements.html" class="sidebar-link"><span class="icon">📢</span> Announcements</a>
-    <a href="events.html" class="sidebar-link"><span class="icon">📅</span> Events</a>
-    <a href="sermons.html" class="sidebar-link"><span class="icon">🎙</span> Sermons</a>
-    <a href="gallery.html" class="sidebar-link"><span class="icon">🖼</span> Gallery</a>
+    <a href="adm-announcements.html" class="sidebar-link"><span class="icon">📢</span> Announcements</a>
+    <a href="adm-events.html" class="sidebar-link"><span class="icon">📅</span> Events</a>
+    <a href="adm-sermons.html" class="sidebar-link"><span class="icon">🎙</span> Sermons</a>
+    <a href="adm-gallery.html" class="sidebar-link"><span class="icon">🖼</span> Gallery</a>
     <a href="pages.html" class="sidebar-link"><span class="icon">📄</span> Page Content</a>
     <a href="navigation.html" class="sidebar-link"><span class="icon">🧭</span> Navigation</a>
   </div>
   <div class="sidebar-section"><div class="sidebar-section-label">People</div>
-    <a href="leaders.html" class="sidebar-link"><span class="icon">👤</span> Leadership</a>
+    <a href="adm-leaders.html" class="sidebar-link"><span class="icon">👤</span> Leadership</a>
     <a href="members.html" class="sidebar-link"><span class="icon">👥</span> Members</a>
-    <a href="ministries.html" class="sidebar-link"><span class="icon">⛪</span> Ministries</a>
+    <a href="adm-ministries.html" class="sidebar-link"><span class="icon">⛪</span> Ministries</a>
   </div>
   <div class="sidebar-section"><div class="sidebar-section-label">Inbox</div>
     <a href="prayer-requests.html" class="sidebar-link"><span class="icon">🙏</span> Prayer Requests</a>
@@ -24,114 +29,99 @@
     <a href="giving.html" class="sidebar-link"><span class="icon">💰</span> Giving Records</a>
   </div>
   <div class="sidebar-section"><div class="sidebar-section-label">System</div>
-    <a href="settings.html" class="sidebar-link"><span class="icon">⚙️</span> Settings</a>
-    <a href="../index.html" class="sidebar-link" target="_blank"><span class="icon">🌐</span> View Website</a>
+    <a href="settings.html" class="sidebar-link"><span class="icon">⚙️</span> Settings & Colors</a>
+    <a href="index.html" class="sidebar-link" target="_blank"><span class="icon">🌐</span> View Public Site ↗</a>
   </div>
-  <div class="sidebar-footer"><div class="sidebar-user">
-    <div class="sidebar-avatar">A</div>
-    <div><div class="sidebar-user-name">Administrator</div><div class="sidebar-user-role">Super Admin</div></div>
-    <button class="sidebar-logout" data-logout title="Logout">⏻</button>
-  </div></div>
+  <div class="sidebar-footer">
+    <div class="sidebar-user">
+      <div class="sidebar-avatar">A</div>
+      <div><span class="sidebar-user-name">Administrator</span><span class="sidebar-user-role">Super Admin</span></div>
+      <button class="sidebar-logout" data-logout title="Sign Out">⏻</button>
+    </div>
+  </div>
 </aside>
-<div class="main-content"><div class="top-bar"><button class="hamburger" id="hamburger"><span></span><span></span><span></span></button><div class="top-bar-title">📄 Page Content</div><div class="top-bar-actions"></div></div><div class="page-body"><div class="sec-tabs">
-  <button class="sec-tab active" onclick="switchTab(this,'home')">🏠 Home</button>
-  <button class="sec-tab" onclick="switchTab(this,'about')">ℹ️ About</button>
-  <button class="sec-tab" onclick="switchTab(this,'footer')">🔻 Footer</button>
-  <button class="sec-tab" onclick="switchTab(this,'hero')">🎬 Hero Video</button>
+<div class="main-content"><div class="top-bar"><div class="top-bar-left"><button class="hamburger" id="hamburger"><span></span><span></span><span></span></button><h1 class="top-bar-title">📄 Page Content Editor</h1></div><div class="top-bar-actions"></div></div><div class="page-body"><div class="tab-nav">
+  <button class="tab-btn active" onclick="switchTab(this,'home')">🏠 Home</button>
+  <button class="tab-btn" onclick="switchTab(this,'about')">ℹ️ About</button>
+  <button class="tab-btn" onclick="switchTab(this,'footer')">🔻 Footer</button>
+  <button class="tab-btn" onclick="switchTab(this,'hero')">🎬 Hero Video</button>
 </div>
-
-<div id="tab-home">
-  <div class="cms-card"><div class="cms-card-header"><span class="section-label">Homepage</span><div class="cms-card-title">🏠 Home Page Content</div></div><div class="cms-card-body">
-    <div class="form-group"><label class="form-label">Eyebrow Text (small text above title)</label><input type="text" class="form-input" id="hEye" placeholder="West Orange, New Jersey · Est. in Faith"/></div>
-    <div class="form-group"><label class="form-label">Hero Title (HTML allowed for &lt;em&gt; italic gold)</label><input type="text" class="form-input" id="hTitle" placeholder="Where Faith Meets &lt;em&gt;Transformation&lt;/em&gt;"/></div>
-    <div class="form-group"><label class="form-label">Verse / Subtitle (italic below title)</label><textarea class="form-textarea" id="hVerse" rows="3"></textarea></div>
+<div id="tab-home" class="tab-pane active">
+  <div class="card"><div class="card-header"><span class="label">Homepage</span><div class="card-title">🏠 Home Page Hero Section</div></div><div class="card-body">
+    <div class="form-group"><label class="form-label">Eyebrow / Preheading Text</label><input type="text" class="fi" id="hEy" placeholder="West Orange, New Jersey · Est. in Faith"/></div>
+    <div class="form-group"><label class="form-label">Main Hero Title <span style="font-weight:400;color:var(--text-muted);">(HTML allowed — wrap words in &lt;em&gt; for italic gold)</span></label><input type="text" class="fi" id="hTi" placeholder="Where Faith Meets &lt;em&gt;Transformation&lt;/em&gt;"/></div>
+    <div class="form-group"><label class="form-label">Scripture Verse / Subtitle</label><textarea class="ft" id="hVe" rows="3" placeholder="Paste your scripture verse or subtitle text here…"></textarea></div>
+    <div class="form-row"><div class="form-group"><label class="form-label">Primary Button Text</label><input type="text" class="fi" id="hB1" value="▶ Watch Live"/></div><div class="form-group"><label class="form-label">Secondary Button Text</label><input type="text" class="fi" id="hB2" value="Our Story"/></div></div>
+    <div class="form-actions"><button class="btn btn-save btn-sm" onclick="savePC('home')">💾 Save Draft</button><button class="btn btn-publish btn-sm" onclick="publishPC('home')">🌐 Publish to Homepage</button></div>
+  </div></div>
+</div>
+<div id="tab-about" class="tab-pane">
+  <div class="card"><div class="card-header"><span class="label">About Page</span><div class="card-title">ℹ️ About Page Content</div></div><div class="card-body">
+    <div class="form-group"><label class="form-label">Mission Statement</label><textarea class="ft" id="aMi" rows="3"></textarea></div>
+    <div class="form-group"><label class="form-label">Vision Statement</label><textarea class="ft" id="aVi" rows="3"></textarea></div>
+    <div class="form-group"><label class="form-label">Our Story / History</label><textarea class="ft" id="aSt" rows="7" placeholder="The story of CHM Church of God…"></textarea></div>
+    <div class="form-actions"><button class="btn btn-save btn-sm" onclick="savePC('about')">💾 Save Draft</button><button class="btn btn-publish btn-sm" onclick="publishPC('about')">🌐 Publish to About Page</button></div>
+  </div></div>
+</div>
+<div id="tab-footer" class="tab-pane">
+  <div class="card"><div class="card-header"><span class="label">Footer Section</span><div class="card-title">🔻 Footer Content & Colors</div></div><div class="card-body">
+    <div class="form-group"><label class="form-label">Footer About Blurb</label><textarea class="ft" id="fAb" rows="3" placeholder="A vibrant, Spirit-filled community serving West Orange, NJ…"></textarea></div>
+    <div class="form-group"><label class="form-label">Copyright Line</label><input type="text" class="fi" id="fCp" value="© 2025 CHM Church of God. All rights reserved."/></div>
     <div class="form-row">
-      <div class="form-group"><label class="form-label">Primary Button Text</label><input type="text" class="form-input" id="hBtn1" value="▶ Watch Live"/></div>
-      <div class="form-group"><label class="form-label">Secondary Button Text</label><input type="text" class="form-input" id="hBtn2" value="Our Story"/></div>
+      <div class="form-group"><label class="form-label">Footer Background Color</label><input type="color" class="fi" id="fBg" value="#ffffff" style="height:44px;padding:4px;cursor:pointer;"/></div>
+      <div class="form-group"><label class="form-label">Footer Text Color</label><input type="color" class="fi" id="fTx" value="#000000" style="height:44px;padding:4px;cursor:pointer;"/></div>
     </div>
-    <div class="form-actions"><button class="btn-save" onclick="savePC('home')">💾 Save Draft</button><button class="btn-publish" onclick="publishPC('home')">🌐 Publish to Homepage</button></div>
+    <div class="form-actions"><button class="btn btn-save btn-sm" onclick="savePC('footer')">💾 Save Draft</button><button class="btn btn-publish btn-sm" onclick="publishPC('footer')">🌐 Publish Footer</button></div>
   </div></div>
 </div>
-
-<div id="tab-about" style="display:none;">
-  <div class="cms-card"><div class="cms-card-header"><span class="section-label">About Page</span><div class="cms-card-title">ℹ️ About Page Content</div></div><div class="cms-card-body">
-    <div class="form-group"><label class="form-label">Mission Statement</label><textarea class="form-textarea" id="aMission" rows="3"></textarea></div>
-    <div class="form-group"><label class="form-label">Vision Statement</label><textarea class="form-textarea" id="aVision" rows="3"></textarea></div>
-    <div class="form-group"><label class="form-label">Our Story (full paragraph)</label><textarea class="form-textarea" id="aStory" rows="6"></textarea></div>
-    <div class="form-actions"><button class="btn-save" onclick="savePC('about')">💾 Save Draft</button><button class="btn-publish" onclick="publishPC('about')">🌐 Publish to About Page</button></div>
-  </div></div>
-</div>
-
-<div id="tab-footer" style="display:none;">
-  <div class="cms-card"><div class="cms-card-header"><span class="section-label">Footer</span><div class="cms-card-title">🔻 Footer Content & Colors</div></div><div class="cms-card-body">
-    <div class="form-group"><label class="form-label">Footer About Blurb</label><textarea class="form-textarea" id="fAbout" rows="3"></textarea></div>
-    <div class="form-group"><label class="form-label">Copyright Text</label><input type="text" class="form-input" id="fCopy" value="© 2025 CHM Church of God. All rights reserved."/></div>
-    <div class="form-row">
-      <div class="form-group"><label class="form-label">Footer Background Color</label><input type="color" class="form-input" id="fBg" value="#0a1f44" style="height:44px;padding:4px;"/></div>
-      <div class="form-group"><label class="form-label">Footer Text Color</label><input type="color" class="form-input" id="fText" value="#ffffff" style="height:44px;padding:4px;"/></div>
+<div id="tab-hero" class="tab-pane">
+  <div class="card" style="border:2px solid rgba(200,145,58,.35);">
+    <div class="card-header" style="background:linear-gradient(135deg,var(--navy),var(--navy-mid));"><span class="label" style="color:rgba(200,145,58,.7);">Homepage Feature</span><div class="card-title" style="color:#fff;">🎬 Hero Background Video</div></div>
+    <div class="card-body">
+      <div class="form-group"><label class="form-label">Direct MP4 Video URL</label><input type="url" class="fi" id="pVi" placeholder="https://… direct .mp4 link"/><div class="form-hint">Paste any publicly accessible MP4 link. It will autoplay silently behind the homepage hero section.</div></div>
+      <div id="pVW" style="display:none;margin-bottom:1rem;"><video id="pVEl" muted controls style="width:100%;max-height:220px;border-radius:var(--radius);object-fit:cover;"></video></div>
+      <div style="display:flex;gap:.6rem;flex-wrap:wrap;">
+        <button class="btn btn-publish btn-sm" onclick="saveVid()">💾 Save & Activate</button>
+        <button class="btn btn-save btn-sm" onclick="previewVid()">▶ Preview</button>
+        <button class="btn btn-danger-soft btn-sm" onclick="clearVid()">✕ Remove</button>
+      </div>
+      <div id="pVSt" style="margin-top:.5rem;font-size:.78rem;color:var(--text-muted);"></div>
     </div>
-    <div class="form-actions"><button class="btn-save" onclick="savePC('footer')">💾 Save Draft</button><button class="btn-publish" onclick="publishPC('footer')">🌐 Publish Footer</button></div>
-  </div></div>
-</div>
-
-<div id="tab-hero" style="display:none;">
-  <div class="cms-card" style="border:2px solid rgba(200,145,58,.35);"><div class="cms-card-header" style="background:linear-gradient(135deg,var(--navy),var(--navy-mid));"><div class="cms-card-title" style="color:var(--white);">🎬 Homepage Hero Background Video</div></div><div class="cms-card-body">
-    <div class="form-group"><label class="form-label">Direct MP4 Video URL</label><input type="url" class="form-input" id="pVid" placeholder="https://… direct .mp4 link"/><div class="form-hint">Paste any public MP4 link. Will autoplay, loop, and mute on the homepage hero section.</div></div>
-    <div id="pVidWrap" style="display:none;margin-bottom:1rem;"><video id="pVidEl" muted controls style="width:100%;max-height:220px;border-radius:12px;object-fit:cover;"></video></div>
-    <div style="display:flex;gap:.6rem;flex-wrap:wrap;">
-      <button class="btn-publish" onclick="saveVid()">💾 Save & Activate</button>
-      <button class="btn-save" onclick="previewVid()">▶ Preview</button>
-      <button class="btn-danger" onclick="clearVid()">✕ Remove</button>
-    </div>
-    <div id="pVidStatus" style="margin-top:.6rem;font-size:.82rem;color:var(--text-muted);"></div>
-  </div></div>
+  </div>
 </div></div></div></div><script src="admin.js"></script><script>requireAuth();
 
-function switchTab(btn, name){
-  document.querySelectorAll('.sec-tab').forEach(b=>b.classList.remove('active'));btn.classList.add('active');
-  ['home','about','footer','hero'].forEach(n=>document.getElementById('tab-'+n).style.display=n===name?'block':'none');
+function switchTab(btn,name){
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.tab-pane').forEach(p=>p.classList.remove('active'));
+  btn.classList.add('active');document.getElementById('tab-'+name).classList.add('active');
 }
 async function loadPC(){
   const h=await cfgGet('page_home');
-  if(h.eyebrow)document.getElementById('hEye').value=h.eyebrow;
-  if(h.title)document.getElementById('hTitle').value=h.title;
-  if(h.verse)document.getElementById('hVerse').value=h.verse;
-  if(h.btn1)document.getElementById('hBtn1').value=h.btn1;
-  if(h.btn2)document.getElementById('hBtn2').value=h.btn2;
+  if(h.eyebrow)document.getElementById('hEy').value=h.eyebrow;if(h.title)document.getElementById('hTi').value=h.title;
+  if(h.verse)document.getElementById('hVe').value=h.verse;if(h.btn1)document.getElementById('hB1').value=h.btn1;if(h.btn2)document.getElementById('hB2').value=h.btn2;
   const a=await cfgGet('page_about');
-  if(a.mission)document.getElementById('aMission').value=a.mission;
-  if(a.vision)document.getElementById('aVision').value=a.vision;
-  if(a.story)document.getElementById('aStory').value=a.story;
+  if(a.mission)document.getElementById('aMi').value=a.mission;if(a.vision)document.getElementById('aVi').value=a.vision;if(a.story)document.getElementById('aSt').value=a.story;
   const f=await cfgGet('page_footer');
-  if(f.about)document.getElementById('fAbout').value=f.about;
-  if(f.copy)document.getElementById('fCopy').value=f.copy;
-  if(f.bg)document.getElementById('fBg').value=f.bg;
-  if(f.text)document.getElementById('fText').value=f.text;
+  if(f.about)document.getElementById('fAb').value=f.about;if(f.copy)document.getElementById('fCp').value=f.copy;
+  if(f.bg)document.getElementById('fBg').value=f.bg;if(f.text)document.getElementById('fTx').value=f.text;
   const vid=localStorage.getItem('chm_hero_video')||'';
-  if(vid){document.getElementById('pVid').value=vid;document.getElementById('pVidStatus').textContent='Video currently active on homepage.';}
+  if(vid){document.getElementById('pVi').value=vid;document.getElementById('pVSt').textContent='Video currently active on homepage.';}
 }
 async function savePC(pg){
   let d={};
-  if(pg==='home')d={eyebrow:document.getElementById('hEye').value,title:document.getElementById('hTitle').value,verse:document.getElementById('hVerse').value,btn1:document.getElementById('hBtn1').value,btn2:document.getElementById('hBtn2').value};
-  else if(pg==='about')d={mission:document.getElementById('aMission').value,vision:document.getElementById('aVision').value,story:document.getElementById('aStory').value};
-  else if(pg==='footer')d={about:document.getElementById('fAbout').value,copy:document.getElementById('fCopy').value,bg:document.getElementById('fBg').value,text:document.getElementById('fText').value};
-  await cfgSave('page_'+pg+'_draft',d);showToast('Draft saved');
+  if(pg==='home')d={eyebrow:document.getElementById('hEy').value,title:document.getElementById('hTi').value,verse:document.getElementById('hVe').value,btn1:document.getElementById('hB1').value,btn2:document.getElementById('hB2').value};
+  else if(pg==='about')d={mission:document.getElementById('aMi').value,vision:document.getElementById('aVi').value,story:document.getElementById('aSt').value};
+  else if(pg==='footer')d={about:document.getElementById('fAb').value,copy:document.getElementById('fCp').value,bg:document.getElementById('fBg').value,text:document.getElementById('fTx').value};
+  await cfgSave('page_'+pg+'_draft',d);toast('Draft saved');
 }
 async function publishPC(pg){
   let d={};
-  if(pg==='home')d={eyebrow:document.getElementById('hEye').value,title:document.getElementById('hTitle').value,verse:document.getElementById('hVerse').value,btn1:document.getElementById('hBtn1').value,btn2:document.getElementById('hBtn2').value};
-  else if(pg==='about')d={mission:document.getElementById('aMission').value,vision:document.getElementById('aVision').value,story:document.getElementById('aStory').value};
-  else if(pg==='footer')d={about:document.getElementById('fAbout').value,copy:document.getElementById('fCopy').value,bg:document.getElementById('fBg').value,text:document.getElementById('fText').value};
-  await cfgSave('page_'+pg,d);showToast('🌐 Published — live on website!');
+  if(pg==='home')d={eyebrow:document.getElementById('hEy').value,title:document.getElementById('hTi').value,verse:document.getElementById('hVe').value,btn1:document.getElementById('hB1').value,btn2:document.getElementById('hB2').value};
+  else if(pg==='about')d={mission:document.getElementById('aMi').value,vision:document.getElementById('aVi').value,story:document.getElementById('aSt').value};
+  else if(pg==='footer')d={about:document.getElementById('fAb').value,copy:document.getElementById('fCp').value,bg:document.getElementById('fBg').value,text:document.getElementById('fTx').value};
+  await cfgSave('page_'+pg,d);toast('🌐 Published — live on website!','success');
 }
-async function saveVid(){
-  const url=document.getElementById('pVid').value.trim();
-  if(url){localStorage.setItem('chm_hero_video',url);await cfgSave('hero',{videoUrl:url});document.getElementById('pVidStatus').textContent='✅ Active on homepage.';showToast('🎬 Video activated!');}
-  else{localStorage.removeItem('chm_hero_video');await cfgSave('hero',{videoUrl:''});document.getElementById('pVidStatus').textContent='Removed.';showToast('Removed');}
-}
-function previewVid(){
-  const url=document.getElementById('pVid').value.trim();if(!url){showToast('Enter URL first','error');return;}
-  const w=document.getElementById('pVidWrap');const v=document.getElementById('pVidEl');v.src=url;w.style.display='block';v.play().catch(()=>document.getElementById('pVidStatus').textContent='⚠️ Cannot load. Use a direct MP4 URL.');
-}
-function clearVid(){localStorage.removeItem('chm_hero_video');cfgSave('hero',{videoUrl:''});document.getElementById('pVid').value='';document.getElementById('pVidWrap').style.display='none';document.getElementById('pVidStatus').textContent='Removed.';showToast('Cleared');}
+async function saveVid(){const url=document.getElementById('pVi').value.trim();if(url){localStorage.setItem('chm_hero_video',url);await cfgSave('hero',{videoUrl:url});document.getElementById('pVSt').textContent='✅ Active on homepage.';toast('🎬 Video activated!','success');}else{localStorage.removeItem('chm_hero_video');await cfgSave('hero',{videoUrl:''});document.getElementById('pVSt').textContent='Removed.';toast('Removed','warning');}}
+function previewVid(){const url=document.getElementById('pVi').value.trim();if(!url){toast('Enter a URL first','warning');return;}const w=document.getElementById('pVW');const v=document.getElementById('pVEl');v.src=url;w.style.display='block';v.play().catch(()=>document.getElementById('pVSt').textContent='⚠️ Cannot load. Use a direct MP4 URL.');}
+function clearVid(){localStorage.removeItem('chm_hero_video');cfgSave('hero',{videoUrl:''});document.getElementById('pVi').value='';document.getElementById('pVW').style.display='none';document.getElementById('pVSt').textContent='Removed.';toast('Cleared','warning');}
 loadPC();</script></body></html>

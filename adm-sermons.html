@@ -1,0 +1,107 @@
+<!DOCTYPE html><html lang="en">
+<head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Sermons | CHM Admin</title><link rel="stylesheet" href="admin.css"/><script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script src="firebase-config.js"></script></head>
+<body><div class="admin-wrap">
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-brand">
+    <img src="logo-dark.png" alt="CHM" class="brand-logo" onerror="this.outerHTML='<div class=&quot;brand-logo-fallback&quot;>✝</div>'"/>
+    <div class="brand-text"><span class="brand-name">CHM Church of God</span><span class="brand-sub">Admin Panel</span></div>
+  </div>
+  <div class="sidebar-conn"><span class="firebase-status status-offline">🟡 Checking…</span></div>
+  <div class="sidebar-section"><div class="sidebar-section-label">Main</div>
+    <a href="dashboard.html" class="sidebar-link"><span class="icon">🏠</span> Dashboard</a>
+  </div>
+  <div class="sidebar-section"><div class="sidebar-section-label">Content</div>
+    <a href="adm-announcements.html" class="sidebar-link"><span class="icon">📢</span> Announcements</a>
+    <a href="adm-events.html" class="sidebar-link"><span class="icon">📅</span> Events</a>
+    <a href="adm-sermons.html" class="sidebar-link"><span class="icon">🎙</span> Sermons</a>
+    <a href="adm-gallery.html" class="sidebar-link"><span class="icon">🖼</span> Gallery</a>
+    <a href="pages.html" class="sidebar-link"><span class="icon">📄</span> Page Content</a>
+    <a href="navigation.html" class="sidebar-link"><span class="icon">🧭</span> Navigation</a>
+  </div>
+  <div class="sidebar-section"><div class="sidebar-section-label">People</div>
+    <a href="adm-leaders.html" class="sidebar-link"><span class="icon">👤</span> Leadership</a>
+    <a href="members.html" class="sidebar-link"><span class="icon">👥</span> Members</a>
+    <a href="adm-ministries.html" class="sidebar-link"><span class="icon">⛪</span> Ministries</a>
+  </div>
+  <div class="sidebar-section"><div class="sidebar-section-label">Inbox</div>
+    <a href="prayer-requests.html" class="sidebar-link"><span class="icon">🙏</span> Prayer Requests</a>
+    <a href="messages.html" class="sidebar-link"><span class="icon">✉️</span> Messages</a>
+    <a href="giving.html" class="sidebar-link"><span class="icon">💰</span> Giving Records</a>
+  </div>
+  <div class="sidebar-section"><div class="sidebar-section-label">System</div>
+    <a href="settings.html" class="sidebar-link"><span class="icon">⚙️</span> Settings & Colors</a>
+    <a href="index.html" class="sidebar-link" target="_blank"><span class="icon">🌐</span> View Public Site ↗</a>
+  </div>
+  <div class="sidebar-footer">
+    <div class="sidebar-user">
+      <div class="sidebar-avatar">A</div>
+      <div><span class="sidebar-user-name">Administrator</span><span class="sidebar-user-role">Super Admin</span></div>
+      <button class="sidebar-logout" data-logout title="Sign Out">⏻</button>
+    </div>
+  </div>
+</aside>
+
+<div class="main-content">
+  <div class="top-bar">
+    <div class="top-bar-left"><button class="hamburger" id="hamburger"><span></span><span></span><span></span></button><h1 class="top-bar-title">🎙 Sermons</h1></div>
+    <div class="top-bar-actions"><button class="btn btn-gold btn-sm" data-open="sM">+ Add Sermon</button></div>
+  </div>
+  <div class="page-body"><div class="filter-bar">
+  <div class="chips" id="sC"><button class="chip active" data-f="">All</button><button class="chip" data-f="published">Published</button><button class="chip" data-f="draft">Draft</button><button class="chip" data-f="archived">Archived</button></div>
+  <div class="search-box"><span class="si">🔍</span><input type="text" id="sQ" placeholder="Search sermons…"/></div>
+</div><div class="card"><div class="table-wrap"><table><thead><tr><th>Title & Scripture</th><th>Speaker</th><th>Date</th><th>Series</th><th>Media</th><th>Status</th><th>Actions</th></tr></thead><tbody id="sB"></tbody></table></div></div><div class="modal-overlay" id="sM"><div class="modal">
+  <div class="modal-header"><h2 class="modal-title" id="sMT">Sermon</h2><button class="modal-close" data-close="sM">✕</button></div>
+  <div class="modal-body">
+<input type="hidden" id="sId"/>
+<div class="form-group"><label class="form-label">Sermon Title <span class="req">*</span></label><input type="text" class="fi" id="sTi" placeholder="Sermon title"/></div>
+<div class="form-row">
+  <div class="form-group"><label class="form-label">Speaker</label><input type="text" class="fi" id="sSp" placeholder="Pastor / Speaker name"/></div>
+  <div class="form-group"><label class="form-label">Date</label><input type="date" class="fi" id="sDt"/></div>
+</div>
+<div class="form-row">
+  <div class="form-group"><label class="form-label">Series</label><select class="fs" id="sSr"><option>Sunday</option><option>Wednesday</option><option>Special</option><option>Youth</option><option>Conference</option></select></div>
+  <div class="form-group"><label class="form-label">Scripture Reference</label><input type="text" class="fi" id="sSc" placeholder="John 3:16"/></div>
+</div>
+<div class="form-group"><label class="form-label">YouTube / Video URL</label><input type="url" class="fi" id="sVi" placeholder="https://youtube.com/watch?v=…"/></div>
+<div class="form-group"><label class="form-label">Audio / MP3 URL</label><input type="url" class="fi" id="sAu" placeholder="https://…/sermon.mp3"/></div>
+<div class="form-group"><label class="form-label">Description / Notes</label><textarea class="ft" id="sDe" rows="3" placeholder="Brief description or sermon notes…"></textarea></div></div>
+  <div class="modal-footer"><button class="btn btn-outline btn-sm" data-close="sM">Cancel</button><button class="btn btn-save btn-sm" onclick="sSave('draft')">💾 Save Draft</button><button class="btn btn-publish btn-sm" onclick="sSave('published')">🌐 Save & Publish</button></div>
+</div></div></div>
+</div></div>
+<script src="admin.js"></script><script>requireAuth();
+function rowActions(col,id,st,rf){const p=st==='published';return `<div class="row-actions">${p?`<button class="act act-unpublish" onclick="cmsUnpublish('${col}','${id}').then(()=>{toast('Unpublished','warning');${rf}()})">⏸ Unpublish</button>`:`<button class="act act-publish" onclick="cmsPublish('${col}','${id}').then(()=>{toast('🌐 Published! Live on website','success');${rf}()})">🌐 Publish</button>`}<button class="act act-edit" onclick="${rf}_edit('${id}')">✏️ Edit</button><button class="act act-archive" onclick="cmsArchive('${col}','${id}').then(()=>{toast('Archived');${rf}()})">📦</button><button class="act act-delete" onclick="confirmDel(()=>cmsDelete('${col}','${id}').then(()=>{toast('Deleted','error');${rf}()}))">🗑</button></div>`;}
+const SC='sermons';let sF='';
+document.querySelectorAll('#sC .chip').forEach(c=>c.addEventListener('click',()=>{document.querySelectorAll('#sC .chip').forEach(x=>x.classList.remove('active'));c.classList.add('active');sF=c.dataset.f;sLoad();}));
+document.getElementById('sQ').addEventListener('input',sLoad);
+async function sLoad(){
+  const data=await cmsGet(SC);const q=document.getElementById('sQ').value.toLowerCase();
+  const fil=data.filter(s=>(!sF||s._status===sF)&&(!q||s.title.toLowerCase().includes(q)||(s.speaker||'').toLowerCase().includes(q)));
+  document.getElementById('sB').innerHTML=fil.length?fil.map(s=>`<tr>
+    <td><div class="td-primary">${s.title}</div><div class="td-secondary">${s.scripture||''}</div></td>
+    <td class="td-muted">${s.speaker||'—'}</td><td class="td-muted">${s.date||'—'}</td>
+    <td><span class="badge badge-blue">${s.series||'Sunday'}</span></td>
+    <td style="white-space:nowrap;">${s.video?'<span class="badge badge-red">▶ Video</span> ':''} ${s.audio?'<span class="badge badge-green">🎵 Audio</span>':''}</td>
+    <td>${badge(s._status)}</td><td>${rowActions(SC,s.id,s._status,'sLoad')}</td>
+  </tr>`).join(''):'<tr><td colspan="7" style="text-align:center;padding:2.5rem;color:var(--text-muted);">No sermons. Click <strong>+ Add Sermon</strong> to start your archive.</td></tr>';
+}
+async function sLoad_edit(id){
+  const d=(await cmsGet(SC)).find(x=>x.id===id);if(!d)return;
+  document.getElementById('sId').value=d.id;document.getElementById('sTi').value=d.title||'';
+  document.getElementById('sSp').value=d.speaker||'';document.getElementById('sDt').value=d.date||'';
+  document.getElementById('sSr').value=d.series||'Sunday';document.getElementById('sSc').value=d.scripture||'';
+  document.getElementById('sVi').value=d.video||'';document.getElementById('sAu').value=d.audio||'';
+  document.getElementById('sDe').value=d.desc||'';document.getElementById('sMT').textContent='Edit Sermon';openModal('sM');
+}
+async function sSave(status){
+  const t=document.getElementById('sTi').value.trim();if(!t){toast('Title required','error');return;}
+  const id=document.getElementById('sId').value||null;
+  await cmsSave(SC,id,{title:t,speaker:document.getElementById('sSp').value,date:document.getElementById('sDt').value,series:document.getElementById('sSr').value,scripture:document.getElementById('sSc').value,video:document.getElementById('sVi').value,audio:document.getElementById('sAu').value,desc:document.getElementById('sDe').value},status);
+  toast(status==='published'?'🌐 Published!':'Draft saved');closeModal('sM');sLoad();
+}
+document.querySelector('[data-open="sM"]').addEventListener('click',()=>{
+  ['sId','sTi','sSp','sDt','sSc','sVi','sAu','sDe'].forEach(f=>document.getElementById(f).value='');
+  document.getElementById('sSr').value='Sunday';document.getElementById('sMT').textContent='Add Sermon';
+});sLoad();</script></body></html>

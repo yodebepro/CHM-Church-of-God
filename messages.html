@@ -1,22 +1,27 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/><title>Messages | CHM Admin</title><link rel="stylesheet" href="admin.css"/><script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script><script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script><script src="firebase-config.js"></script></head><body><div class="admin-wrap"><aside class="sidebar" id="sidebar">
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/><title>Messages | CHM Admin</title><link rel="stylesheet" href="admin.css"/><script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script src="firebase-config.js"></script></head><body><div class="admin-wrap">
+<aside class="sidebar" id="sidebar">
   <div class="sidebar-brand">
-    <img src="logo-dark.png" alt="CHM" class="sidebar-logo-img" onerror="this.outerHTML='<div class=&quot;sidebar-logo-icon&quot;>✝</div>'"/>
-    <div class="sidebar-brand-text"><span class="sidebar-brand-name">CHM Church of God</span><span class="sidebar-brand-sub">Admin CMS</span></div>
+    <img src="logo-dark.png" alt="CHM" class="brand-logo" onerror="this.outerHTML='<div class=&quot;brand-logo-fallback&quot;>✝</div>'"/>
+    <div class="brand-text"><span class="brand-name">CHM Church of God</span><span class="brand-sub">Admin Panel</span></div>
   </div>
-  <div class="sidebar-status"><span class="firebase-status status-offline">🟡 Checking connection…</span></div>
-  <div class="sidebar-section"><div class="sidebar-section-label">Main</div><a href="dashboard.html" class="sidebar-link"><span class="icon">🏠</span> Dashboard</a></div>
+  <div class="sidebar-conn"><span class="firebase-status status-offline">🟡 Checking…</span></div>
+  <div class="sidebar-section"><div class="sidebar-section-label">Main</div>
+    <a href="dashboard.html" class="sidebar-link"><span class="icon">🏠</span> Dashboard</a>
+  </div>
   <div class="sidebar-section"><div class="sidebar-section-label">Content</div>
-    <a href="announcements.html" class="sidebar-link"><span class="icon">📢</span> Announcements</a>
-    <a href="events.html" class="sidebar-link"><span class="icon">📅</span> Events</a>
-    <a href="sermons.html" class="sidebar-link"><span class="icon">🎙</span> Sermons</a>
-    <a href="gallery.html" class="sidebar-link"><span class="icon">🖼</span> Gallery</a>
+    <a href="adm-announcements.html" class="sidebar-link"><span class="icon">📢</span> Announcements</a>
+    <a href="adm-events.html" class="sidebar-link"><span class="icon">📅</span> Events</a>
+    <a href="adm-sermons.html" class="sidebar-link"><span class="icon">🎙</span> Sermons</a>
+    <a href="adm-gallery.html" class="sidebar-link"><span class="icon">🖼</span> Gallery</a>
     <a href="pages.html" class="sidebar-link"><span class="icon">📄</span> Page Content</a>
     <a href="navigation.html" class="sidebar-link"><span class="icon">🧭</span> Navigation</a>
   </div>
   <div class="sidebar-section"><div class="sidebar-section-label">People</div>
-    <a href="leaders.html" class="sidebar-link"><span class="icon">👤</span> Leadership</a>
+    <a href="adm-leaders.html" class="sidebar-link"><span class="icon">👤</span> Leadership</a>
     <a href="members.html" class="sidebar-link"><span class="icon">👥</span> Members</a>
-    <a href="ministries.html" class="sidebar-link"><span class="icon">⛪</span> Ministries</a>
+    <a href="adm-ministries.html" class="sidebar-link"><span class="icon">⛪</span> Ministries</a>
   </div>
   <div class="sidebar-section"><div class="sidebar-section-label">Inbox</div>
     <a href="prayer-requests.html" class="sidebar-link"><span class="icon">🙏</span> Prayer Requests</a>
@@ -24,55 +29,58 @@
     <a href="giving.html" class="sidebar-link"><span class="icon">💰</span> Giving Records</a>
   </div>
   <div class="sidebar-section"><div class="sidebar-section-label">System</div>
-    <a href="settings.html" class="sidebar-link"><span class="icon">⚙️</span> Settings</a>
-    <a href="../index.html" class="sidebar-link" target="_blank"><span class="icon">🌐</span> View Website</a>
+    <a href="settings.html" class="sidebar-link"><span class="icon">⚙️</span> Settings & Colors</a>
+    <a href="index.html" class="sidebar-link" target="_blank"><span class="icon">🌐</span> View Public Site ↗</a>
   </div>
-  <div class="sidebar-footer"><div class="sidebar-user">
-    <div class="sidebar-avatar">A</div>
-    <div><div class="sidebar-user-name">Administrator</div><div class="sidebar-user-role">Super Admin</div></div>
-    <button class="sidebar-logout" data-logout title="Logout">⏻</button>
-  </div></div>
+  <div class="sidebar-footer">
+    <div class="sidebar-user">
+      <div class="sidebar-avatar">A</div>
+      <div><span class="sidebar-user-name">Administrator</span><span class="sidebar-user-role">Super Admin</span></div>
+      <button class="sidebar-logout" data-logout title="Sign Out">⏻</button>
+    </div>
+  </div>
 </aside>
-<div class="main-content"><div class="top-bar"><button class="hamburger" id="hamburger"><span></span><span></span><span></span></button><div class="top-bar-title">✉️ Messages</div><div class="top-bar-actions"><button class="btn-danger" onclick="clearAllMsgs()">Clear All</button></div></div><div class="page-body"><div class="filter-bar">
-  <div class="filter-chips" id="msgChips"><button class="chip active" data-f="">All</button><button class="chip" data-f="unread">Unread</button><button class="chip" data-f="read">Read</button></div>
-  <div class="search-wrap"><span class="search-icon">🔍</span><input type="text" id="msgQ" placeholder="Search messages…"/></div>
-</div><div class="cms-card"><div class="table-wrap"><table><thead><tr><th>From</th><th>Email</th><th>Subject</th><th>Preview</th><th>Date</th><th>Status</th><th>Actions</th></tr></thead><tbody id="msgTbody"></tbody></table></div></div>
-<div class="modal-overlay" id="msgModal"><div class="modal">
-  <div class="modal-header"><div class="modal-title">Message Details</div><button class="modal-close" data-modal-close="msgModal">✕</button></div>
-  <div class="modal-body" id="msgModalBody"></div>
-  <div class="modal-footer"><button class="btn-outline" data-modal-close="msgModal">Close</button><a href="" id="msgReplyLink" class="btn-publish" style="text-decoration:none;">✉️ Reply via Email</a></div>
+<div class="main-content"><div class="top-bar"><div class="top-bar-left"><button class="hamburger" id="hamburger"><span></span><span></span><span></span></button><h1 class="top-bar-title">✉️ Messages</h1></div><div class="top-bar-actions"><button class="btn btn-danger-soft btn-sm" onclick="clearAllMsgs()">🗑 Clear All</button></div></div><div class="page-body"><div class="filter-bar">
+  <div class="chips" id="msgC"><button class="chip active" data-f="">All</button><button class="chip" data-f="unread">Unread</button><button class="chip" data-f="read">Read</button></div>
+  <div class="search-box"><span class="si">🔍</span><input type="text" id="msgQ" placeholder="Search messages…"/></div>
+</div><div class="card"><div class="table-wrap"><table><thead><tr><th>From</th><th>Email</th><th>Subject</th><th>Preview</th><th>Date</th><th>Status</th><th>Actions</th></tr></thead><tbody id="msgB"></tbody></table></div></div>
+<div class="modal-overlay" id="msgMod"><div class="modal">
+  <div class="modal-header"><h2 class="modal-title">📨 Message Details</h2><button class="modal-close" data-close="msgMod">✕</button></div>
+  <div class="modal-body" id="msgBdy"></div>
+  <div class="modal-footer"><button class="btn btn-outline btn-sm" data-close="msgMod">Close</button><a href="" id="msgRpl" class="btn btn-publish btn-sm" style="text-decoration:none;">✉️ Reply via Email</a></div>
 </div></div></div></div></div><script src="admin.js"></script><script>requireAuth();
-const MSGC='messages';let msgFilter='';
-document.querySelectorAll('#msgChips .chip').forEach(c=>c.addEventListener('click',()=>{document.querySelectorAll('#msgChips .chip').forEach(x=>x.classList.remove('active'));c.classList.add('active');msgFilter=c.dataset.f;msgLoad();}));
+const MSGC='messages';let msgF='';
+document.querySelectorAll('#msgC .chip').forEach(c=>c.addEventListener('click',()=>{document.querySelectorAll('#msgC .chip').forEach(x=>x.classList.remove('active'));c.classList.add('active');msgF=c.dataset.f;msgLoad();}));
 document.getElementById('msgQ').addEventListener('input',msgLoad);
 async function msgLoad(){
   const data=await cmsGet(MSGC);const q=document.getElementById('msgQ').value.toLowerCase();
-  const fil=data.filter(m=>(!msgFilter||m._status===msgFilter)&&(!q||m.name.toLowerCase().includes(q)||(m.subject||'').toLowerCase().includes(q)));
-  document.getElementById('msgTbody').innerHTML=fil.length?fil.map(m=>`<tr style="${m._status==='unread'?'background:var(--gold-pale);font-weight:600':''}">
-    <td class="td-bold">${m.name}</td><td class="td-muted">${m.email||'—'}</td>
-    <td>${m.subject||'—'}</td><td class="td-muted">${(m.message||'').slice(0,40)}…</td>
+  const fil=data.filter(m=>(!msgF||m._status===msgF)&&(!q||(m.name||'').toLowerCase().includes(q)||(m.subject||'').toLowerCase().includes(q)));
+  document.getElementById('msgB').innerHTML=fil.length?fil.map(m=>`<tr style="${m._status==='unread'?'background:#fdf6e8;':''}">
+    <td class="td-primary" style="${m._status==='unread'?'font-weight:800;':''}">${m.name}</td>
+    <td class="td-muted">${m.email||'—'}</td><td>${m.subject||'—'}</td>
+    <td class="td-muted">${(m.message||'').slice(0,42)}…</td>
     <td class="td-muted">${m.date||'—'}</td>
-    <td><span class="badge ${m._status==='unread'?'badge-yellow':'badge-gray'}">${m._status||'new'}</span></td>
-    <td><div class="td-actions"><button class="action-btn view" onclick="viewMsg('${m.id}')">👁 View</button>${m.email?`<a href="mailto:${m.email}?subject=Re: ${encodeURIComponent(m.subject||'')}" class="action-btn edit">✉️ Reply</a>`:''}<button class="action-btn delete" onclick="confirmDelete(()=>cmsDelete('${MSGC}','${m.id}').then(()=>{showToast('Deleted','error');msgLoad()}))">🗑</button></div></td>
-  </tr>`).join(''):'<tr><td colspan="7" style="text-align:center;padding:3rem;color:var(--text-muted);"><div style="font-size:2.5rem;margin-bottom:.5rem;">✉️</div><p>No messages yet</p></td></tr>';
+    <td>${badge(m._status||'unread')}</td>
+    <td><div class="row-actions"><button class="act act-view" onclick="viewMsg('${m.id}')">👁 View</button>${m.email?`<a href="mailto:${m.email}?subject=Re: ${encodeURIComponent(m.subject||'')}" class="act act-edit">✉️ Reply</a>`:''}<button class="act act-delete" onclick="confirmDel(()=>cmsDelete('${MSGC}','${m.id}').then(()=>{toast('Deleted','error');msgLoad()}))">🗑</button></div></td>
+  </tr>`).join(''):'<tr><td colspan="7" style="text-align:center;padding:2.5rem;color:var(--text-muted);">No messages yet. Messages from your website contact form will appear here.</td></tr>';
 }
 async function viewMsg(id){
   const data=await cmsGet(MSGC);const m=data.find(x=>x.id===id);if(!m)return;
   await cmsSave(MSGC,id,{...m,_status:'read'},'read');
-  document.getElementById('msgModalBody').innerHTML=`
-    <div style="display:grid;grid-template-columns:100px 1fr;gap:.75rem 1rem;font-size:.85rem;background:var(--off-white);padding:1.25rem;border-radius:12px;margin-bottom:1.25rem;">
+  document.getElementById('msgBdy').innerHTML=`
+    <div style="display:grid;grid-template-columns:90px 1fr;gap:.6rem 1rem;background:var(--off-white);padding:1.1rem;border-radius:var(--radius);margin-bottom:1.1rem;font-size:.85rem;">
       <span style="color:var(--text-muted);font-weight:700;">From:</span><span style="font-family:var(--font-display);font-weight:700;font-size:1rem;">${m.name}</span>
       <span style="color:var(--text-muted);font-weight:700;">Email:</span><span>${m.email||'—'}</span>
       <span style="color:var(--text-muted);font-weight:700;">Phone:</span><span>${m.phone||'—'}</span>
       <span style="color:var(--text-muted);font-weight:700;">Subject:</span><span>${m.subject||'—'}</span>
       <span style="color:var(--text-muted);font-weight:700;">Date:</span><span>${m.date||'—'}</span>
     </div>
-    <div style="font-size:.9rem;line-height:1.8;color:var(--text);border-left:3px solid var(--gold);padding-left:1.25rem;">${m.message||''}</div>`;
-  document.getElementById('msgReplyLink').href=`mailto:${m.email||''}?subject=Re: ${encodeURIComponent(m.subject||'')}`;
-  openModal('msgModal');msgLoad();
+    <div style="font-size:.9rem;line-height:1.8;border-left:3px solid var(--gold);padding-left:1.1rem;">${m.message||''}</div>`;
+  document.getElementById('msgRpl').href=`mailto:${m.email||''}?subject=Re: ${encodeURIComponent(m.subject||'')}`;
+  openModal('msgMod');msgLoad();
 }
 async function clearAllMsgs(){
   if(!window.confirm('Clear ALL messages?'))return;
-  const data=await cmsGet(MSGC);for(const d of data)await cmsDelete(MSGC,d.id);showToast('All cleared');msgLoad();
+  const data=await cmsGet(MSGC);for(const d of data)await cmsDelete(MSGC,d.id);toast('All cleared','warning');msgLoad();
 }
 msgLoad();</script></body></html>

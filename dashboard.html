@@ -4,26 +4,31 @@
 <link rel="stylesheet" href="admin.css"/>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-<script src="firebase-config.js"></script></head>
-<body><div class="admin-wrap"><aside class="sidebar" id="sidebar">
+<script src="firebase-config.js"></script>
+</head>
+<body>
+<div class="admin-wrap">
+<aside class="sidebar" id="sidebar">
   <div class="sidebar-brand">
-    <img src="logo-dark.png" alt="CHM" class="sidebar-logo-img" onerror="this.outerHTML='<div class=&quot;sidebar-logo-icon&quot;>✝</div>'"/>
-    <div class="sidebar-brand-text"><span class="sidebar-brand-name">CHM Church of God</span><span class="sidebar-brand-sub">Admin CMS</span></div>
+    <img src="logo-dark.png" alt="CHM" class="brand-logo" onerror="this.outerHTML='<div class=&quot;brand-logo-fallback&quot;>✝</div>'"/>
+    <div class="brand-text"><span class="brand-name">CHM Church of God</span><span class="brand-sub">Admin Panel</span></div>
   </div>
-  <div class="sidebar-status"><span class="firebase-status status-offline">🟡 Checking connection…</span></div>
-  <div class="sidebar-section"><div class="sidebar-section-label">Main</div><a href="dashboard.html" class="sidebar-link"><span class="icon">🏠</span> Dashboard</a></div>
+  <div class="sidebar-conn"><span class="firebase-status status-offline">🟡 Checking…</span></div>
+  <div class="sidebar-section"><div class="sidebar-section-label">Main</div>
+    <a href="dashboard.html" class="sidebar-link"><span class="icon">🏠</span> Dashboard</a>
+  </div>
   <div class="sidebar-section"><div class="sidebar-section-label">Content</div>
-    <a href="announcements.html" class="sidebar-link"><span class="icon">📢</span> Announcements</a>
-    <a href="events.html" class="sidebar-link"><span class="icon">📅</span> Events</a>
-    <a href="sermons.html" class="sidebar-link"><span class="icon">🎙</span> Sermons</a>
-    <a href="gallery.html" class="sidebar-link"><span class="icon">🖼</span> Gallery</a>
+    <a href="adm-announcements.html" class="sidebar-link"><span class="icon">📢</span> Announcements</a>
+    <a href="adm-events.html" class="sidebar-link"><span class="icon">📅</span> Events</a>
+    <a href="adm-sermons.html" class="sidebar-link"><span class="icon">🎙</span> Sermons</a>
+    <a href="adm-gallery.html" class="sidebar-link"><span class="icon">🖼</span> Gallery</a>
     <a href="pages.html" class="sidebar-link"><span class="icon">📄</span> Page Content</a>
     <a href="navigation.html" class="sidebar-link"><span class="icon">🧭</span> Navigation</a>
   </div>
   <div class="sidebar-section"><div class="sidebar-section-label">People</div>
-    <a href="leaders.html" class="sidebar-link"><span class="icon">👤</span> Leadership</a>
+    <a href="adm-leaders.html" class="sidebar-link"><span class="icon">👤</span> Leadership</a>
     <a href="members.html" class="sidebar-link"><span class="icon">👥</span> Members</a>
-    <a href="ministries.html" class="sidebar-link"><span class="icon">⛪</span> Ministries</a>
+    <a href="adm-ministries.html" class="sidebar-link"><span class="icon">⛪</span> Ministries</a>
   </div>
   <div class="sidebar-section"><div class="sidebar-section-label">Inbox</div>
     <a href="prayer-requests.html" class="sidebar-link"><span class="icon">🙏</span> Prayer Requests</a>
@@ -31,98 +36,100 @@
     <a href="giving.html" class="sidebar-link"><span class="icon">💰</span> Giving Records</a>
   </div>
   <div class="sidebar-section"><div class="sidebar-section-label">System</div>
-    <a href="settings.html" class="sidebar-link"><span class="icon">⚙️</span> Settings</a>
-    <a href="../index.html" class="sidebar-link" target="_blank"><span class="icon">🌐</span> View Website</a>
+    <a href="settings.html" class="sidebar-link"><span class="icon">⚙️</span> Settings & Colors</a>
+    <a href="index.html" class="sidebar-link" target="_blank"><span class="icon">🌐</span> View Public Site ↗</a>
   </div>
-  <div class="sidebar-footer"><div class="sidebar-user">
-    <div class="sidebar-avatar">A</div>
-    <div><div class="sidebar-user-name">Administrator</div><div class="sidebar-user-role">Super Admin</div></div>
-    <button class="sidebar-logout" data-logout title="Logout">⏻</button>
-  </div></div>
+  <div class="sidebar-footer">
+    <div class="sidebar-user">
+      <div class="sidebar-avatar">A</div>
+      <div><span class="sidebar-user-name">Administrator</span><span class="sidebar-user-role">Super Admin</span></div>
+      <button class="sidebar-logout" data-logout title="Sign Out">⏻</button>
+    </div>
+  </div>
 </aside>
-
 <div class="main-content">
   <div class="top-bar">
-    <button class="hamburger" id="hamburger"><span></span><span></span><span></span></button>
-    <div class="top-bar-title">🏠 Dashboard</div>
-    <div class="top-bar-actions"><a href="../index.html" class="btn-outline" target="_blank">🌐 View Website</a></div>
+    <div class="top-bar-left">
+      <button class="hamburger" id="hamburger"><span></span><span></span><span></span></button>
+      <h1 class="top-bar-title">🏠 Dashboard</h1>
+    </div>
+    <div class="top-bar-actions"><a href="../index.html" class="btn btn-outline btn-sm" target="_blank">🌐 View Public Site ↗</a></div>
   </div>
   <div class="page-body">
-<!-- Hero Video Card -->
-<div class="hero-vid-card">
-  <div class="hvh">
-    <div><span class="section-label">Homepage Feature</span><div class="hvh-title">🎬 Hero Background Video</div></div>
-    <span class="hvh-sub">Cinematic looping video behind the hero section</span>
+<div class="vid-card">
+  <div class="vid-card-head">
+    <div><span class="label">Homepage Hero</span><div class="vid-card-title">🎬 Background Video</div></div>
+    <span style="font-size:.75rem;color:rgba(255,255,255,.4);">Autoplay · Loop · Muted</span>
   </div>
-  <div class="hvb">
+  <div class="vid-card-body">
     <div>
-      <div class="form-group" style="margin-bottom:.75rem;">
-        <label class="form-label" style="color:rgba(255,255,255,.8);">Direct MP4 Video URL</label>
-        <input type="url" class="form-input" id="heroVidUrl" placeholder="https://… paste a direct .mp4 link"/>
-        <div class="form-hint">Paste any public MP4 link. Autoplays, loops, muted on homepage.</div>
+      <div class="form-group" style="margin-bottom:.6rem;">
+        <label class="form-label">Direct MP4 Video URL</label>
+        <input type="url" class="fi" id="hvUrl" placeholder="https://… paste a direct .mp4 link"/>
+        <div class="form-hint">Paste any public direct MP4 URL. It will loop silently behind your homepage hero.</div>
       </div>
-      <div style="display:flex;gap:.6rem;flex-wrap:wrap;">
-        <button class="btn-publish" onclick="saveHeroVideo()">💾 Save & Activate</button>
-        <button class="btn-outline" style="color:rgba(255,255,255,.7);border-color:rgba(255,255,255,.2);" onclick="previewHeroVideo()">▶ Preview</button>
-        <button class="btn-danger" style="background:rgba(220,38,38,.2);color:#fca5a5;" onclick="clearHeroVideo()">✕ Remove</button>
+      <div style="display:flex;gap:.5rem;flex-wrap:wrap;">
+        <button class="btn btn-publish btn-sm" onclick="saveHV()">💾 Save & Activate</button>
+        <button class="btn btn-save btn-sm" onclick="prevHV()">▶ Preview</button>
+        <button class="btn btn-danger-soft btn-sm" onclick="clearHV()">✕ Remove</button>
       </div>
-      <div id="heroVidStatus" style="margin-top:.6rem;font-size:.8rem;color:rgba(255,255,255,.55);"></div>
+      <div id="hvSt" style="margin-top:.45rem;font-size:.75rem;color:rgba(255,255,255,.45);"></div>
     </div>
-    <div id="hvPrev" style="display:none;"><video id="hvVid" muted controls style="width:100%;border-radius:10px;background:#000;aspect-ratio:16/9;object-fit:cover;"></video></div>
+    <div id="hvPW" style="display:none;"><video id="hvVid" muted controls style="width:100%;border-radius:10px;background:#000;aspect-ratio:16/9;"></video></div>
   </div>
 </div>
 
-<!-- Stats -->
 <div class="stats-grid">
-  <div class="stat-card"><div class="stat-icon">📢</div><div class="stat-value" id="sAnn">—</div><div class="stat-label">Announcements</div></div>
-  <div class="stat-card blue"><div class="stat-icon">📅</div><div class="stat-value" id="sEvt">—</div><div class="stat-label">Events</div></div>
-  <div class="stat-card green"><div class="stat-icon">🎙</div><div class="stat-value" id="sSer">—</div><div class="stat-label">Sermons</div></div>
-  <div class="stat-card"><div class="stat-icon">🙏</div><div class="stat-value" id="sPr">—</div><div class="stat-label">Prayer Requests</div></div>
-  <div class="stat-card"><div class="stat-icon">✉️</div><div class="stat-value" id="sMsg">—</div><div class="stat-label">Messages</div></div>
-  <div class="stat-card green"><div class="stat-icon">👥</div><div class="stat-value" id="sMem">—</div><div class="stat-label">Members</div></div>
+  <div class="stat-card"><div class="stat-icon">📢</div><div class="stat-value" id="dAnn">—</div><div class="stat-label">Announcements</div></div>
+  <div class="stat-card blue"><div class="stat-icon">📅</div><div class="stat-value" id="dEvt">—</div><div class="stat-label">Events</div></div>
+  <div class="stat-card green"><div class="stat-icon">🎙</div><div class="stat-value" id="dSer">—</div><div class="stat-label">Sermons</div></div>
+  <div class="stat-card purple"><div class="stat-icon">🙏</div><div class="stat-value" id="dPr">—</div><div class="stat-label">Prayer Requests</div></div>
+  <div class="stat-card red"><div class="stat-icon">✉️</div><div class="stat-value" id="dMsg">—</div><div class="stat-label">Messages</div></div>
+  <div class="stat-card green"><div class="stat-icon">👥</div><div class="stat-value" id="dMem">—</div><div class="stat-label">Members</div></div>
 </div>
 
-<!-- Quick Actions -->
-<span class="section-label">Quick Access</span>
-<div class="gold-line"></div>
-<div class="quick-actions" style="margin-top:1rem;">
-  <a href="announcements.html" class="qa-card"><div class="qa-icon">📢</div><div class="qa-label">Announcements</div></a>
-  <a href="events.html" class="qa-card"><div class="qa-icon">📅</div><div class="qa-label">Events</div></a>
-  <a href="sermons.html" class="qa-card"><div class="qa-icon">🎙</div><div class="qa-label">Sermons</div></a>
-  <a href="gallery.html" class="qa-card"><div class="qa-icon">🖼</div><div class="qa-label">Gallery</div></a>
-  <a href="pages.html" class="qa-card"><div class="qa-icon">📄</div><div class="qa-label">Page Content</div></a>
-  <a href="navigation.html" class="qa-card"><div class="qa-icon">🧭</div><div class="qa-label">Navigation</div></a>
-  <a href="leaders.html" class="qa-card"><div class="qa-icon">👤</div><div class="qa-label">Leadership</div></a>
-  <a href="members.html" class="qa-card"><div class="qa-icon">👥</div><div class="qa-label">Members</div></a>
-  <a href="ministries.html" class="qa-card"><div class="qa-icon">⛪</div><div class="qa-label">Ministries</div></a>
-  <a href="prayer-requests.html" class="qa-card"><div class="qa-icon">🙏</div><div class="qa-label">Prayer Requests</div></a>
-  <a href="messages.html" class="qa-card"><div class="qa-icon">✉️</div><div class="qa-label">Messages</div></a>
-  <a href="giving.html" class="qa-card"><div class="qa-icon">💰</div><div class="qa-label">Giving</div></a>
-  <a href="settings.html" class="qa-card"><div class="qa-icon">⚙️</div><div class="qa-label">Settings</div></a>
-  <a href="pages.html" class="qa-card"><div class="qa-icon">🎨</div><div class="qa-label">Colors</div></a>
+<span class="label">Quick Access — All Sections</span>
+<div class="gold-bar"></div>
+<div class="qa-grid" style="margin-top:.85rem;">
+  <a href="announcements.html" class="qa-item"><div class="qa-icon">📢</div><div class="qa-label">Announcements</div></a>
+  <a href="events.html" class="qa-item"><div class="qa-icon">📅</div><div class="qa-label">Events</div></a>
+  <a href="sermons.html" class="qa-item"><div class="qa-icon">🎙</div><div class="qa-label">Sermons</div></a>
+  <a href="gallery.html" class="qa-item"><div class="qa-icon">🖼</div><div class="qa-label">Gallery</div></a>
+  <a href="pages.html" class="qa-item"><div class="qa-icon">📄</div><div class="qa-label">Page Content</div></a>
+  <a href="navigation.html" class="qa-item"><div class="qa-icon">🧭</div><div class="qa-label">Navigation</div></a>
+  <a href="leaders.html" class="qa-item"><div class="qa-icon">👤</div><div class="qa-label">Leadership</div></a>
+  <a href="members.html" class="qa-item"><div class="qa-icon">👥</div><div class="qa-label">Members</div></a>
+  <a href="ministries.html" class="qa-item"><div class="qa-icon">⛪</div><div class="qa-label">Ministries</div></a>
+  <a href="prayer-requests.html" class="qa-item"><div class="qa-icon">🙏</div><div class="qa-label">Prayer Requests</div></a>
+  <a href="messages.html" class="qa-item"><div class="qa-icon">✉️</div><div class="qa-label">Messages</div></a>
+  <a href="giving.html" class="qa-item"><div class="qa-icon">💰</div><div class="qa-label">Giving</div></a>
+  <a href="settings.html" class="qa-item"><div class="qa-icon">⚙️</div><div class="qa-label">Settings</div></a>
+  <a href="settings.html" class="qa-item"><div class="qa-icon">🎨</div><div class="qa-label">Colors & Theme</div></a>
 </div></div>
-</div></div>
+</div>
+</div>
 <script src="admin.js"></script>
 <script>requireAuth();
 
 async function loadStats(){
-  const k=['announcements','events','sermons','prayer_requests','messages','members'];
-  const ids=['sAnn','sEvt','sSer','sPr','sMsg','sMem'];
-  for(let i=0;i<k.length;i++){const d=await cmsGet(k[i]);document.getElementById(ids[i]).textContent=d.length;}
+  const map=[['announcements','dAnn'],['events','dEvt'],['sermons','dSer'],['prayer_requests','dPr'],['messages','dMsg'],['members','dMem']];
+  for(const [col,el] of map){ const d=await cmsGet(col); document.getElementById(el).textContent=d.length; }
 }
 loadStats();
-const hInput=document.getElementById('heroVidUrl');
-const saved=localStorage.getItem('chm_hero_video')||'';
-if(saved){hInput.value=saved;document.getElementById('heroVidStatus').textContent='Video currently active on homepage.';}
-async function saveHeroVideo(){
-  const url=hInput.value.trim();
-  if(url){localStorage.setItem('chm_hero_video',url);await cfgSave('hero',{videoUrl:url});document.getElementById('heroVidStatus').textContent='✅ Saved — active on homepage.';showToast('🎬 Hero video activated!');}
-  else{localStorage.removeItem('chm_hero_video');await cfgSave('hero',{videoUrl:''});document.getElementById('heroVidStatus').textContent='Video removed.';showToast('Video removed');}
+// Hero video
+const hvIn=document.getElementById('hvUrl');
+const svd=localStorage.getItem('chm_hero_video')||'';
+if(svd){hvIn.value=svd;document.getElementById('hvSt').textContent='✅ Video active on homepage.';}
+async function saveHV(){
+  const url=hvIn.value.trim();
+  if(url){localStorage.setItem('chm_hero_video',url);await cfgSave('hero',{videoUrl:url});document.getElementById('hvSt').textContent='✅ Live on homepage.';toast('🎬 Hero video activated!');}
+  else{localStorage.removeItem('chm_hero_video');await cfgSave('hero',{videoUrl:''});document.getElementById('hvSt').textContent='Removed.';toast('Video removed','warning');}
 }
-function previewHeroVideo(){
-  const url=hInput.value.trim();if(!url){showToast('Enter a URL first','error');return;}
-  const w=document.getElementById('hvPrev');const v=document.getElementById('hvVid');
-  v.src=url;w.style.display='block';v.play().catch(()=>document.getElementById('heroVidStatus').textContent='⚠️ Cannot load — use a direct MP4 URL.');
+function prevHV(){
+  const url=hvIn.value.trim();if(!url){toast('Enter a URL first','warning');return;}
+  const w=document.getElementById('hvPW');const v=document.getElementById('hvVid');
+  v.src=url;w.style.display='block';v.play().catch(()=>document.getElementById('hvSt').textContent='⚠️ Cannot load. Use a direct MP4 URL.');
 }
-function clearHeroVideo(){localStorage.removeItem('chm_hero_video');cfgSave('hero',{videoUrl:''});hInput.value='';document.getElementById('hvPrev').style.display='none';document.getElementById('heroVidStatus').textContent='Removed.';showToast('Cleared');}
-</script></body></html>
+function clearHV(){localStorage.removeItem('chm_hero_video');cfgSave('hero',{videoUrl:''});hvIn.value='';document.getElementById('hvPW').style.display='none';document.getElementById('hvSt').textContent='Removed.';toast('Cleared','warning');}
+</script>
+</body></html>

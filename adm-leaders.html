@@ -1,0 +1,85 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/><title>Leadership | CHM Admin</title><link rel="stylesheet" href="admin.css"/><script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script src="firebase-config.js"></script></head><body><div class="admin-wrap">
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-brand">
+    <img src="logo-dark.png" alt="CHM" class="brand-logo" onerror="this.outerHTML='<div class=&quot;brand-logo-fallback&quot;>✝</div>'"/>
+    <div class="brand-text"><span class="brand-name">CHM Church of God</span><span class="brand-sub">Admin Panel</span></div>
+  </div>
+  <div class="sidebar-conn"><span class="firebase-status status-offline">🟡 Checking…</span></div>
+  <div class="sidebar-section"><div class="sidebar-section-label">Main</div>
+    <a href="dashboard.html" class="sidebar-link"><span class="icon">🏠</span> Dashboard</a>
+  </div>
+  <div class="sidebar-section"><div class="sidebar-section-label">Content</div>
+    <a href="adm-announcements.html" class="sidebar-link"><span class="icon">📢</span> Announcements</a>
+    <a href="adm-events.html" class="sidebar-link"><span class="icon">📅</span> Events</a>
+    <a href="adm-sermons.html" class="sidebar-link"><span class="icon">🎙</span> Sermons</a>
+    <a href="adm-gallery.html" class="sidebar-link"><span class="icon">🖼</span> Gallery</a>
+    <a href="pages.html" class="sidebar-link"><span class="icon">📄</span> Page Content</a>
+    <a href="navigation.html" class="sidebar-link"><span class="icon">🧭</span> Navigation</a>
+  </div>
+  <div class="sidebar-section"><div class="sidebar-section-label">People</div>
+    <a href="adm-leaders.html" class="sidebar-link"><span class="icon">👤</span> Leadership</a>
+    <a href="members.html" class="sidebar-link"><span class="icon">👥</span> Members</a>
+    <a href="adm-ministries.html" class="sidebar-link"><span class="icon">⛪</span> Ministries</a>
+  </div>
+  <div class="sidebar-section"><div class="sidebar-section-label">Inbox</div>
+    <a href="prayer-requests.html" class="sidebar-link"><span class="icon">🙏</span> Prayer Requests</a>
+    <a href="messages.html" class="sidebar-link"><span class="icon">✉️</span> Messages</a>
+    <a href="giving.html" class="sidebar-link"><span class="icon">💰</span> Giving Records</a>
+  </div>
+  <div class="sidebar-section"><div class="sidebar-section-label">System</div>
+    <a href="settings.html" class="sidebar-link"><span class="icon">⚙️</span> Settings & Colors</a>
+    <a href="index.html" class="sidebar-link" target="_blank"><span class="icon">🌐</span> View Public Site ↗</a>
+  </div>
+  <div class="sidebar-footer">
+    <div class="sidebar-user">
+      <div class="sidebar-avatar">A</div>
+      <div><span class="sidebar-user-name">Administrator</span><span class="sidebar-user-role">Super Admin</span></div>
+      <button class="sidebar-logout" data-logout title="Sign Out">⏻</button>
+    </div>
+  </div>
+</aside>
+<div class="main-content"><div class="top-bar"><div class="top-bar-left"><button class="hamburger" id="hamburger"><span></span><span></span><span></span></button><h1 class="top-bar-title">👤 Leadership</h1></div><div class="top-bar-actions"><button class="btn btn-gold btn-sm" data-open="lM">+ Add Leader</button></div></div><div class="page-body"><div class="filter-bar"><div class="search-box"><span class="si">🔍</span><input type="text" id="lQ" placeholder="Search leaders…"/></div></div><div class="card"><div class="table-wrap"><table><thead><tr><th>Leader</th><th>Role</th><th>Department</th><th>Email</th><th>Status</th><th>Actions</th></tr></thead><tbody id="lB"></tbody></table></div></div><div class="modal-overlay" id="lM"><div class="modal"><div class="modal-header"><h2 class="modal-title" id="lMT">Leader</h2><button class="modal-close" data-close="lM">✕</button></div><div class="modal-body">
+<input type="hidden" id="lId"/>
+<div class="form-row"><div class="form-group"><label class="form-label">First Name <span class="req">*</span></label><input type="text" class="fi" id="lFi"/></div><div class="form-group"><label class="form-label">Last Name <span class="req">*</span></label><input type="text" class="fi" id="lLa"/></div></div>
+<div class="form-row"><div class="form-group"><label class="form-label">Title / Role</label><select class="fs" id="lRo"><option>Senior Pastor</option><option>Associate Pastor</option><option>Youth Pastor</option><option>Ministry Director</option><option>Elder</option><option>Deacon</option><option>Minister</option><option>Evangelist</option><option>Coordinator</option><option>Administrator</option></select></div><div class="form-group"><label class="form-label">Department</label><input type="text" class="fi" id="lDe" placeholder="Pastoral, Youth, Music…"/></div></div>
+<div class="form-row"><div class="form-group"><label class="form-label">Email</label><input type="email" class="fi" id="lEm"/></div><div class="form-group"><label class="form-label">Phone</label><input type="tel" class="fi" id="lPh"/></div></div>
+<div class="form-group"><label class="form-label">Bio</label><textarea class="ft" id="lBi" rows="3" placeholder="Short biography…"></textarea></div>
+<div class="form-group"><label class="form-label">Photo URL</label><input type="url" class="fi" id="lPo" placeholder="https://… direct image link"/></div></div><div class="modal-footer"><button class="btn btn-outline btn-sm" data-close="lM">Cancel</button><button class="btn btn-save btn-sm" onclick="lSave('draft')">💾 Save Draft</button><button class="btn btn-publish btn-sm" onclick="lSave('published')">🌐 Publish</button></div></div></div></div></div></div><script src="admin.js"></script><script>requireAuth();
+function rowActions(col,id,st,rf){const p=st==='published';return `<div class="row-actions">${p?`<button class="act act-unpublish" onclick="cmsUnpublish('${col}','${id}').then(()=>{toast('Unpublished','warning');${rf}()})">⏸</button>`:`<button class="act act-publish" onclick="cmsPublish('${col}','${id}').then(()=>{toast('🌐 Published!','success');${rf}()})">🌐 Publish</button>`}<button class="act act-edit" onclick="${rf}_edit('${id}')">✏️</button><button class="act act-archive" onclick="cmsArchive('${col}','${id}').then(()=>{toast('Archived');${rf}()})">📦</button><button class="act act-delete" onclick="confirmDel(()=>cmsDelete('${col}','${id}').then(()=>{toast('Deleted','error');${rf}()}))">🗑</button></div>`;}
+const LC='leaders';
+document.getElementById('lQ').addEventListener('input',lLoad);
+async function lLoad(){
+  const data=await cmsGet(LC);const q=document.getElementById('lQ').value.toLowerCase();
+  const fil=data.filter(l=>!q||`${l.first} ${l.last}`.toLowerCase().includes(q)||(l.dept||'').toLowerCase().includes(q));
+  document.getElementById('lB').innerHTML=fil.length?fil.map(l=>`<tr>
+    <td>
+      ${l.photo?`<img src="${l.photo}" style="width:36px;height:36px;border-radius:50%;object-fit:cover;border:2px solid var(--gold);vertical-align:middle;margin-right:.5rem;" onerror="this.style.display='none'"/>`:
+        `<span style="display:inline-flex;width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--navy),var(--navy-light));align-items:center;justify-content:center;color:var(--gold);font-size:.8rem;vertical-align:middle;margin-right:.5rem;">✝</span>`}
+      <span class="td-primary">${l.first} ${l.last}</span>
+    </td>
+    <td><span class="badge badge-pinned">${l.role||'—'}</span></td>
+    <td class="td-muted">${l.dept||'—'}</td><td class="td-muted">${l.email||'—'}</td>
+    <td>${badge(l._status)}</td><td>${rowActions(LC,l.id,l._status,'lLoad')}</td>
+  </tr>`).join(''):'<tr><td colspan="6" style="text-align:center;padding:2.5rem;color:var(--text-muted);">No leaders. Click <strong>+ Add Leader</strong> to get started.</td></tr>';
+}
+async function lLoad_edit(id){
+  const d=(await cmsGet(LC)).find(x=>x.id===id);if(!d)return;
+  document.getElementById('lId').value=d.id;document.getElementById('lFi').value=d.first||'';
+  document.getElementById('lLa').value=d.last||'';document.getElementById('lRo').value=d.role||'Senior Pastor';
+  document.getElementById('lDe').value=d.dept||'';document.getElementById('lEm').value=d.email||'';
+  document.getElementById('lPh').value=d.phone||'';document.getElementById('lBi').value=d.bio||'';
+  document.getElementById('lPo').value=d.photo||'';document.getElementById('lMT').textContent='Edit Leader';openModal('lM');
+}
+async function lSave(status){
+  const fi=document.getElementById('lFi').value.trim(),la=document.getElementById('lLa').value.trim();
+  if(!fi||!la){toast('First and last name required','error');return;}
+  const id=document.getElementById('lId').value||null;
+  await cmsSave(LC,id,{first:fi,last:la,role:document.getElementById('lRo').value,dept:document.getElementById('lDe').value,email:document.getElementById('lEm').value,phone:document.getElementById('lPh').value,bio:document.getElementById('lBi').value,photo:document.getElementById('lPo').value},status);
+  toast(status==='published'?'🌐 Published!':'Draft saved');closeModal('lM');lLoad();
+}
+document.querySelector('[data-open="lM"]').addEventListener('click',()=>{
+  ['lId','lFi','lLa','lDe','lEm','lPh','lBi','lPo'].forEach(f=>document.getElementById(f).value='');
+  document.getElementById('lRo').value='Senior Pastor';document.getElementById('lMT').textContent='Add Leader';
+});lLoad();</script></body></html>

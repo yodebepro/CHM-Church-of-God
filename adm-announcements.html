@@ -1,0 +1,104 @@
+<!DOCTYPE html><html lang="en">
+<head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Announcements | CHM Admin</title><link rel="stylesheet" href="admin.css"/><script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script src="firebase-config.js"></script></head>
+<body><div class="admin-wrap">
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-brand">
+    <img src="logo-dark.png" alt="CHM" class="brand-logo" onerror="this.outerHTML='<div class=&quot;brand-logo-fallback&quot;>✝</div>'"/>
+    <div class="brand-text"><span class="brand-name">CHM Church of God</span><span class="brand-sub">Admin Panel</span></div>
+  </div>
+  <div class="sidebar-conn"><span class="firebase-status status-offline">🟡 Checking…</span></div>
+  <div class="sidebar-section"><div class="sidebar-section-label">Main</div>
+    <a href="dashboard.html" class="sidebar-link"><span class="icon">🏠</span> Dashboard</a>
+  </div>
+  <div class="sidebar-section"><div class="sidebar-section-label">Content</div>
+    <a href="adm-announcements.html" class="sidebar-link"><span class="icon">📢</span> Announcements</a>
+    <a href="adm-events.html" class="sidebar-link"><span class="icon">📅</span> Events</a>
+    <a href="adm-sermons.html" class="sidebar-link"><span class="icon">🎙</span> Sermons</a>
+    <a href="adm-gallery.html" class="sidebar-link"><span class="icon">🖼</span> Gallery</a>
+    <a href="pages.html" class="sidebar-link"><span class="icon">📄</span> Page Content</a>
+    <a href="navigation.html" class="sidebar-link"><span class="icon">🧭</span> Navigation</a>
+  </div>
+  <div class="sidebar-section"><div class="sidebar-section-label">People</div>
+    <a href="adm-leaders.html" class="sidebar-link"><span class="icon">👤</span> Leadership</a>
+    <a href="members.html" class="sidebar-link"><span class="icon">👥</span> Members</a>
+    <a href="adm-ministries.html" class="sidebar-link"><span class="icon">⛪</span> Ministries</a>
+  </div>
+  <div class="sidebar-section"><div class="sidebar-section-label">Inbox</div>
+    <a href="prayer-requests.html" class="sidebar-link"><span class="icon">🙏</span> Prayer Requests</a>
+    <a href="messages.html" class="sidebar-link"><span class="icon">✉️</span> Messages</a>
+    <a href="giving.html" class="sidebar-link"><span class="icon">💰</span> Giving Records</a>
+  </div>
+  <div class="sidebar-section"><div class="sidebar-section-label">System</div>
+    <a href="settings.html" class="sidebar-link"><span class="icon">⚙️</span> Settings & Colors</a>
+    <a href="index.html" class="sidebar-link" target="_blank"><span class="icon">🌐</span> View Public Site ↗</a>
+  </div>
+  <div class="sidebar-footer">
+    <div class="sidebar-user">
+      <div class="sidebar-avatar">A</div>
+      <div><span class="sidebar-user-name">Administrator</span><span class="sidebar-user-role">Super Admin</span></div>
+      <button class="sidebar-logout" data-logout title="Sign Out">⏻</button>
+    </div>
+  </div>
+</aside>
+
+<div class="main-content">
+  <div class="top-bar">
+    <div class="top-bar-left"><button class="hamburger" id="hamburger"><span></span><span></span><span></span></button><h1 class="top-bar-title">📢 Announcements</h1></div>
+    <div class="top-bar-actions"><button class="btn btn-gold btn-sm" data-open="aM">+ New Announcement</button></div>
+  </div>
+  <div class="page-body"><div class="filter-bar">
+  <div class="chips" id="aC"><button class="chip active" data-f="">All</button><button class="chip" data-f="published">Published</button><button class="chip" data-f="draft">Draft</button><button class="chip" data-f="pinned">Pinned</button><button class="chip" data-f="archived">Archived</button></div>
+  <div class="search-box"><span class="si">🔍</span><input type="text" id="aQ" placeholder="Search announcements…"/></div>
+</div><div class="card"><div class="table-wrap"><table><thead><tr><th>Title</th><th>Category</th><th>Status</th><th>Date</th><th>Actions</th></tr></thead><tbody id="aB"></tbody></table></div></div><div class="modal-overlay" id="aM"><div class="modal">
+  <div class="modal-header"><h2 class="modal-title" id="aMT">Announcement</h2><button class="modal-close" data-close="aM">✕</button></div>
+  <div class="modal-body">
+<input type="hidden" id="aId"/>
+<div class="form-row">
+  <div class="form-group"><label class="form-label">Title <span class="req">*</span></label><input type="text" class="fi" id="aTi" placeholder="Announcement title"/></div>
+  <div class="form-group"><label class="form-label">Category</label><input type="text" class="fi" id="aCat" placeholder="Important, Youth, Community…"/></div>
+</div>
+<div class="form-group"><label class="form-label">Body <span class="req">*</span></label><textarea class="ft" id="aBo" rows="4" placeholder="Full announcement content…"></textarea></div>
+<div class="form-row">
+  <div class="form-group"><label class="form-label">Status</label><select class="fs" id="aSt"><option value="draft">Draft</option><option value="published">Published</option><option value="pinned">Pinned</option><option value="archived">Archived</option></select></div>
+  <div class="form-group"><label class="form-label">Post Date</label><input type="date" class="fi" id="aDt"/></div>
+</div></div>
+  <div class="modal-footer"><button class="btn btn-outline btn-sm" data-close="aM">Cancel</button><button class="btn btn-save btn-sm" onclick="aSave('draft')">💾 Save Draft</button><button class="btn btn-publish btn-sm" onclick="aSave('published')">🌐 Save & Publish</button></div>
+</div></div></div>
+</div></div>
+<script src="admin.js"></script><script>requireAuth();
+function rowActions(col,id,st,rf){const p=st==='published';return `<div class="row-actions">${p?`<button class="act act-unpublish" onclick="cmsUnpublish('${col}','${id}').then(()=>{toast('Unpublished','warning');${rf}()})">⏸ Unpublish</button>`:`<button class="act act-publish" onclick="cmsPublish('${col}','${id}').then(()=>{toast('🌐 Published! Live on website','success');${rf}()})">🌐 Publish</button>`}<button class="act act-edit" onclick="${rf}_edit('${id}')">✏️ Edit</button><button class="act act-archive" onclick="cmsArchive('${col}','${id}').then(()=>{toast('Archived');${rf}()})">📦</button><button class="act act-delete" onclick="confirmDel(()=>cmsDelete('${col}','${id}').then(()=>{toast('Deleted','error');${rf}()}))">🗑</button></div>`;}
+const AC='announcements';let aF='';
+document.querySelectorAll('#aC .chip').forEach(c=>c.addEventListener('click',()=>{document.querySelectorAll('#aC .chip').forEach(x=>x.classList.remove('active'));c.classList.add('active');aF=c.dataset.f;aLoad();}));
+document.getElementById('aQ').addEventListener('input',aLoad);
+async function aLoad(){
+  const data=await cmsGet(AC);const q=document.getElementById('aQ').value.toLowerCase();
+  const fil=data.filter(a=>(!aF||a._status===aF)&&(!q||a.title.toLowerCase().includes(q)||(a.category||'').toLowerCase().includes(q)));
+  document.getElementById('aB').innerHTML=fil.length?fil.map(a=>`<tr>
+    <td><div class="td-primary">${a.title}</div><div class="td-secondary">${(a.body||'').slice(0,60)}…</div></td>
+    <td>${a.category?`<span class="badge badge-pinned">${a.category}</span>`:'<span class="td-muted">—</span>'}</td>
+    <td>${badge(a._status)}</td><td class="td-muted">${a.date||'—'}</td>
+    <td>${rowActions(AC,a.id,a._status,'aLoad')}</td>
+  </tr>`).join(''):'<tr><td colspan="5" style="text-align:center;padding:2.5rem;color:var(--text-muted);">No announcements found. Click <strong>+ New Announcement</strong> to add one.</td></tr>';
+}
+async function aLoad_edit(id){
+  const d=(await cmsGet(AC)).find(x=>x.id===id);if(!d)return;
+  document.getElementById('aId').value=d.id;document.getElementById('aTi').value=d.title||'';
+  document.getElementById('aCat').value=d.category||'';document.getElementById('aBo').value=d.body||'';
+  document.getElementById('aSt').value=d._status||'draft';document.getElementById('aDt').value=d.date||'';
+  document.getElementById('aMT').textContent='Edit Announcement';openModal('aM');
+}
+async function aSave(status){
+  const t=document.getElementById('aTi').value.trim(),b=document.getElementById('aBo').value.trim();
+  if(!t||!b){toast('Title and body are required','error');return;}
+  const id=document.getElementById('aId').value||null;
+  await cmsSave(AC,id,{title:t,body:b,category:document.getElementById('aCat').value,date:document.getElementById('aDt').value||new Date().toISOString().slice(0,10)},status);
+  toast(status==='published'?'🌐 Published! Visible on website now.':'Draft saved');closeModal('aM');aLoad();
+}
+document.querySelector('[data-open="aM"]').addEventListener('click',()=>{
+  ['aId','aTi','aCat','aBo','aDt'].forEach(f=>document.getElementById(f).value='');
+  document.getElementById('aSt').value='draft';document.getElementById('aMT').textContent='New Announcement';
+});
+aLoad();</script></body></html>

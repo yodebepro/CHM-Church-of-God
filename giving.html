@@ -1,22 +1,27 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/><title>Giving Records | CHM Admin</title><link rel="stylesheet" href="admin.css"/><script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script><script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script><script src="firebase-config.js"></script></head><body><div class="admin-wrap"><aside class="sidebar" id="sidebar">
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/><title>Giving Records | CHM Admin</title><link rel="stylesheet" href="admin.css"/><script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script src="firebase-config.js"></script></head><body><div class="admin-wrap">
+<aside class="sidebar" id="sidebar">
   <div class="sidebar-brand">
-    <img src="logo-dark.png" alt="CHM" class="sidebar-logo-img" onerror="this.outerHTML='<div class=&quot;sidebar-logo-icon&quot;>✝</div>'"/>
-    <div class="sidebar-brand-text"><span class="sidebar-brand-name">CHM Church of God</span><span class="sidebar-brand-sub">Admin CMS</span></div>
+    <img src="logo-dark.png" alt="CHM" class="brand-logo" onerror="this.outerHTML='<div class=&quot;brand-logo-fallback&quot;>✝</div>'"/>
+    <div class="brand-text"><span class="brand-name">CHM Church of God</span><span class="brand-sub">Admin Panel</span></div>
   </div>
-  <div class="sidebar-status"><span class="firebase-status status-offline">🟡 Checking connection…</span></div>
-  <div class="sidebar-section"><div class="sidebar-section-label">Main</div><a href="dashboard.html" class="sidebar-link"><span class="icon">🏠</span> Dashboard</a></div>
+  <div class="sidebar-conn"><span class="firebase-status status-offline">🟡 Checking…</span></div>
+  <div class="sidebar-section"><div class="sidebar-section-label">Main</div>
+    <a href="dashboard.html" class="sidebar-link"><span class="icon">🏠</span> Dashboard</a>
+  </div>
   <div class="sidebar-section"><div class="sidebar-section-label">Content</div>
-    <a href="announcements.html" class="sidebar-link"><span class="icon">📢</span> Announcements</a>
-    <a href="events.html" class="sidebar-link"><span class="icon">📅</span> Events</a>
-    <a href="sermons.html" class="sidebar-link"><span class="icon">🎙</span> Sermons</a>
-    <a href="gallery.html" class="sidebar-link"><span class="icon">🖼</span> Gallery</a>
+    <a href="adm-announcements.html" class="sidebar-link"><span class="icon">📢</span> Announcements</a>
+    <a href="adm-events.html" class="sidebar-link"><span class="icon">📅</span> Events</a>
+    <a href="adm-sermons.html" class="sidebar-link"><span class="icon">🎙</span> Sermons</a>
+    <a href="adm-gallery.html" class="sidebar-link"><span class="icon">🖼</span> Gallery</a>
     <a href="pages.html" class="sidebar-link"><span class="icon">📄</span> Page Content</a>
     <a href="navigation.html" class="sidebar-link"><span class="icon">🧭</span> Navigation</a>
   </div>
   <div class="sidebar-section"><div class="sidebar-section-label">People</div>
-    <a href="leaders.html" class="sidebar-link"><span class="icon">👤</span> Leadership</a>
+    <a href="adm-leaders.html" class="sidebar-link"><span class="icon">👤</span> Leadership</a>
     <a href="members.html" class="sidebar-link"><span class="icon">👥</span> Members</a>
-    <a href="ministries.html" class="sidebar-link"><span class="icon">⛪</span> Ministries</a>
+    <a href="adm-ministries.html" class="sidebar-link"><span class="icon">⛪</span> Ministries</a>
   </div>
   <div class="sidebar-section"><div class="sidebar-section-label">Inbox</div>
     <a href="prayer-requests.html" class="sidebar-link"><span class="icon">🙏</span> Prayer Requests</a>
@@ -24,71 +29,79 @@
     <a href="giving.html" class="sidebar-link"><span class="icon">💰</span> Giving Records</a>
   </div>
   <div class="sidebar-section"><div class="sidebar-section-label">System</div>
-    <a href="settings.html" class="sidebar-link"><span class="icon">⚙️</span> Settings</a>
-    <a href="../index.html" class="sidebar-link" target="_blank"><span class="icon">🌐</span> View Website</a>
+    <a href="settings.html" class="sidebar-link"><span class="icon">⚙️</span> Settings & Colors</a>
+    <a href="index.html" class="sidebar-link" target="_blank"><span class="icon">🌐</span> View Public Site ↗</a>
   </div>
-  <div class="sidebar-footer"><div class="sidebar-user">
-    <div class="sidebar-avatar">A</div>
-    <div><div class="sidebar-user-name">Administrator</div><div class="sidebar-user-role">Super Admin</div></div>
-    <button class="sidebar-logout" data-logout title="Logout">⏻</button>
-  </div></div>
+  <div class="sidebar-footer">
+    <div class="sidebar-user">
+      <div class="sidebar-avatar">A</div>
+      <div><span class="sidebar-user-name">Administrator</span><span class="sidebar-user-role">Super Admin</span></div>
+      <button class="sidebar-logout" data-logout title="Sign Out">⏻</button>
+    </div>
+  </div>
 </aside>
-<div class="main-content"><div class="top-bar"><button class="hamburger" id="hamburger"><span></span><span></span><span></span></button><div class="top-bar-title">💰 Giving Records</div><div class="top-bar-actions"><button class="btn-gold" data-modal-open="givModal">+ Record Gift</button></div></div><div class="page-body"><div class="stats-grid" style="grid-template-columns:repeat(4,1fr);">
+<div class="main-content"><div class="top-bar"><div class="top-bar-left"><button class="hamburger" id="hamburger"><span></span><span></span><span></span></button><h1 class="top-bar-title">💰 Giving Records</h1></div><div class="top-bar-actions"><button class="btn btn-gold btn-sm" data-open="gvM">+ Record Gift</button></div></div><div class="page-body"><div class="stats-grid" style="grid-template-columns:repeat(4,1fr);">
   <div class="stat-card"><div class="stat-icon">💰</div><div class="stat-value">$<span id="gvT">0</span></div><div class="stat-label">Total Given</div></div>
   <div class="stat-card green"><div class="stat-icon">📅</div><div class="stat-value">$<span id="gvM">0</span></div><div class="stat-label">This Month</div></div>
   <div class="stat-card blue"><div class="stat-icon">🏛</div><div class="stat-value">$<span id="gvTi">0</span></div><div class="stat-label">Tithes</div></div>
-  <div class="stat-card"><div class="stat-icon">🎁</div><div class="stat-value">$<span id="gvOf">0</span></div><div class="stat-label">Offerings</div></div>
+  <div class="stat-card purple"><div class="stat-icon">🎁</div><div class="stat-value">$<span id="gvOf">0</span></div><div class="stat-label">Offerings</div></div>
 </div>
 <div class="filter-bar">
-  <div class="filter-chips" id="givChips"><button class="chip active" data-f="">All Funds</button><button class="chip" data-f="General / Tithes">Tithes</button><button class="chip" data-f="Building Fund">Building</button><button class="chip" data-f="Missions Fund">Missions</button></div>
-  <div class="search-wrap"><span class="search-icon">🔍</span><input type="text" id="givQ" placeholder="Search donor…"/></div>
-</div><div class="cms-card"><div class="table-wrap"><table><thead><tr><th>Donor</th><th>Amount</th><th>Fund</th><th>Method</th><th>Date</th><th>Actions</th></tr></thead><tbody id="givTbody"></tbody></table></div></div><div class="modal-overlay" id="givModal"><div class="modal"><div class="modal-header"><div class="modal-title" id="givModalTitle">Record Gift</div><button class="modal-close" data-modal-close="givModal">✕</button></div><div class="modal-body">
-<input type="hidden" id="givId"/>
-<div class="form-row"><div class="form-group"><label class="form-label">Donor Name</label><input type="text" class="form-input" id="givName" placeholder="Full name or Anonymous"/></div><div class="form-group"><label class="form-label">Amount ($) <span class="req">*</span></label><input type="number" class="form-input" id="givAmt" placeholder="0.00" min="0" step="0.01"/></div></div>
-<div class="form-row"><div class="form-group"><label class="form-label">Fund</label><select class="form-select" id="givFund"><option>General / Tithes</option><option>Building Fund</option><option>Missions Fund</option><option>Children & Youth</option><option>Benevolence</option><option>Media Ministry</option><option>Scholarship Fund</option><option>Other</option></select></div><div class="form-group"><label class="form-label">Payment Method</label><select class="form-select" id="givMethod"><option>Cash</option><option>Check</option><option>Zelle</option><option>Online</option><option>Card</option><option>Other</option></select></div></div>
-<div class="form-row"><div class="form-group"><label class="form-label">Date</label><input type="date" class="form-input" id="givDate"/></div><div class="form-group"><label class="form-label">Reference #</label><input type="text" class="form-input" id="givRef"/></div></div>
-<div class="form-group"><label class="form-label">Notes</label><textarea class="form-textarea" id="givNotes" rows="2"></textarea></div></div><div class="modal-footer"><button class="btn-outline" data-modal-close="givModal">Cancel</button><button class="btn-save" onclick="givSave('draft')">💾 Save Record</button><button class="btn-publish" onclick="givSave('published')">💾 Save Record</button></div></div></div></div></div></div><script src="admin.js"></script><script>requireAuth();
-const GVC='giving';let givFilter='';
-document.querySelectorAll('#givChips .chip').forEach(c=>c.addEventListener('click',()=>{document.querySelectorAll('#givChips .chip').forEach(x=>x.classList.remove('active'));c.classList.add('active');givFilter=c.dataset.f;givLoad();}));
-document.getElementById('givQ').addEventListener('input',givLoad);
-async function givLoad(){
+  <div class="chips" id="gvC"><button class="chip active" data-f="">All Funds</button><button class="chip" data-f="General / Tithes">Tithes</button><button class="chip" data-f="Building Fund">Building</button><button class="chip" data-f="Missions Fund">Missions</button></div>
+  <div class="search-box"><span class="si">🔍</span><input type="text" id="gvQ" placeholder="Search donor…"/></div>
+</div><div class="card"><div class="table-wrap"><table><thead><tr><th>Donor</th><th>Amount</th><th>Fund</th><th>Method</th><th>Date</th><th>Reference</th><th>Actions</th></tr></thead><tbody id="gvB"></tbody></table></div></div>
+<div class="modal-overlay" id="gvM"><div class="modal">
+  <div class="modal-header"><h2 class="modal-title" id="gvMT">Record Gift</h2><button class="modal-close" data-close="gvM">✕</button></div>
+  <div class="modal-body">
+    <input type="hidden" id="gvId"/>
+    <div class="form-row"><div class="form-group"><label class="form-label">Donor Name</label><input type="text" class="fi" id="gvNm" placeholder="Full name or Anonymous"/></div><div class="form-group"><label class="form-label">Amount ($) <span class="req">*</span></label><input type="number" class="fi" id="gvAm" placeholder="0.00" min="0" step="0.01"/></div></div>
+    <div class="form-row"><div class="form-group"><label class="form-label">Fund</label><select class="fs" id="gvFu"><option>General / Tithes</option><option>Building Fund</option><option>Missions Fund</option><option>Children & Youth</option><option>Benevolence</option><option>Media Ministry</option><option>Scholarship Fund</option><option>Other</option></select></div><div class="form-group"><label class="form-label">Payment Method</label><select class="fs" id="gvMe"><option>Cash</option><option>Check</option><option>Zelle</option><option>Online</option><option>Card</option><option>Other</option></select></div></div>
+    <div class="form-row"><div class="form-group"><label class="form-label">Date</label><input type="date" class="fi" id="gvDt"/></div><div class="form-group"><label class="form-label">Reference # / Check #</label><input type="text" class="fi" id="gvRf"/></div></div>
+    <div class="form-group"><label class="form-label">Notes</label><textarea class="ft" id="gvNo" rows="2"></textarea></div>
+  </div>
+  <div class="modal-footer"><button class="btn btn-outline btn-sm" data-close="gvM">Cancel</button><button class="btn btn-publish btn-sm" onclick="gvSave()">💾 Save Record</button></div>
+</div></div></div></div></div><script src="admin.js"></script><script>requireAuth();
+const GVC='giving';let gvF='';
+document.querySelectorAll('#gvC .chip').forEach(c=>c.addEventListener('click',()=>{document.querySelectorAll('#gvC .chip').forEach(x=>x.classList.remove('active'));c.classList.add('active');gvF=c.dataset.f;gvLoad();}));
+document.getElementById('gvQ').addEventListener('input',gvLoad);
+async function gvLoad(){
   const data=await cmsGet(GVC);
   const tot=data.reduce((a,g)=>a+(g.amount||0),0);
   const now=new Date().toISOString().slice(0,7);
-  const mTot=data.filter(g=>g.date&&g.date.startsWith(now)).reduce((a,g)=>a+(g.amount||0),0);
-  const tTot=data.filter(g=>g.fund&&(g.fund.includes('Tithe')||g.fund.includes('General'))).reduce((a,g)=>a+(g.amount||0),0);
+  const mT=data.filter(g=>g.date&&g.date.startsWith(now)).reduce((a,g)=>a+(g.amount||0),0);
+  const tiT=data.filter(g=>g.fund&&(g.fund.includes('Tithe')||g.fund.includes('General'))).reduce((a,g)=>a+(g.amount||0),0);
   document.getElementById('gvT').textContent=tot.toLocaleString();
-  document.getElementById('gvM').textContent=mTot.toLocaleString();
-  document.getElementById('gvTi').textContent=tTot.toLocaleString();
-  document.getElementById('gvOf').textContent=(tot-tTot).toLocaleString();
-  const q=document.getElementById('givQ').value.toLowerCase();
-  const fil=data.filter(g=>(!givFilter||g.fund===givFilter)&&(!q||(g.name||'').toLowerCase().includes(q)));
-  document.getElementById('givTbody').innerHTML=fil.length?fil.map(g=>`<tr>
-    <td class="td-bold">${g.name||'Anonymous'}</td>
-    <td style="font-family:var(--font-display);font-size:1.1rem;font-weight:700;color:var(--success);">$${(g.amount||0).toLocaleString()}</td>
-    <td><span class="badge badge-gold">${g.fund||'—'}</span></td>
-    <td><span class="badge badge-gray">${g.method||'—'}</span></td>
-    <td class="td-muted">${g.date||'—'}</td>
-    <td><div class="td-actions"><button class="action-btn edit" onclick="givLoad_edit('${g.id}')">✏️</button><button class="action-btn delete" onclick="confirmDelete(()=>cmsDelete('${GVC}','${g.id}').then(()=>{showToast('Deleted','error');givLoad()}))">🗑</button></div></td>
-  </tr>`).join(''):'<tr><td colspan="6" style="text-align:center;padding:3rem;color:var(--text-muted);"><div style="font-size:2.5rem;margin-bottom:.5rem;">💰</div><p>No giving records yet</p></td></tr>';
+  document.getElementById('gvM').textContent=mT.toLocaleString();
+  document.getElementById('gvTi').textContent=tiT.toLocaleString();
+  document.getElementById('gvOf').textContent=(tot-tiT).toLocaleString();
+  const q=document.getElementById('gvQ').value.toLowerCase();
+  const fil=data.filter(g=>(!gvF||g.fund===gvF)&&(!q||(g.name||'').toLowerCase().includes(q)));
+  document.getElementById('gvB').innerHTML=fil.length?fil.map(g=>`<tr>
+    <td class="td-primary">${g.name||'Anonymous'}</td>
+    <td style="font-family:var(--font-display);font-size:1.05rem;font-weight:700;color:var(--success);">$${(g.amount||0).toLocaleString()}</td>
+    <td><span class="badge badge-pinned">${g.fund||'—'}</span></td>
+    <td><span class="badge badge-archived">${g.method||'—'}</span></td>
+    <td class="td-muted">${g.date||'—'}</td><td class="td-muted">${g.ref||'—'}</td>
+    <td><div class="row-actions"><button class="act act-edit" onclick="gvLoad_edit('${g.id}')">✏️</button><button class="act act-delete" onclick="confirmDel(()=>cmsDelete('${GVC}','${g.id}').then(()=>{toast('Deleted','error');gvLoad()}))">🗑</button></div></td>
+  </tr>`).join(''):'<tr><td colspan="7" style="text-align:center;padding:2.5rem;color:var(--text-muted);">No giving records. Click <strong>+ Record Gift</strong> to add one.</td></tr>';
 }
-async function givLoad_edit(id){
+async function gvLoad_edit(id){
   const d=(await cmsGet(GVC)).find(x=>x.id===id);if(!d)return;
-  document.getElementById('givId').value=d.id;document.getElementById('givName').value=d.name||'';
-  document.getElementById('givAmt').value=d.amount||'';document.getElementById('givFund').value=d.fund||'General / Tithes';
-  document.getElementById('givMethod').value=d.method||'Cash';document.getElementById('givDate').value=d.date||'';
-  document.getElementById('givRef').value=d.ref||'';document.getElementById('givNotes').value=d.notes||'';
-  document.getElementById('givModalTitle').textContent='Edit Record';openModal('givModal');
+  document.getElementById('gvId').value=d.id;document.getElementById('gvNm').value=d.name||'';
+  document.getElementById('gvAm').value=d.amount||'';document.getElementById('gvFu').value=d.fund||'General / Tithes';
+  document.getElementById('gvMe').value=d.method||'Cash';document.getElementById('gvDt').value=d.date||'';
+  document.getElementById('gvRf').value=d.ref||'';document.getElementById('gvNo').value=d.notes||'';
+  document.getElementById('gvMT').textContent='Edit Record';openModal('gvM');
 }
-async function givSave(s){
-  const amt=parseFloat(document.getElementById('givAmt').value);if(!amt||amt<=0){showToast('Valid amount required','error');return;}
-  const id=document.getElementById('givId').value||null;
-  await cmsSave(GVC,id,{name:document.getElementById('givName').value||'Anonymous',amount:amt,fund:document.getElementById('givFund').value,method:document.getElementById('givMethod').value,date:document.getElementById('givDate').value||new Date().toISOString().slice(0,10),ref:document.getElementById('givRef').value,notes:document.getElementById('givNotes').value},'active');
-  showToast('Gift recorded ✓');closeModal('givModal');givLoad();
+async function gvSave(){
+  const amt=parseFloat(document.getElementById('gvAm').value);if(!amt||amt<=0){toast('Valid amount required','error');return;}
+  const id=document.getElementById('gvId').value||null;
+  await cmsSave(GVC,id,{name:document.getElementById('gvNm').value||'Anonymous',amount:amt,fund:document.getElementById('gvFu').value,method:document.getElementById('gvMe').value,date:document.getElementById('gvDt').value||new Date().toISOString().slice(0,10),ref:document.getElementById('gvRf').value,notes:document.getElementById('gvNo').value},'active');
+  toast('Gift recorded ✓');closeModal('gvM');gvLoad();
 }
-document.querySelector('[data-modal-open="givModal"]').addEventListener('click',()=>{
-  ['givId','givName','givAmt','givRef','givNotes'].forEach(f=>document.getElementById(f).value='');
-  document.getElementById('givDate').value=new Date().toISOString().slice(0,10);
-  document.getElementById('givFund').value='General / Tithes';document.getElementById('givMethod').value='Cash';
-  document.getElementById('givModalTitle').textContent='Record Gift';
-});givLoad();</script></body></html>
+document.querySelector('[data-open="gvM"]').addEventListener('click',()=>{
+  ['gvId','gvNm','gvAm','gvRf','gvNo'].forEach(f=>document.getElementById(f).value='');
+  document.getElementById('gvDt').value=new Date().toISOString().slice(0,10);
+  document.getElementById('gvFu').value='General / Tithes';document.getElementById('gvMe').value='Cash';
+  document.getElementById('gvMT').textContent='Record Gift';
+});gvLoad();</script></body></html>

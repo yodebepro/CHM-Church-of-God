@@ -1,22 +1,27 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/><title>Prayer Requests | CHM Admin</title><link rel="stylesheet" href="admin.css"/><script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script><script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script><script src="firebase-config.js"></script></head><body><div class="admin-wrap"><aside class="sidebar" id="sidebar">
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/><title>Prayer Requests | CHM Admin</title><link rel="stylesheet" href="admin.css"/><script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script src="firebase-config.js"></script></head><body><div class="admin-wrap">
+<aside class="sidebar" id="sidebar">
   <div class="sidebar-brand">
-    <img src="logo-dark.png" alt="CHM" class="sidebar-logo-img" onerror="this.outerHTML='<div class=&quot;sidebar-logo-icon&quot;>✝</div>'"/>
-    <div class="sidebar-brand-text"><span class="sidebar-brand-name">CHM Church of God</span><span class="sidebar-brand-sub">Admin CMS</span></div>
+    <img src="logo-dark.png" alt="CHM" class="brand-logo" onerror="this.outerHTML='<div class=&quot;brand-logo-fallback&quot;>✝</div>'"/>
+    <div class="brand-text"><span class="brand-name">CHM Church of God</span><span class="brand-sub">Admin Panel</span></div>
   </div>
-  <div class="sidebar-status"><span class="firebase-status status-offline">🟡 Checking connection…</span></div>
-  <div class="sidebar-section"><div class="sidebar-section-label">Main</div><a href="dashboard.html" class="sidebar-link"><span class="icon">🏠</span> Dashboard</a></div>
+  <div class="sidebar-conn"><span class="firebase-status status-offline">🟡 Checking…</span></div>
+  <div class="sidebar-section"><div class="sidebar-section-label">Main</div>
+    <a href="dashboard.html" class="sidebar-link"><span class="icon">🏠</span> Dashboard</a>
+  </div>
   <div class="sidebar-section"><div class="sidebar-section-label">Content</div>
-    <a href="announcements.html" class="sidebar-link"><span class="icon">📢</span> Announcements</a>
-    <a href="events.html" class="sidebar-link"><span class="icon">📅</span> Events</a>
-    <a href="sermons.html" class="sidebar-link"><span class="icon">🎙</span> Sermons</a>
-    <a href="gallery.html" class="sidebar-link"><span class="icon">🖼</span> Gallery</a>
+    <a href="adm-announcements.html" class="sidebar-link"><span class="icon">📢</span> Announcements</a>
+    <a href="adm-events.html" class="sidebar-link"><span class="icon">📅</span> Events</a>
+    <a href="adm-sermons.html" class="sidebar-link"><span class="icon">🎙</span> Sermons</a>
+    <a href="adm-gallery.html" class="sidebar-link"><span class="icon">🖼</span> Gallery</a>
     <a href="pages.html" class="sidebar-link"><span class="icon">📄</span> Page Content</a>
     <a href="navigation.html" class="sidebar-link"><span class="icon">🧭</span> Navigation</a>
   </div>
   <div class="sidebar-section"><div class="sidebar-section-label">People</div>
-    <a href="leaders.html" class="sidebar-link"><span class="icon">👤</span> Leadership</a>
+    <a href="adm-leaders.html" class="sidebar-link"><span class="icon">👤</span> Leadership</a>
     <a href="members.html" class="sidebar-link"><span class="icon">👥</span> Members</a>
-    <a href="ministries.html" class="sidebar-link"><span class="icon">⛪</span> Ministries</a>
+    <a href="adm-ministries.html" class="sidebar-link"><span class="icon">⛪</span> Ministries</a>
   </div>
   <div class="sidebar-section"><div class="sidebar-section-label">Inbox</div>
     <a href="prayer-requests.html" class="sidebar-link"><span class="icon">🙏</span> Prayer Requests</a>
@@ -24,64 +29,63 @@
     <a href="giving.html" class="sidebar-link"><span class="icon">💰</span> Giving Records</a>
   </div>
   <div class="sidebar-section"><div class="sidebar-section-label">System</div>
-    <a href="settings.html" class="sidebar-link"><span class="icon">⚙️</span> Settings</a>
-    <a href="../index.html" class="sidebar-link" target="_blank"><span class="icon">🌐</span> View Website</a>
+    <a href="settings.html" class="sidebar-link"><span class="icon">⚙️</span> Settings & Colors</a>
+    <a href="index.html" class="sidebar-link" target="_blank"><span class="icon">🌐</span> View Public Site ↗</a>
   </div>
-  <div class="sidebar-footer"><div class="sidebar-user">
-    <div class="sidebar-avatar">A</div>
-    <div><div class="sidebar-user-name">Administrator</div><div class="sidebar-user-role">Super Admin</div></div>
-    <button class="sidebar-logout" data-logout title="Logout">⏻</button>
-  </div></div>
+  <div class="sidebar-footer">
+    <div class="sidebar-user">
+      <div class="sidebar-avatar">A</div>
+      <div><span class="sidebar-user-name">Administrator</span><span class="sidebar-user-role">Super Admin</span></div>
+      <button class="sidebar-logout" data-logout title="Sign Out">⏻</button>
+    </div>
+  </div>
 </aside>
-<div class="main-content"><div class="top-bar"><button class="hamburger" id="hamburger"><span></span><span></span><span></span></button><div class="top-bar-title">🙏 Prayer Requests</div><div class="top-bar-actions"><button class="btn-danger" onclick="clearAllPR()">Clear All</button></div></div><div class="page-body"><div class="stats-grid" style="grid-template-columns:repeat(4,1fr);">
-  <div class="stat-card"><div class="stat-icon">🙏</div><div class="stat-value" id="prT">0</div><div class="stat-label">Total</div></div>
+<div class="main-content"><div class="top-bar"><div class="top-bar-left"><button class="hamburger" id="hamburger"><span></span><span></span><span></span></button><h1 class="top-bar-title">🙏 Prayer Requests</h1></div><div class="top-bar-actions"><button class="btn btn-danger-soft btn-sm" onclick="clearAllPR()">🗑 Clear All</button></div></div><div class="page-body"><div class="stats-grid" style="grid-template-columns:repeat(4,1fr);">
+  <div class="stat-card"><div class="stat-icon">🙏</div><div class="stat-value" id="prT">0</div><div class="stat-label">Total Requests</div></div>
   <div class="stat-card red"><div class="stat-icon">🚨</div><div class="stat-value" id="prU">0</div><div class="stat-label">Urgent</div></div>
   <div class="stat-card green"><div class="stat-icon">✅</div><div class="stat-value" id="prP">0</div><div class="stat-label">Prayed Over</div></div>
-  <div class="stat-card blue"><div class="stat-icon">📢</div><div class="stat-value" id="prN">0</div><div class="stat-label">New</div></div>
+  <div class="stat-card blue"><div class="stat-icon">🆕</div><div class="stat-value" id="prN">0</div><div class="stat-label">New</div></div>
 </div>
 <div class="filter-bar">
-  <div class="filter-chips" id="prChips"><button class="chip active" data-f="">All</button><button class="chip" data-f="new">New</button><button class="chip" data-f="urgent">Urgent</button><button class="chip" data-f="prayed">Prayed Over</button></div>
-  <div class="search-wrap"><span class="search-icon">🔍</span><input type="text" id="prQ" placeholder="Search requests…"/></div>
+  <div class="chips" id="prC"><button class="chip active" data-f="">All</button><button class="chip" data-f="new">New</button><button class="chip" data-f="urgent">Urgent</button><button class="chip" data-f="prayed">Prayed Over</button></div>
+  <div class="search-box"><span class="si">🔍</span><input type="text" id="prQ" placeholder="Search requests…"/></div>
 </div>
 <div id="prList"></div></div></div></div><script src="admin.js"></script><script>requireAuth();
-const PRC='prayer_requests';let prFilter='';
-document.querySelectorAll('#prChips .chip').forEach(c=>c.addEventListener('click',()=>{document.querySelectorAll('#prChips .chip').forEach(x=>x.classList.remove('active'));c.classList.add('active');prFilter=c.dataset.f;prLoad();}));
+const PRC='prayer_requests';let prF='';
+document.querySelectorAll('#prC .chip').forEach(c=>c.addEventListener('click',()=>{document.querySelectorAll('#prC .chip').forEach(x=>x.classList.remove('active'));c.classList.add('active');prF=c.dataset.f;prLoad();}));
 document.getElementById('prQ').addEventListener('input',prLoad);
 async function prLoad(){
   const data=await cmsGet(PRC);
   document.getElementById('prT').textContent=data.length;
   document.getElementById('prU').textContent=data.filter(p=>p.urgent).length;
   document.getElementById('prP').textContent=data.filter(p=>p._status==='prayed').length;
-  document.getElementById('prN').textContent=data.filter(p=>p._status==='new'||!p._status).length;
+  document.getElementById('prN').textContent=data.filter(p=>!p._status||p._status==='new').length;
   const q=document.getElementById('prQ').value.toLowerCase();
-  const fil=data.filter(p=>{
-    const mf=!prFilter||(prFilter==='urgent'&&p.urgent)||(p._status===prFilter);
-    return mf&&(!q||p.name.toLowerCase().includes(q)||(p.request||'').toLowerCase().includes(q));
-  });
+  const fil=data.filter(p=>{const mf=!prF||(prF==='urgent'&&p.urgent)||(p._status===prF);return mf&&(!q||(p.name||'').toLowerCase().includes(q)||(p.request||'').toLowerCase().includes(q));});
   document.getElementById('prList').innerHTML=fil.length?fil.map(p=>`
     <div class="pr-card ${p.urgent?'urgent':p._status==='prayed'?'prayed':''}">
-      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:.6rem;">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:.6rem;gap:1rem;">
         <div>
           <div style="font-family:var(--font-display);font-size:1rem;font-weight:700;color:var(--navy);">${p.name||'Anonymous'} ${p.urgent?'<span class="badge badge-red">🚨 Urgent</span>':''}</div>
-          ${p.email?`<div style="font-size:.75rem;color:var(--text-muted);">✉️ ${p.email}</div>`:''}
+          ${p.email?`<div class="td-muted" style="margin-top:.15rem;">✉️ ${p.email}</div>`:''}
         </div>
-        <div style="text-align:right;">${statusBadge(p._status||'new')}<div style="font-size:.72rem;color:var(--text-muted);margin-top:.2rem;">${p.date||''}</div></div>
+        <div style="text-align:right;flex-shrink:0;">${badge(p._status||'new')}<div class="td-muted" style="margin-top:.2rem;">${p.date||''}</div></div>
       </div>
-      <div style="font-size:.7rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);margin-bottom:.4rem;">📂 ${p.category||'General Prayer'}</div>
+      <div style="font-size:.68rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);margin-bottom:.4rem;">📂 ${p.category||'General Prayer'}</div>
       <p style="font-size:.88rem;color:var(--text);line-height:1.7;margin-bottom:.75rem;">${p.request||''}</p>
-      <div style="display:flex;gap:.5rem;flex-wrap:wrap;">
-        ${p._status!=='prayed'?`<button class="action-btn approve" onclick="markPrayed('${p.id}')">🙏 Mark as Prayed</button>`:'<span class="badge badge-green">✅ Prayed Over</span>'}
-        ${p.email?`<a href="mailto:${p.email}" class="action-btn view">✉️ Reply</a>`:''}
-        <button class="action-btn delete" onclick="confirmDelete(()=>cmsDelete('${PRC}','${p.id}').then(()=>{showToast('Removed','error');prLoad()}))">🗑 Remove</button>
+      <div class="row-actions">
+        ${p._status!=='prayed'?`<button class="act act-publish" onclick="markPrayed('${p.id}')">🙏 Mark Prayed</button>`:'<span class="badge badge-green">✅ Prayed Over</span>'}
+        ${p.email?`<a href="mailto:${p.email}" class="act act-view">✉️ Reply</a>`:''}
+        <button class="act act-delete" onclick="confirmDel(()=>cmsDelete('${PRC}','${p.id}').then(()=>{toast('Removed','error');prLoad()}))">🗑 Remove</button>
       </div>
-    </div>`).join(''):'<div style="text-align:center;padding:4rem;color:var(--text-muted);"><div style="font-size:3.5rem;margin-bottom:1rem;">🙏</div><h3 style="font-family:var(--font-display);color:var(--navy);margin-bottom:.5rem;">No prayer requests yet</h3><p>When visitors submit prayer requests, they will appear here.</p></div>';
+    </div>`).join(''):'<div style="text-align:center;padding:4rem;color:var(--text-muted);"><div style="font-size:3rem;margin-bottom:.75rem;">🙏</div><h3 style="font-family:var(--font-display);color:var(--navy);margin-bottom:.4rem;">No Prayer Requests Yet</h3><p>Submissions from your website contact & prayer forms will appear here.</p></div>';
 }
 async function markPrayed(id){
-  const data=await cmsGet(PRC);const d=data.find(x=>x.id===id);if(!d)return;
-  await cmsSave(PRC,id,{...d,_status:'prayed'},'prayed');showToast('Marked as prayed over ✝️');prLoad();
+  const d=(await cmsGet(PRC)).find(x=>x.id===id);if(!d)return;
+  await cmsSave(PRC,id,{...d,_status:'prayed'},'prayed');toast('Marked as prayed over ✝️');prLoad();
 }
 async function clearAllPR(){
   if(!window.confirm('Clear ALL prayer requests? This cannot be undone.'))return;
-  const data=await cmsGet(PRC);for(const d of data)await cmsDelete(PRC,d.id);showToast('All cleared');prLoad();
+  const data=await cmsGet(PRC);for(const d of data)await cmsDelete(PRC,d.id);toast('All cleared','warning');prLoad();
 }
 prLoad();</script></body></html>

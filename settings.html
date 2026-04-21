@@ -1,22 +1,27 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/><title>Settings | CHM Admin</title><link rel="stylesheet" href="admin.css"/><script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script><script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script><script src="firebase-config.js"></script></head><body><div class="admin-wrap"><aside class="sidebar" id="sidebar">
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/><title>Settings & Site Control | CHM Admin</title><link rel="stylesheet" href="admin.css"/><script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script src="firebase-config.js"></script></head><body><div class="admin-wrap">
+<aside class="sidebar" id="sidebar">
   <div class="sidebar-brand">
-    <img src="logo-dark.png" alt="CHM" class="sidebar-logo-img" onerror="this.outerHTML='<div class=&quot;sidebar-logo-icon&quot;>✝</div>'"/>
-    <div class="sidebar-brand-text"><span class="sidebar-brand-name">CHM Church of God</span><span class="sidebar-brand-sub">Admin CMS</span></div>
+    <img src="logo-dark.png" alt="CHM" class="brand-logo" onerror="this.outerHTML='<div class=&quot;brand-logo-fallback&quot;>✝</div>'"/>
+    <div class="brand-text"><span class="brand-name">CHM Church of God</span><span class="brand-sub">Admin Panel</span></div>
   </div>
-  <div class="sidebar-status"><span class="firebase-status status-offline">🟡 Checking connection…</span></div>
-  <div class="sidebar-section"><div class="sidebar-section-label">Main</div><a href="dashboard.html" class="sidebar-link"><span class="icon">🏠</span> Dashboard</a></div>
+  <div class="sidebar-conn"><span class="firebase-status status-offline">🟡 Checking…</span></div>
+  <div class="sidebar-section"><div class="sidebar-section-label">Main</div>
+    <a href="dashboard.html" class="sidebar-link"><span class="icon">🏠</span> Dashboard</a>
+  </div>
   <div class="sidebar-section"><div class="sidebar-section-label">Content</div>
-    <a href="announcements.html" class="sidebar-link"><span class="icon">📢</span> Announcements</a>
-    <a href="events.html" class="sidebar-link"><span class="icon">📅</span> Events</a>
-    <a href="sermons.html" class="sidebar-link"><span class="icon">🎙</span> Sermons</a>
-    <a href="gallery.html" class="sidebar-link"><span class="icon">🖼</span> Gallery</a>
+    <a href="adm-announcements.html" class="sidebar-link"><span class="icon">📢</span> Announcements</a>
+    <a href="adm-events.html" class="sidebar-link"><span class="icon">📅</span> Events</a>
+    <a href="adm-sermons.html" class="sidebar-link"><span class="icon">🎙</span> Sermons</a>
+    <a href="adm-gallery.html" class="sidebar-link"><span class="icon">🖼</span> Gallery</a>
     <a href="pages.html" class="sidebar-link"><span class="icon">📄</span> Page Content</a>
     <a href="navigation.html" class="sidebar-link"><span class="icon">🧭</span> Navigation</a>
   </div>
   <div class="sidebar-section"><div class="sidebar-section-label">People</div>
-    <a href="leaders.html" class="sidebar-link"><span class="icon">👤</span> Leadership</a>
+    <a href="adm-leaders.html" class="sidebar-link"><span class="icon">👤</span> Leadership</a>
     <a href="members.html" class="sidebar-link"><span class="icon">👥</span> Members</a>
-    <a href="ministries.html" class="sidebar-link"><span class="icon">⛪</span> Ministries</a>
+    <a href="adm-ministries.html" class="sidebar-link"><span class="icon">⛪</span> Ministries</a>
   </div>
   <div class="sidebar-section"><div class="sidebar-section-label">Inbox</div>
     <a href="prayer-requests.html" class="sidebar-link"><span class="icon">🙏</span> Prayer Requests</a>
@@ -24,157 +29,176 @@
     <a href="giving.html" class="sidebar-link"><span class="icon">💰</span> Giving Records</a>
   </div>
   <div class="sidebar-section"><div class="sidebar-section-label">System</div>
-    <a href="settings.html" class="sidebar-link"><span class="icon">⚙️</span> Settings</a>
-    <a href="../index.html" class="sidebar-link" target="_blank"><span class="icon">🌐</span> View Website</a>
+    <a href="settings.html" class="sidebar-link"><span class="icon">⚙️</span> Settings & Colors</a>
+    <a href="index.html" class="sidebar-link" target="_blank"><span class="icon">🌐</span> View Public Site ↗</a>
   </div>
-  <div class="sidebar-footer"><div class="sidebar-user">
-    <div class="sidebar-avatar">A</div>
-    <div><div class="sidebar-user-name">Administrator</div><div class="sidebar-user-role">Super Admin</div></div>
-    <button class="sidebar-logout" data-logout title="Logout">⏻</button>
-  </div></div>
+  <div class="sidebar-footer">
+    <div class="sidebar-user">
+      <div class="sidebar-avatar">A</div>
+      <div><span class="sidebar-user-name">Administrator</span><span class="sidebar-user-role">Super Admin</span></div>
+      <button class="sidebar-logout" data-logout title="Sign Out">⏻</button>
+    </div>
+  </div>
 </aside>
-<div class="main-content"><div class="top-bar"><button class="hamburger" id="hamburger"><span></span><span></span><span></span></button><div class="top-bar-title">⚙️ Settings</div><div class="top-bar-actions"></div></div><div class="page-body"><div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;">
+<div class="main-content"><div class="top-bar"><div class="top-bar-left"><button class="hamburger" id="hamburger"><span></span><span></span><span></span></button><h1 class="top-bar-title">⚙️ Settings & Site Control</h1></div><div class="top-bar-actions"></div></div><div class="page-body"><!-- TABS -->
+<div class="tab-nav">
+  <button class="tab-btn active" onclick="switchTab(this,'colors')">🎨 Colors & Theme</button>
+  <button class="tab-btn" onclick="switchTab(this,'church')">⛪ Church Info</button>
+  <button class="tab-btn" onclick="switchTab(this,'times')">🕐 Service Times</button>
+  <button class="tab-btn" onclick="switchTab(this,'social')">📱 Social Links</button>
+  <button class="tab-btn" onclick="switchTab(this,'system')">☁️ Firebase</button>
+</div>
 
 <!-- COLORS -->
-<div class="cms-card" style="grid-column:1/-1;border:2px solid rgba(200,145,58,.3);">
-  <div class="cms-card-header" style="background:linear-gradient(135deg,var(--navy),var(--navy-mid));">
-    <div><span class="section-label" style="color:rgba(200,145,58,.7);">Live Theme Control</span><div class="cms-card-title" style="color:var(--white);">🎨 Site Colors & Background</div></div>
-    <span style="font-size:.8rem;color:rgba(255,255,255,.5);">Changes go live immediately when published</span>
-  </div>
-  <div class="cms-card-body">
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem;">
-      <div><div class="color-row"><label>Primary Navy</label><input type="color" id="cNavy" value="#0a1f44"/><span class="color-val" id="cNavyV">#0a1f44</span></div>
-      <div class="color-row"><label>Gold Accent</label><input type="color" id="cGold" value="#c8913a"/><span class="color-val" id="cGoldV">#c8913a</span></div></div>
-      <div><div class="color-row"><label>Page Background</label><input type="color" id="cBg" value="#ffffff"/><span class="color-val" id="cBgV">#ffffff</span></div>
-      <div class="color-row"><label>Body Text</label><input type="color" id="cText" value="#1a1a2e"/><span class="color-val" id="cTextV">#1a1a2e</span></div></div>
+<div id="tab-colors" class="tab-pane active">
+  <div class="card" style="border:2px solid rgba(200,145,58,.3);">
+    <div class="card-header" style="background:linear-gradient(135deg,var(--navy),var(--navy-mid));">
+      <div><span class="label" style="color:rgba(200,145,58,.7);">Live Theme Control</span><div class="card-title" style="color:#fff;">🎨 Website Colors & Background</div></div>
+      <span style="font-size:.75rem;color:rgba(255,255,255,.4);">Changes go live on every public page when published</span>
     </div>
-    <div class="form-group"><label class="form-label">Custom Background CSS <span style="font-weight:400;font-style:italic;color:var(--text-muted);">(optional — overrides color picker)</span></label>
-    <input type="text" class="form-input" id="cBgCss" placeholder="e.g. linear-gradient(135deg,#f5c842,#7b3fa0)"/><div class="form-hint">Any valid CSS background value. Leave blank to use the color picker above.</div></div>
-    <div style="display:flex;gap:.6rem;flex-wrap:wrap;margin-top:1rem;">
-      <button class="btn-publish" onclick="saveColors()">🌐 Save & Publish Colors</button>
-      <button class="btn-save" onclick="previewColors()">👁 Preview Now</button>
-      <button class="btn-danger" onclick="resetColors()">↩ Reset Defaults</button>
+    <div class="card-body">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem;">
+        <div>
+          <div class="color-row"><label>Primary Navy (Header, Footer, Buttons)</label><input type="color" id="cN" value="#0a1f44"/><span class="color-hex" id="cNH">#0a1f44</span></div>
+          <div class="color-row"><label>Gold Accent (Highlights, Borders)</label><input type="color" id="cG" value="#c8913a"/><span class="color-hex" id="cGH">#c8913a</span></div>
+        </div>
+        <div>
+          <div class="color-row"><label>Page Background Color</label><input type="color" id="cB" value="#ffffff"/><span class="color-hex" id="cBH">#ffffff</span></div>
+          <div class="color-row"><label>Body Text Color</label><input type="color" id="cT" value="#1a1a2e"/><span class="color-hex" id="cTH">#1a1a2e</span></div>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Custom Background CSS <span style="font-weight:400;color:var(--text-muted);font-style:italic;">(optional — overrides the color picker above)</span></label>
+        <input type="text" class="fi" id="cBCss" placeholder="e.g. linear-gradient(135deg, #f5c842, #7b3fa0)"/>
+        <div class="form-hint">Any valid CSS background value. Applies to all public pages. Leave blank to use the color picker.</div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Footer Background Color</label>
+        <input type="color" class="fi" id="cFBg" value="#ffffff" style="height:44px;padding:4px;cursor:pointer;max-width:120px;"/>
+        <div class="form-hint">Set the footer section background. Current setting: white.</div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Footer Text Color</label>
+        <input type="color" class="fi" id="cFTx" value="#000000" style="height:44px;padding:4px;cursor:pointer;max-width:120px;"/>
+      </div>
+      <div style="display:flex;gap:.6rem;flex-wrap:wrap;margin-top:1rem;">
+        <button class="btn btn-publish" onclick="saveColors()">🌐 Save & Publish Colors to Website</button>
+        <button class="btn btn-save" onclick="previewColors()">👁 Preview on This Page</button>
+        <button class="btn btn-danger-soft" onclick="resetColors()">↩ Reset to Defaults</button>
+      </div>
+      <div id="colorMsg" style="margin-top:.6rem;font-size:.8rem;"></div>
     </div>
-    <div id="colorMsg" style="margin-top:.75rem;font-size:.82rem;"></div>
   </div>
 </div>
 
 <!-- CHURCH INFO -->
-<div class="cms-card">
-  <div class="cms-card-header"><span class="section-label">Church Details</span><div class="cms-card-title">⛪ Church Information</div></div>
-  <div class="cms-card-body">
-    <div class="form-group"><label class="form-label">Church Name</label><input type="text" class="form-input" id="sName" value="CHM Church of God"/></div>
-    <div class="form-group"><label class="form-label">Tagline</label><input type="text" class="form-input" id="sTag" value="Prayer · Holiness · Restoration · Transformation"/></div>
-    <div class="form-group"><label class="form-label">Address</label><input type="text" class="form-input" id="sAddr" value="330 Pleasant Valley Way, West Orange, NJ 07052"/></div>
-    <div class="form-row"><div class="form-group"><label class="form-label">Phone</label><input type="tel" class="form-input" id="sPhone" value="973-855-2396"/></div><div class="form-group"><label class="form-label">Email</label><input type="email" class="form-input" id="sEmail" value="yodebepro@gmail.com"/></div></div>
-    <button class="btn-publish" onclick="saveChurchInfo()">🌐 Save & Publish</button>
-  </div>
+<div id="tab-church" class="tab-pane">
+  <div class="card"><div class="card-header"><span class="label">Church Details</span><div class="card-title">⛪ Church Information</div></div><div class="card-body">
+    <div class="form-group"><label class="form-label">Church Name</label><input type="text" class="fi" id="sNm" value="CHM Church of God"/></div>
+    <div class="form-group"><label class="form-label">Tagline / Slogan</label><input type="text" class="fi" id="sTg" value="Prayer · Holiness · Restoration · Transformation"/></div>
+    <div class="form-group"><label class="form-label">Full Address</label><input type="text" class="fi" id="sAd" value="330 Pleasant Valley Way, West Orange, NJ 07052"/></div>
+    <div class="form-row"><div class="form-group"><label class="form-label">Phone Number</label><input type="tel" class="fi" id="sPh" value="973-855-2396"/></div><div class="form-group"><label class="form-label">Email Address</label><input type="email" class="fi" id="sEm" value="yodebepro@gmail.com"/></div></div>
+    <div class="form-group"><label class="form-label">About / Footer Blurb</label><textarea class="ft" id="sAb" rows="3" placeholder="A vibrant, Spirit-filled community…"></textarea></div>
+    <button class="btn btn-publish" onclick="saveInfo()">🌐 Save & Publish Church Info</button>
+  </div></div>
 </div>
 
 <!-- SERVICE TIMES -->
-<div class="cms-card">
-  <div class="cms-card-header"><span class="section-label">Schedule</span><div class="cms-card-title">🕐 Service Times</div></div>
-  <div class="cms-card-body">
-    <div class="form-group"><label class="form-label">Sunday</label><input type="text" class="form-input" id="tSun" value="8:00 AM &amp; 11:00 AM EST"/></div>
-    <div class="form-group"><label class="form-label">Wednesday</label><input type="text" class="form-input" id="tWed" value="7:00 PM EST"/></div>
-    <div class="form-group"><label class="form-label">Friday</label><input type="text" class="form-input" id="tFri" value="7:00 PM EST"/></div>
-    <div class="form-group"><label class="form-label">Saturday</label><input type="text" class="form-input" id="tSat" value="Varies — Check Announcements"/></div>
-    <button class="btn-publish" onclick="saveServiceTimes()">🌐 Save & Publish Times</button>
-  </div>
+<div id="tab-times" class="tab-pane">
+  <div class="card"><div class="card-header"><span class="label">Schedule</span><div class="card-title">🕐 Service Times</div></div><div class="card-body">
+    <div class="form-group"><label class="form-label">Sunday Morning</label><input type="text" class="fi" id="tSu" value="8:00 AM &amp; 11:00 AM EST"/></div>
+    <div class="form-group"><label class="form-label">Wednesday Evening</label><input type="text" class="fi" id="tWe" value="7:00 PM EST"/></div>
+    <div class="form-group"><label class="form-label">Friday Night</label><input type="text" class="fi" id="tFr" value="7:00 PM EST"/></div>
+    <div class="form-group"><label class="form-label">Saturday</label><input type="text" class="fi" id="tSa" value="Varies — See Announcements"/></div>
+    <button class="btn btn-publish" onclick="saveTimes()">🌐 Save & Publish Service Times</button>
+  </div></div>
 </div>
 
 <!-- SOCIAL LINKS -->
-<div class="cms-card">
-  <div class="cms-card-header"><span class="section-label">Online Presence</span><div class="cms-card-title">📱 Social Media & Links</div></div>
-  <div class="cms-card-body">
-    <div class="form-group"><label class="form-label">YouTube</label><input type="url" class="form-input" id="sYT" placeholder="https://youtube.com/@chmchurchofgod"/></div>
-    <div class="form-group"><label class="form-label">Facebook</label><input type="url" class="form-input" id="sFB" placeholder="https://facebook.com/chmchurchofgod"/></div>
-    <div class="form-group"><label class="form-label">Instagram</label><input type="url" class="form-input" id="sIG" placeholder="https://instagram.com/chmchurchofgod"/></div>
-    <div class="form-group"><label class="form-label">Online Giving URL</label><input type="url" class="form-input" id="sGive" placeholder="https://tithe.ly/…"/></div>
-    <div class="form-group"><label class="form-label">Zoom Link (Live Stream)</label><input type="url" class="form-input" id="sZoom" placeholder="https://zoom.us/j/…"/></div>
-    <button class="btn-publish" onclick="saveSocial()">🌐 Save & Publish Links</button>
-  </div>
+<div id="tab-social" class="tab-pane">
+  <div class="card"><div class="card-header"><span class="label">Online Presence</span><div class="card-title">📱 Social Media & Online Links</div></div><div class="card-body">
+    <div class="form-group"><label class="form-label">YouTube Channel URL</label><input type="url" class="fi" id="sYT" placeholder="https://youtube.com/@chmchurchofgod"/></div>
+    <div class="form-group"><label class="form-label">Facebook Page URL</label><input type="url" class="fi" id="sFB" placeholder="https://facebook.com/chmchurchofgod"/></div>
+    <div class="form-group"><label class="form-label">Instagram URL</label><input type="url" class="fi" id="sIG" placeholder="https://instagram.com/chmchurchofgod"/></div>
+    <div class="form-group"><label class="form-label">Twitter / X URL</label><input type="url" class="fi" id="sTW" placeholder="https://twitter.com/chmchurchofgod"/></div>
+    <div class="form-group"><label class="form-label">Online Giving Portal URL</label><input type="url" class="fi" id="sGv" placeholder="https://tithe.ly/… or PayPal link"/></div>
+    <div class="form-group"><label class="form-label">Zoom / Live Stream Join Link</label><input type="url" class="fi" id="sZm" placeholder="https://zoom.us/j/…"/></div>
+    <button class="btn btn-publish" onclick="saveSocial()">🌐 Save & Publish Links</button>
+  </div></div>
 </div>
 
-<!-- DATABASE -->
-<div class="cms-card">
-  <div class="cms-card-header"><span class="section-label">System</span><div class="cms-card-title">☁️ Firebase Database</div></div>
-  <div class="cms-card-body">
-    <p style="font-size:.85rem;color:var(--text-muted);line-height:1.7;margin-bottom:1rem;">When Firebase is connected, every change you publish goes live instantly for all visitors worldwide — not just on your device.</p>
-    <div style="margin-bottom:1rem;padding:1rem;background:var(--off-white);border-radius:10px;">
-      <span class="firebase-status status-offline">Checking connection…</span>
+<!-- FIREBASE -->
+<div id="tab-system" class="tab-pane">
+  <div class="card"><div class="card-header"><span class="label">Database Connection</span><div class="card-title">☁️ Firebase Setup</div></div><div class="card-body">
+    <p style="font-size:.85rem;color:var(--text-muted);line-height:1.7;margin-bottom:1rem;">Firebase is a free Google database that connects your admin panel to the public website. When Firebase is active, every change you publish is instantly visible to all visitors worldwide.</p>
+    <div style="background:var(--off-white);border-radius:var(--radius);padding:1rem;margin-bottom:1rem;"><span class="firebase-status status-offline">Checking connection…</span></div>
+    <div style="background:var(--gold-pale);border:1px solid rgba(200,145,58,.3);border-radius:var(--radius);padding:1rem;font-size:.83rem;color:var(--navy);margin-bottom:1rem;">
+      📋 <strong>To activate Firebase:</strong> Edit <code style="background:rgba(0,0,0,.07);padding:.15rem .4rem;border-radius:4px;">admin/firebase-config.js</code> with your Firebase project keys. Instructions are inside that file. It takes about 5 minutes and is completely free.
     </div>
-    <div style="background:var(--gold-pale);border:1px solid rgba(200,145,58,.3);border-radius:10px;padding:1rem;font-size:.83rem;color:var(--navy);margin-bottom:1rem;">
-      📋 <strong>Setup:</strong> Open <code style="background:rgba(0,0,0,.06);padding:.15rem .4rem;border-radius:4px;">firebase-config.js</code> and paste your Firebase project keys. Instructions are inside the file.
-    </div>
-    <button class="btn-save" onclick="exportData()">📥 Export All Data (JSON Backup)</button>
-  </div>
-</div>
-
+    <button class="btn btn-save" onclick="exportData()">📥 Export All Data (JSON Backup)</button>
+  </div></div>
 </div></div></div></div><script src="admin.js"></script><script>requireAuth();
 
+function switchTab(btn,name){
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.tab-pane').forEach(p=>p.classList.remove('active'));
+  btn.classList.add('active');document.getElementById('tab-'+name).classList.add('active');
+}
 async function loadSettings(){
   const c=await cfgGet('colors');
-  if(c.navy){document.getElementById('cNavy').value=c.navy;document.getElementById('cNavyV').textContent=c.navy;}
-  if(c.gold){document.getElementById('cGold').value=c.gold;document.getElementById('cGoldV').textContent=c.gold;}
-  if(c.bg){document.getElementById('cBg').value=c.bg;document.getElementById('cBgV').textContent=c.bg;}
-  if(c.text){document.getElementById('cText').value=c.text;document.getElementById('cTextV').textContent=c.text;}
-  if(c.bgCss)document.getElementById('cBgCss').value=c.bgCss;
+  if(c.navy){document.getElementById('cN').value=c.navy;document.getElementById('cNH').textContent=c.navy;}
+  if(c.gold){document.getElementById('cG').value=c.gold;document.getElementById('cGH').textContent=c.gold;}
+  if(c.bg){document.getElementById('cB').value=c.bg;document.getElementById('cBH').textContent=c.bg;}
+  if(c.text){document.getElementById('cT').value=c.text;document.getElementById('cTH').textContent=c.text;}
+  if(c.bgCss)document.getElementById('cBCss').value=c.bgCss;
+  if(c.footerBg)document.getElementById('cFBg').value=c.footerBg;
+  if(c.footerText)document.getElementById('cFTx').value=c.footerText;
   const i=await cfgGet('church_info');
-  if(i.name)document.getElementById('sName').value=i.name;
-  if(i.tagline)document.getElementById('sTag').value=i.tagline;
-  if(i.addr)document.getElementById('sAddr').value=i.addr;
-  if(i.phone)document.getElementById('sPhone').value=i.phone;
-  if(i.email)document.getElementById('sEmail').value=i.email;
+  ['sNm','sTg','sAd','sPh','sEm','sAb'].forEach((f,idx)=>{ const v=[i.name,i.tagline,i.addr,i.phone,i.email,i.about][idx]; if(v)document.getElementById(f).value=v; });
   const t=await cfgGet('service_times');
-  if(t.sun)document.getElementById('tSun').value=t.sun;
-  if(t.wed)document.getElementById('tWed').value=t.wed;
-  if(t.fri)document.getElementById('tFri').value=t.fri;
-  if(t.sat)document.getElementById('tSat').value=t.sat;
+  if(t.sun)document.getElementById('tSu').value=t.sun;if(t.wed)document.getElementById('tWe').value=t.wed;
+  if(t.fri)document.getElementById('tFr').value=t.fri;if(t.sat)document.getElementById('tSa').value=t.sat;
   const s=await cfgGet('social');
-  if(s.yt)document.getElementById('sYT').value=s.yt;
-  if(s.fb)document.getElementById('sFB').value=s.fb;
-  if(s.ig)document.getElementById('sIG').value=s.ig;
-  if(s.give)document.getElementById('sGive').value=s.give;
-  if(s.zoom)document.getElementById('sZoom').value=s.zoom;
+  if(s.yt)document.getElementById('sYT').value=s.yt;if(s.fb)document.getElementById('sFB').value=s.fb;
+  if(s.ig)document.getElementById('sIG').value=s.ig;if(s.tw)document.getElementById('sTW').value=s.tw;
+  if(s.give)document.getElementById('sGv').value=s.give;if(s.zoom)document.getElementById('sZm').value=s.zoom;
 }
-['cNavy','cGold','cBg','cText'].forEach(id=>document.getElementById(id).addEventListener('input',e=>document.getElementById(id+'V').textContent=e.target.value));
+['cN','cG','cB','cT'].forEach(id=>document.getElementById(id).addEventListener('input',e=>document.getElementById(id+'H').textContent=e.target.value));
 async function saveColors(){
-  const d={navy:document.getElementById('cNavy').value,gold:document.getElementById('cGold').value,bg:document.getElementById('cBg').value,text:document.getElementById('cText').value,bgCss:document.getElementById('cBgCss').value};
+  const d={navy:document.getElementById('cN').value,gold:document.getElementById('cG').value,bg:document.getElementById('cB').value,text:document.getElementById('cT').value,bgCss:document.getElementById('cBCss').value,footerBg:document.getElementById('cFBg').value,footerText:document.getElementById('cFTx').value};
   await cfgSave('colors',d);
-  document.getElementById('colorMsg').innerHTML='<span style="color:var(--success)">✅ Colors published — reload the public site to see them.</span>';
-  showToast('🎨 Colors published to website!');
+  document.getElementById('colorMsg').innerHTML='<span style="color:var(--success)">✅ Colors published — reload the public site to see changes.</span>';
+  toast('🎨 Colors published to website!','success');
 }
 function previewColors(){
   const r=document.documentElement.style;
-  r.setProperty('--navy',document.getElementById('cNavy').value);
-  r.setProperty('--gold',document.getElementById('cGold').value);
-  const bgCss=document.getElementById('cBgCss').value||document.getElementById('cBg').value;
-  document.body.style.background=bgCss;showToast('Previewing — changes not saved yet','info');
+  r.setProperty('--navy',document.getElementById('cN').value);
+  r.setProperty('--gold',document.getElementById('cG').value);
+  document.body.style.background=document.getElementById('cBCss').value||document.getElementById('cB').value;
+  toast('Previewing colors — click Publish to save','info');
 }
 async function resetColors(){
   if(!window.confirm('Reset to default Cathedral Dusk colors?'))return;
-  await cfgSave('colors',{navy:'#0a1f44',gold:'#c8913a',bg:'#ffffff',text:'#1a1a2e',bgCss:''});
-  showToast('Colors reset');location.reload();
+  await cfgSave('colors',{navy:'#0a1f44',gold:'#c8913a',bg:'#ffffff',text:'#1a1a2e',bgCss:'',footerBg:'#ffffff',footerText:'#000000'});
+  toast('Colors reset to defaults');location.reload();
 }
-async function saveChurchInfo(){
-  await cfgSave('church_info',{name:document.getElementById('sName').value,tagline:document.getElementById('sTag').value,addr:document.getElementById('sAddr').value,phone:document.getElementById('sPhone').value,email:document.getElementById('sEmail').value});
-  showToast('Church info published!');
+async function saveInfo(){
+  await cfgSave('church_info',{name:document.getElementById('sNm').value,tagline:document.getElementById('sTg').value,addr:document.getElementById('sAd').value,phone:document.getElementById('sPh').value,email:document.getElementById('sEm').value,about:document.getElementById('sAb').value});
+  toast('Church info published!','success');
 }
-async function saveServiceTimes(){
-  await cfgSave('service_times',{sun:document.getElementById('tSun').value,wed:document.getElementById('tWed').value,fri:document.getElementById('tFri').value,sat:document.getElementById('tSat').value});
-  showToast('Service times published!');
+async function saveTimes(){
+  await cfgSave('service_times',{sun:document.getElementById('tSu').value,wed:document.getElementById('tWe').value,fri:document.getElementById('tFr').value,sat:document.getElementById('tSa').value});
+  toast('Service times published!','success');
 }
 async function saveSocial(){
-  await cfgSave('social',{yt:document.getElementById('sYT').value,fb:document.getElementById('sFB').value,ig:document.getElementById('sIG').value,give:document.getElementById('sGive').value,zoom:document.getElementById('sZoom').value});
-  showToast('Social links published!');
+  await cfgSave('social',{yt:document.getElementById('sYT').value,fb:document.getElementById('sFB').value,ig:document.getElementById('sIG').value,tw:document.getElementById('sTW').value,give:document.getElementById('sGv').value,zoom:document.getElementById('sZm').value});
+  toast('Social links published!','success');
 }
 async function exportData(){
-  const keys=['announcements','events','sermons','gallery','leaders','members','ministries','giving','prayer_requests','messages'];
-  const bk={exportDate:new Date().toISOString(),data:{}};
-  for(const k of keys)bk.data[k]=await cmsGet(k);
+  const k=['announcements','events','sermons','gallery','leaders','members','ministries','giving','prayer_requests','messages'];
+  const bk={exportDate:new Date().toISOString(),site:'CHM Church of God',data:{}};
+  for(const kk of k)bk.data[kk]=await cmsGet(kk);
   const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(bk,null,2)],{type:'application/json'}));
-  a.download=`CHM_Backup_${new Date().toISOString().slice(0,10)}.json`;a.click();
-  showToast('Data exported!');
+  a.download=`CHM_Backup_${new Date().toISOString().slice(0,10)}.json`;a.click();toast('Data exported!');
 }
 loadSettings();</script></body></html>

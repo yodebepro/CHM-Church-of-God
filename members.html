@@ -1,22 +1,27 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/><title>Members | CHM Admin</title><link rel="stylesheet" href="admin.css"/><script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script><script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script><script src="firebase-config.js"></script></head><body><div class="admin-wrap"><aside class="sidebar" id="sidebar">
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/><title>Members | CHM Admin</title><link rel="stylesheet" href="admin.css"/><script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script src="firebase-config.js"></script></head><body><div class="admin-wrap">
+<aside class="sidebar" id="sidebar">
   <div class="sidebar-brand">
-    <img src="logo-dark.png" alt="CHM" class="sidebar-logo-img" onerror="this.outerHTML='<div class=&quot;sidebar-logo-icon&quot;>✝</div>'"/>
-    <div class="sidebar-brand-text"><span class="sidebar-brand-name">CHM Church of God</span><span class="sidebar-brand-sub">Admin CMS</span></div>
+    <img src="logo-dark.png" alt="CHM" class="brand-logo" onerror="this.outerHTML='<div class=&quot;brand-logo-fallback&quot;>✝</div>'"/>
+    <div class="brand-text"><span class="brand-name">CHM Church of God</span><span class="brand-sub">Admin Panel</span></div>
   </div>
-  <div class="sidebar-status"><span class="firebase-status status-offline">🟡 Checking connection…</span></div>
-  <div class="sidebar-section"><div class="sidebar-section-label">Main</div><a href="dashboard.html" class="sidebar-link"><span class="icon">🏠</span> Dashboard</a></div>
+  <div class="sidebar-conn"><span class="firebase-status status-offline">🟡 Checking…</span></div>
+  <div class="sidebar-section"><div class="sidebar-section-label">Main</div>
+    <a href="dashboard.html" class="sidebar-link"><span class="icon">🏠</span> Dashboard</a>
+  </div>
   <div class="sidebar-section"><div class="sidebar-section-label">Content</div>
-    <a href="announcements.html" class="sidebar-link"><span class="icon">📢</span> Announcements</a>
-    <a href="events.html" class="sidebar-link"><span class="icon">📅</span> Events</a>
-    <a href="sermons.html" class="sidebar-link"><span class="icon">🎙</span> Sermons</a>
-    <a href="gallery.html" class="sidebar-link"><span class="icon">🖼</span> Gallery</a>
+    <a href="adm-announcements.html" class="sidebar-link"><span class="icon">📢</span> Announcements</a>
+    <a href="adm-events.html" class="sidebar-link"><span class="icon">📅</span> Events</a>
+    <a href="adm-sermons.html" class="sidebar-link"><span class="icon">🎙</span> Sermons</a>
+    <a href="adm-gallery.html" class="sidebar-link"><span class="icon">🖼</span> Gallery</a>
     <a href="pages.html" class="sidebar-link"><span class="icon">📄</span> Page Content</a>
     <a href="navigation.html" class="sidebar-link"><span class="icon">🧭</span> Navigation</a>
   </div>
   <div class="sidebar-section"><div class="sidebar-section-label">People</div>
-    <a href="leaders.html" class="sidebar-link"><span class="icon">👤</span> Leadership</a>
+    <a href="adm-leaders.html" class="sidebar-link"><span class="icon">👤</span> Leadership</a>
     <a href="members.html" class="sidebar-link"><span class="icon">👥</span> Members</a>
-    <a href="ministries.html" class="sidebar-link"><span class="icon">⛪</span> Ministries</a>
+    <a href="adm-ministries.html" class="sidebar-link"><span class="icon">⛪</span> Ministries</a>
   </div>
   <div class="sidebar-section"><div class="sidebar-section-label">Inbox</div>
     <a href="prayer-requests.html" class="sidebar-link"><span class="icon">🙏</span> Prayer Requests</a>
@@ -24,66 +29,68 @@
     <a href="giving.html" class="sidebar-link"><span class="icon">💰</span> Giving Records</a>
   </div>
   <div class="sidebar-section"><div class="sidebar-section-label">System</div>
-    <a href="settings.html" class="sidebar-link"><span class="icon">⚙️</span> Settings</a>
-    <a href="../index.html" class="sidebar-link" target="_blank"><span class="icon">🌐</span> View Website</a>
+    <a href="settings.html" class="sidebar-link"><span class="icon">⚙️</span> Settings & Colors</a>
+    <a href="index.html" class="sidebar-link" target="_blank"><span class="icon">🌐</span> View Public Site ↗</a>
   </div>
-  <div class="sidebar-footer"><div class="sidebar-user">
-    <div class="sidebar-avatar">A</div>
-    <div><div class="sidebar-user-name">Administrator</div><div class="sidebar-user-role">Super Admin</div></div>
-    <button class="sidebar-logout" data-logout title="Logout">⏻</button>
-  </div></div>
+  <div class="sidebar-footer">
+    <div class="sidebar-user">
+      <div class="sidebar-avatar">A</div>
+      <div><span class="sidebar-user-name">Administrator</span><span class="sidebar-user-role">Super Admin</span></div>
+      <button class="sidebar-logout" data-logout title="Sign Out">⏻</button>
+    </div>
+  </div>
 </aside>
-<div class="main-content"><div class="top-bar"><button class="hamburger" id="hamburger"><span></span><span></span><span></span></button><div class="top-bar-title">👥 Members</div><div class="top-bar-actions"><button class="btn-gold" data-modal-open="memModal">+ Add Member</button></div></div><div class="page-body"><div class="stats-grid" style="grid-template-columns:repeat(4,1fr);">
+<div class="main-content"><div class="top-bar"><div class="top-bar-left"><button class="hamburger" id="hamburger"><span></span><span></span><span></span></button><h1 class="top-bar-title">👥 Members</h1></div><div class="top-bar-actions"><button class="btn btn-gold btn-sm" data-open="mM">+ Add Member</button></div></div><div class="page-body"><div class="stats-grid" style="grid-template-columns:repeat(4,1fr);">
   <div class="stat-card"><div class="stat-icon">👥</div><div class="stat-value" id="mT">0</div><div class="stat-label">Total Members</div></div>
   <div class="stat-card green"><div class="stat-icon">✅</div><div class="stat-value" id="mA">0</div><div class="stat-label">Active</div></div>
   <div class="stat-card blue"><div class="stat-icon">🆕</div><div class="stat-value" id="mN">0</div><div class="stat-label">New (2025)</div></div>
-  <div class="stat-card"><div class="stat-icon">🙋</div><div class="stat-value" id="mV">0</div><div class="stat-label">Serving</div></div>
+  <div class="stat-card purple"><div class="stat-icon">🙋</div><div class="stat-value" id="mV">0</div><div class="stat-label">Serving</div></div>
 </div>
 <div class="filter-bar">
-  <div class="filter-chips" id="memChips"><button class="chip active" data-f="">All</button><button class="chip" data-f="active">Active</button><button class="chip" data-f="visitor">Visitor</button><button class="chip" data-f="inactive">Inactive</button></div>
-  <div class="search-wrap"><span class="search-icon">🔍</span><input type="text" id="memQ" placeholder="Search members…"/></div>
-</div><div class="cms-card"><div class="table-wrap"><table><thead><tr><th>Name</th><th>Email</th><th>Phone</th><th>Join Date</th><th>Ministry</th><th>Status</th><th>Actions</th></tr></thead><tbody id="memTbody"></tbody></table></div></div><div class="modal-overlay" id="memModal"><div class="modal"><div class="modal-header"><div class="modal-title" id="memModalTitle">Add Member</div><button class="modal-close" data-modal-close="memModal">✕</button></div><div class="modal-body">
-<input type="hidden" id="memId"/>
-<div class="form-row"><div class="form-group"><label class="form-label">First Name <span class="req">*</span></label><input type="text" class="form-input" id="memFirst"/></div><div class="form-group"><label class="form-label">Last Name <span class="req">*</span></label><input type="text" class="form-input" id="memLast"/></div></div>
-<div class="form-row"><div class="form-group"><label class="form-label">Email</label><input type="email" class="form-input" id="memEmail"/></div><div class="form-group"><label class="form-label">Phone</label><input type="tel" class="form-input" id="memPhone"/></div></div>
-<div class="form-row"><div class="form-group"><label class="form-label">Join Date</label><input type="date" class="form-input" id="memJoin"/></div><div class="form-group"><label class="form-label">Status</label><select class="form-select" id="memStatus"><option value="active">Active</option><option value="visitor">Visitor</option><option value="inactive">Inactive</option></select></div></div>
-<div class="form-row"><div class="form-group"><label class="form-label">Ministry / Team</label><input type="text" class="form-input" id="memMin"/></div><div class="form-group"><label class="form-label">Birthday</label><input type="date" class="form-input" id="memBday"/></div></div>
-<div class="form-group"><label class="form-label">Notes</label><textarea class="form-textarea" id="memNotes" rows="2"></textarea></div></div><div class="modal-footer"><button class="btn-outline" data-modal-close="memModal">Cancel</button><button class="btn-save" onclick="memSave('draft')">💾 Save Draft</button><button class="btn-publish" onclick="memSave('published')">🌐 Publish</button></div></div></div></div></div></div><script src="admin.js"></script><script>requireAuth();
-const MC='members';let memFilter='';
-document.querySelectorAll('#memChips .chip').forEach(c=>c.addEventListener('click',()=>{document.querySelectorAll('#memChips .chip').forEach(x=>x.classList.remove('active'));c.classList.add('active');memFilter=c.dataset.f;memLoad();}));
-document.getElementById('memQ').addEventListener('input',memLoad);
-async function memLoad(){
+  <div class="chips" id="mC"><button class="chip active" data-f="">All</button><button class="chip" data-f="active">Active</button><button class="chip" data-f="visitor">Visitor</button><button class="chip" data-f="inactive">Inactive</button></div>
+  <div class="search-box"><span class="si">🔍</span><input type="text" id="mQ" placeholder="Search members…"/></div>
+</div><div class="card"><div class="table-wrap"><table><thead><tr><th>Name</th><th>Email</th><th>Phone</th><th>Join Date</th><th>Ministry</th><th>Status</th><th>Actions</th></tr></thead><tbody id="mB"></tbody></table></div></div><div class="modal-overlay" id="mM"><div class="modal"><div class="modal-header"><h2 class="modal-title" id="mMT">Member</h2><button class="modal-close" data-close="mM">✕</button></div><div class="modal-body">
+<input type="hidden" id="mId"/>
+<div class="form-row"><div class="form-group"><label class="form-label">First Name <span class="req">*</span></label><input type="text" class="fi" id="mFi"/></div><div class="form-group"><label class="form-label">Last Name <span class="req">*</span></label><input type="text" class="fi" id="mLa"/></div></div>
+<div class="form-row"><div class="form-group"><label class="form-label">Email</label><input type="email" class="fi" id="mEm"/></div><div class="form-group"><label class="form-label">Phone</label><input type="tel" class="fi" id="mPh"/></div></div>
+<div class="form-row"><div class="form-group"><label class="form-label">Join Date</label><input type="date" class="fi" id="mJn"/></div><div class="form-group"><label class="form-label">Status</label><select class="fs" id="mSt"><option value="active">Active</option><option value="visitor">Visitor</option><option value="inactive">Inactive</option></select></div></div>
+<div class="form-row"><div class="form-group"><label class="form-label">Ministry / Team</label><input type="text" class="fi" id="mMi" placeholder="Choir, Ushers, Media…"/></div><div class="form-group"><label class="form-label">Birthday</label><input type="date" class="fi" id="mBd"/></div></div>
+<div class="form-group"><label class="form-label">Notes</label><textarea class="ft" id="mNo" rows="2"></textarea></div></div><div class="modal-footer"><button class="btn btn-outline btn-sm" data-close="mM">Cancel</button><button class="btn btn-save btn-sm" onclick="mSave('draft')">💾 Save Draft</button><button class="btn btn-publish btn-sm" onclick="mSave('published')">🌐 Publish</button></div></div></div></div></div></div><script src="admin.js"></script><script>requireAuth();
+const MC='members';let mF='';
+document.querySelectorAll('#mC .chip').forEach(c=>c.addEventListener('click',()=>{document.querySelectorAll('#mC .chip').forEach(x=>x.classList.remove('active'));c.classList.add('active');mF=c.dataset.f;mLoad();}));
+document.getElementById('mQ').addEventListener('input',mLoad);
+async function mLoad(){
   const data=await cmsGet(MC);
   document.getElementById('mT').textContent=data.length;
-  document.getElementById('mA').textContent=data.filter(m=>m.status==='active').length;
-  document.getElementById('mN').textContent=data.filter(m=>m.join&&m.join.startsWith('2025')).length;
-  document.getElementById('mV').textContent=data.filter(m=>m.ministry).length;
-  const q=document.getElementById('memQ').value.toLowerCase();
-  const fil=data.filter(m=>(!memFilter||m.status===memFilter)&&(!q||`${m.first} ${m.last}`.toLowerCase().includes(q)||(m.email||'').toLowerCase().includes(q)));
-  document.getElementById('memTbody').innerHTML=fil.length?fil.map(m=>`<tr>
-    <td class="td-bold">${m.first} ${m.last}</td><td class="td-muted">${m.email||'—'}</td><td class="td-muted">${m.phone||'—'}</td>
+  document.getElementById('mA').textContent=data.filter(x=>x.status==='active').length;
+  document.getElementById('mN').textContent=data.filter(x=>x.join&&x.join.startsWith('2025')).length;
+  document.getElementById('mV').textContent=data.filter(x=>x.ministry).length;
+  const q=document.getElementById('mQ').value.toLowerCase();
+  const fil=data.filter(m=>(!mF||m.status===mF)&&(!q||`${m.first} ${m.last}`.toLowerCase().includes(q)));
+  document.getElementById('mB').innerHTML=fil.length?fil.map(m=>`<tr>
+    <td class="td-primary">${m.first} ${m.last}</td><td class="td-muted">${m.email||'—'}</td><td class="td-muted">${m.phone||'—'}</td>
     <td class="td-muted">${m.join||'—'}</td><td class="td-muted">${m.ministry||'—'}</td>
-    <td><span class="badge ${m.status==='active'?'badge-green':m.status==='visitor'?'badge-blue':'badge-gray'}">${m.status||'active'}</span></td>
-    <td><div class="td-actions"><button class="action-btn edit" onclick="memLoad_edit('${m.id}')">✏️ Edit</button><button class="action-btn delete" onclick="confirmDelete(()=>cmsDelete('${MC}','${m.id}').then(()=>{showToast('Removed','error');memLoad()}))">🗑</button></div></td>
-  </tr>`).join(''):'<tr><td colspan="7" style="text-align:center;padding:3rem;color:var(--text-muted);"><div style="font-size:2.5rem;margin-bottom:.5rem;">👥</div><p>No members yet</p></td></tr>';
+    <td><span class="badge ${m.status==='active'?'badge-green':m.status==='visitor'?'badge-blue':'badge-archived'}">${m.status||'active'}</span></td>
+    <td><div class="row-actions"><button class="act act-edit" onclick="mLoad_edit('${m.id}')">✏️ Edit</button><button class="act act-delete" onclick="confirmDel(()=>cmsDelete('${MC}','${m.id}').then(()=>{toast('Removed','error');mLoad()}))">🗑</button></div></td>
+  </tr>`).join(''):'<tr><td colspan="7" style="text-align:center;padding:2.5rem;color:var(--text-muted);">No members. Click <strong>+ Add Member</strong> to start.</td></tr>';
 }
-async function memLoad_edit(id){
+async function mLoad_edit(id){
   const d=(await cmsGet(MC)).find(x=>x.id===id);if(!d)return;
-  document.getElementById('memId').value=d.id;document.getElementById('memFirst').value=d.first||'';
-  document.getElementById('memLast').value=d.last||'';document.getElementById('memEmail').value=d.email||'';
-  document.getElementById('memPhone').value=d.phone||'';document.getElementById('memJoin').value=d.join||'';
-  document.getElementById('memStatus').value=d.status||'active';document.getElementById('memMin').value=d.ministry||'';
-  document.getElementById('memBday').value=d.bday||'';document.getElementById('memNotes').value=d.notes||'';
-  document.getElementById('memModalTitle').textContent='Edit Member';openModal('memModal');
+  document.getElementById('mId').value=d.id;document.getElementById('mFi').value=d.first||'';
+  document.getElementById('mLa').value=d.last||'';document.getElementById('mEm').value=d.email||'';
+  document.getElementById('mPh').value=d.phone||'';document.getElementById('mJn').value=d.join||'';
+  document.getElementById('mSt').value=d.status||'active';document.getElementById('mMi').value=d.ministry||'';
+  document.getElementById('mBd').value=d.bday||'';document.getElementById('mNo').value=d.notes||'';
+  document.getElementById('mMT').textContent='Edit Member';openModal('mM');
 }
-async function memSave(status){
-  const first=document.getElementById('memFirst').value.trim(),last=document.getElementById('memLast').value.trim();
-  if(!first||!last){showToast('Name required','error');return;}
-  const id=document.getElementById('memId').value||null;
-  await cmsSave(MC,id,{first,last,email:document.getElementById('memEmail').value,phone:document.getElementById('memPhone').value,join:document.getElementById('memJoin').value,status:document.getElementById('memStatus').value,ministry:document.getElementById('memMin').value,bday:document.getElementById('memBday').value,notes:document.getElementById('memNotes').value},'active');
-  showToast('Member saved');closeModal('memModal');memLoad();
+async function mSave(s){
+  const fi=document.getElementById('mFi').value.trim(),la=document.getElementById('mLa').value.trim();
+  if(!fi||!la){toast('Name required','error');return;}
+  const id=document.getElementById('mId').value||null;
+  await cmsSave(MC,id,{first:fi,last:la,email:document.getElementById('mEm').value,phone:document.getElementById('mPh').value,join:document.getElementById('mJn').value,status:document.getElementById('mSt').value,ministry:document.getElementById('mMi').value,bday:document.getElementById('mBd').value,notes:document.getElementById('mNo').value},'active');
+  toast('Member saved');closeModal('mM');mLoad();
 }
-document.querySelector('[data-modal-open="memModal"]').addEventListener('click',()=>{
-  ['memId','memFirst','memLast','memEmail','memPhone','memJoin','memMin','memBday','memNotes'].forEach(f=>document.getElementById(f).value='');
-  document.getElementById('memStatus').value='active';document.getElementById('memModalTitle').textContent='Add Member';
-});memLoad();</script></body></html>
+document.querySelector('[data-open="mM"]').addEventListener('click',()=>{
+  ['mId','mFi','mLa','mEm','mPh','mJn','mMi','mBd','mNo'].forEach(f=>document.getElementById(f).value='');
+  document.getElementById('mSt').value='active';document.getElementById('mMT').textContent='Add Member';
+});mLoad();</script></body></html>

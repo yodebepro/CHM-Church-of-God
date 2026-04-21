@@ -1,0 +1,109 @@
+<!DOCTYPE html><html lang="en">
+<head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Events | CHM Admin</title><link rel="stylesheet" href="admin.css"/><script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script src="firebase-config.js"></script></head>
+<body><div class="admin-wrap">
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-brand">
+    <img src="logo-dark.png" alt="CHM" class="brand-logo" onerror="this.outerHTML='<div class=&quot;brand-logo-fallback&quot;>✝</div>'"/>
+    <div class="brand-text"><span class="brand-name">CHM Church of God</span><span class="brand-sub">Admin Panel</span></div>
+  </div>
+  <div class="sidebar-conn"><span class="firebase-status status-offline">🟡 Checking…</span></div>
+  <div class="sidebar-section"><div class="sidebar-section-label">Main</div>
+    <a href="dashboard.html" class="sidebar-link"><span class="icon">🏠</span> Dashboard</a>
+  </div>
+  <div class="sidebar-section"><div class="sidebar-section-label">Content</div>
+    <a href="adm-announcements.html" class="sidebar-link"><span class="icon">📢</span> Announcements</a>
+    <a href="adm-events.html" class="sidebar-link"><span class="icon">📅</span> Events</a>
+    <a href="adm-sermons.html" class="sidebar-link"><span class="icon">🎙</span> Sermons</a>
+    <a href="adm-gallery.html" class="sidebar-link"><span class="icon">🖼</span> Gallery</a>
+    <a href="pages.html" class="sidebar-link"><span class="icon">📄</span> Page Content</a>
+    <a href="navigation.html" class="sidebar-link"><span class="icon">🧭</span> Navigation</a>
+  </div>
+  <div class="sidebar-section"><div class="sidebar-section-label">People</div>
+    <a href="adm-leaders.html" class="sidebar-link"><span class="icon">👤</span> Leadership</a>
+    <a href="members.html" class="sidebar-link"><span class="icon">👥</span> Members</a>
+    <a href="adm-ministries.html" class="sidebar-link"><span class="icon">⛪</span> Ministries</a>
+  </div>
+  <div class="sidebar-section"><div class="sidebar-section-label">Inbox</div>
+    <a href="prayer-requests.html" class="sidebar-link"><span class="icon">🙏</span> Prayer Requests</a>
+    <a href="messages.html" class="sidebar-link"><span class="icon">✉️</span> Messages</a>
+    <a href="giving.html" class="sidebar-link"><span class="icon">💰</span> Giving Records</a>
+  </div>
+  <div class="sidebar-section"><div class="sidebar-section-label">System</div>
+    <a href="settings.html" class="sidebar-link"><span class="icon">⚙️</span> Settings & Colors</a>
+    <a href="index.html" class="sidebar-link" target="_blank"><span class="icon">🌐</span> View Public Site ↗</a>
+  </div>
+  <div class="sidebar-footer">
+    <div class="sidebar-user">
+      <div class="sidebar-avatar">A</div>
+      <div><span class="sidebar-user-name">Administrator</span><span class="sidebar-user-role">Super Admin</span></div>
+      <button class="sidebar-logout" data-logout title="Sign Out">⏻</button>
+    </div>
+  </div>
+</aside>
+
+<div class="main-content">
+  <div class="top-bar">
+    <div class="top-bar-left"><button class="hamburger" id="hamburger"><span></span><span></span><span></span></button><h1 class="top-bar-title">📅 Events</h1></div>
+    <div class="top-bar-actions"><button class="btn btn-gold btn-sm" data-open="eM">+ New Event</button></div>
+  </div>
+  <div class="page-body"><div class="filter-bar">
+  <div class="chips" id="eC"><button class="chip active" data-f="">All</button><button class="chip" data-f="published">Published</button><button class="chip" data-f="upcoming">Upcoming</button><button class="chip" data-f="recurring">Recurring</button><button class="chip" data-f="draft">Draft</button><button class="chip" data-f="archived">Archived</button></div>
+  <div class="search-box"><span class="si">🔍</span><input type="text" id="eQ" placeholder="Search events…"/></div>
+</div><div class="card"><div class="table-wrap"><table><thead><tr><th>Event Name</th><th>Date & Time</th><th>Location</th><th>Type</th><th>Status</th><th>Actions</th></tr></thead><tbody id="eB"></tbody></table></div></div><div class="modal-overlay" id="eM"><div class="modal">
+  <div class="modal-header"><h2 class="modal-title" id="eMT">Event</h2><button class="modal-close" data-close="eM">✕</button></div>
+  <div class="modal-body">
+<input type="hidden" id="eId"/>
+<div class="form-group"><label class="form-label">Event Name <span class="req">*</span></label><input type="text" class="fi" id="eNm" placeholder="Event title"/></div>
+<div class="form-row">
+  <div class="form-group"><label class="form-label">Date</label><input type="date" class="fi" id="eDt"/></div>
+  <div class="form-group"><label class="form-label">Time</label><input type="text" class="fi" id="eTm" placeholder="e.g. 6:00 PM EST"/></div>
+</div>
+<div class="form-row">
+  <div class="form-group"><label class="form-label">Location</label><input type="text" class="fi" id="eLc" placeholder="Main Sanctuary / Online"/></div>
+  <div class="form-group"><label class="form-label">Category</label><input type="text" class="fi" id="eCt" placeholder="Worship, Youth, Outreach…"/></div>
+</div>
+<div class="form-row">
+  <div class="form-group"><label class="form-label">Type</label><select class="fs" id="eTy"><option value="upcoming">Upcoming</option><option value="recurring">Recurring</option><option value="past">Past</option></select></div>
+  <div class="form-group"><label class="form-label">Accent Color</label><input type="color" class="fi" id="eCol" value="#0a1f44" style="height:44px;padding:4px;cursor:pointer;"/></div>
+</div>
+<div class="form-group"><label class="form-label">Description</label><textarea class="ft" id="eDe" rows="3" placeholder="Brief description of the event…"></textarea></div></div>
+  <div class="modal-footer"><button class="btn btn-outline btn-sm" data-close="eM">Cancel</button><button class="btn btn-save btn-sm" onclick="eSave('draft')">💾 Save Draft</button><button class="btn btn-publish btn-sm" onclick="eSave('published')">🌐 Save & Publish</button></div>
+</div></div></div>
+</div></div>
+<script src="admin.js"></script><script>requireAuth();
+function rowActions(col,id,st,rf){const p=st==='published';return `<div class="row-actions">${p?`<button class="act act-unpublish" onclick="cmsUnpublish('${col}','${id}').then(()=>{toast('Unpublished','warning');${rf}()})">⏸ Unpublish</button>`:`<button class="act act-publish" onclick="cmsPublish('${col}','${id}').then(()=>{toast('🌐 Published! Live on website','success');${rf}()})">🌐 Publish</button>`}<button class="act act-edit" onclick="${rf}_edit('${id}')">✏️ Edit</button><button class="act act-archive" onclick="cmsArchive('${col}','${id}').then(()=>{toast('Archived');${rf}()})">📦</button><button class="act act-delete" onclick="confirmDel(()=>cmsDelete('${col}','${id}').then(()=>{toast('Deleted','error');${rf}()}))">🗑</button></div>`;}
+const EC='events';let eF='';
+document.querySelectorAll('#eC .chip').forEach(c=>c.addEventListener('click',()=>{document.querySelectorAll('#eC .chip').forEach(x=>x.classList.remove('active'));c.classList.add('active');eF=c.dataset.f;eLoad();}));
+document.getElementById('eQ').addEventListener('input',eLoad);
+async function eLoad(){
+  const data=await cmsGet(EC);const q=document.getElementById('eQ').value.toLowerCase();
+  const fil=data.filter(e=>(!eF||(e._status===eF||e.type===eF))&&(!q||e.name.toLowerCase().includes(q)));
+  document.getElementById('eB').innerHTML=fil.length?fil.map(e=>`<tr>
+    <td><div class="td-primary">${e.name}</div><div class="td-secondary">${e.category||''}</div></td>
+    <td><div style="font-weight:600;font-size:.82rem;">${e.date||'—'}</div><div class="td-muted">${e.time||''}</div></td>
+    <td class="td-muted">${e.location||'—'}</td>
+    <td><span class="badge badge-blue">${e.type||'upcoming'}</span></td>
+    <td>${badge(e._status)}</td><td>${rowActions(EC,e.id,e._status,'eLoad')}</td>
+  </tr>`).join(''):'<tr><td colspan="6" style="text-align:center;padding:2.5rem;color:var(--text-muted);">No events. Click <strong>+ New Event</strong> to add one.</td></tr>';
+}
+async function eLoad_edit(id){
+  const d=(await cmsGet(EC)).find(x=>x.id===id);if(!d)return;
+  document.getElementById('eId').value=d.id;document.getElementById('eNm').value=d.name||'';
+  document.getElementById('eDt').value=d.date||'';document.getElementById('eTm').value=d.time||'';
+  document.getElementById('eLc').value=d.location||'';document.getElementById('eCt').value=d.category||'';
+  document.getElementById('eTy').value=d.type||'upcoming';document.getElementById('eDe').value=d.desc||'';
+  document.getElementById('eMT').textContent='Edit Event';openModal('eM');
+}
+async function eSave(status){
+  const name=document.getElementById('eNm').value.trim();if(!name){toast('Event name required','error');return;}
+  const id=document.getElementById('eId').value||null;
+  await cmsSave(EC,id,{name,date:document.getElementById('eDt').value,time:document.getElementById('eTm').value,location:document.getElementById('eLc').value,category:document.getElementById('eCt').value,type:document.getElementById('eTy').value,desc:document.getElementById('eDe').value},status);
+  toast(status==='published'?'🌐 Published! Live on website.':'Draft saved');closeModal('eM');eLoad();
+}
+document.querySelector('[data-open="eM"]').addEventListener('click',()=>{
+  ['eId','eNm','eDt','eTm','eLc','eCt','eDe'].forEach(f=>document.getElementById(f).value='');
+  document.getElementById('eTy').value='upcoming';document.getElementById('eMT').textContent='New Event';
+});eLoad();</script></body></html>
