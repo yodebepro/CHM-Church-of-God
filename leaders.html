@@ -374,6 +374,10 @@ background:linear-gradient(150deg,var(--navy) 0%,var(--navy-mid) 50%,#112050 100
 })();
 </script>
 
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script src="firebase-config.js"></script>
+<script src="cms-public.js"></script>
 </head>
 <body>
 <div id="chm-header"></div><div id="langMsg"></div>
@@ -387,6 +391,9 @@ background:linear-gradient(150deg,var(--navy) 0%,var(--navy-mid) 50%,#112050 100
 
 <section class="section">
   <div class="container">
+    <!-- DYNAMIC LEADERS (filled by cms-public.js when admin publishes leaders) -->
+    <div id="cms-leaders-grid" class="grid-4 reveal" style="margin-bottom:4rem;display:none;"></div>
+    <!-- STATIC FALLBACK (shown until admin publishes leaders) -->
     <!-- SENIOR LEADERSHIP -->
     <div class="section-header center">
       <span class="section-label">Senior Leadership</span>
@@ -913,5 +920,24 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 });
 
+</script>
+
+<script>
+// Hide static leader sections when CMS loads dynamic leaders
+(function(){
+  function checkDynamic(){
+    const grid = document.getElementById('cms-leaders-grid');
+    if(grid && grid.children.length > 0){
+      grid.style.display = 'grid';
+      // Hide all static fallback leader cards
+      document.querySelectorAll('.grid-4.reveal, .grid-3.reveal').forEach(function(el){
+        if(el.id !== 'cms-leaders-grid') el.style.display = 'none';
+      });
+    }
+  }
+  // Check after CMS has had time to load
+  setTimeout(checkDynamic, 2000);
+  setTimeout(checkDynamic, 4000);
+})();
 </script>
 </body></html>
