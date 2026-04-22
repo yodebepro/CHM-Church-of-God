@@ -1,0 +1,22 @@
+{
+  "_version": 1,
+  "_updated": "",
+  "leaders": [],
+  "announcements": [],
+  "events": [],
+  "sermons": [],
+  "gallery": [],
+  "ministries": [],
+  "site_config": {
+    "colors": {},
+    "church_info": {},
+    "service_times": {},
+    "hero": {},
+    "page_home": {},
+    "page_about": {},
+    "page_footer": {},
+    "navigation": {},
+    "footer_nav": {},
+    "social": {}
+  }
+}

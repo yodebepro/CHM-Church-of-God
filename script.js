@@ -4,7 +4,7 @@ const NAV_HTML = `
 <div class="header-inner" id="headerInner">
   <div class="container">
     <a href="index.html" class="logo">
-      <img src="assets/logo-dark.png" alt="CHM Church of God" class="logo-img" style="height:54px;width:auto;display:block;object-fit:contain;"/>
+      <img src="assets/logo-dark.png" alt="CHM Church of God" class="logo-img" style="height:72px;width:auto;display:block;object-fit:contain;"/>
     </a>
     <nav class="main-nav">
       <div class="nav-item"><a href="index.html" class="nav-link">Home</a></div>
@@ -58,7 +58,6 @@ const NAV_HTML = `
         <div class="lang-option" data-lang="ha" data-flag="🇳🇬">🇳🇬 Hausa</div>
       </div>
     </div>
-    <a href="connect.html" class="btn btn-primary btn-sm header-cta">Connect</a>
     <button class="menu-toggle" id="menuToggle" aria-label="Menu">
       <span></span><span></span><span></span>
     </button>
@@ -113,6 +112,7 @@ const FOOTER_HTML = `
       <div style="margin-top:1.25rem;display:flex;flex-direction:column;gap:.5rem">
         <a href="give.html" class="btn btn-primary btn-sm">Give Online</a>
         <a href="prayer-request.html" class="btn btn-outline btn-sm">Prayer Request</a>
+        <a href="contact.html" class="btn btn-outline btn-sm">Connect With Us</a>
       </div>
     </div>
   </div>
