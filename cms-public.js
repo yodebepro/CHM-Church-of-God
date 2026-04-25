@@ -1,265 +1,320 @@
 /* ================================================================
-   CHM CHURCH OF GOD — CMS Public Loader v3
-   Reads from site-data.json on GitHub (global, all devices)
-   Falls back to localStorage if GitHub unreachable
+   CHM CHURCH OF GOD — CMS Public Loader v4 (Bulletproof)
+   Reads from site-data.json on GitHub → updates every public page
+   Works globally on ALL devices. Falls back to localStorage.
 ================================================================ */
 (function() {
   'use strict';
 
-  const OWNER  = 'yodebepro';
-  const REPO   = 'CHM-Church-of-God';
-  const BRANCH = 'main';
-  // Two URL formats — try both to handle GitHub CDN quirks
-  const URLS = [
-    `https://raw.githubusercontent.com/${OWNER}/${REPO}/${BRANCH}/site-data.json`,
-    `https://raw.githubusercontent.com/${OWNER}/${REPO}/refs/heads/${BRANCH}/site-data.json`
-  ];
+  var OWNER  = 'yodebepro';
+  var REPO   = 'CHM-Church-of-God';
+  var BRANCH = 'main';
 
-  var data = null;
+  /* Try multiple URL formats — GitHub CDN can be picky */
+  function getUrls() {
+    var ts = Date.now();
+    return [
+      'https://raw.githubusercontent.com/' + OWNER + '/' + REPO + '/' + BRANCH + '/site-data.json?_=' + ts,
+      'https://raw.githubusercontent.com/' + OWNER + '/' + REPO + '/refs/heads/' + BRANCH + '/site-data.json?_=' + ts,
+      'https://cdn.jsdelivr.net/gh/' + OWNER + '/' + REPO + '@' + BRANCH + '/site-data.json?_=' + ts
+    ];
+  }
 
-  /* ── FETCH site-data.json ────────────────────────────────── */
-  async function fetchData() {
-    for (var i = 0; i < URLS.length; i++) {
+  var siteData = null;
+
+  /* ── FETCH DATA ────────────────────────────────────────────── */
+  async function fetchSiteData() {
+    var urls = getUrls();
+    for (var i = 0; i < urls.length; i++) {
       try {
-        var res = await fetch(URLS[i] + '?_=' + Date.now(), {
+        var res = await fetch(urls[i], {
+          method: 'GET',
           cache: 'no-store',
-          headers: { 'Cache-Control': 'no-cache, no-store, must-revalidate', 'Pragma': 'no-cache' }
+          headers: {
+            'Cache-Control': 'no-cache, no-store, must-revalidate',
+            'Pragma': 'no-cache',
+            'Expires': '0'
+          }
         });
         if (res.ok) {
-          data = await res.json();
-          // Mirror to localStorage as backup
-          try { localStorage.setItem('chm_sitedata_mirror', JSON.stringify(data)); } catch(e) {}
+          var text = await res.text();
+          var json = JSON.parse(text);
+          siteData = json;
+          /* Mirror for offline fallback */
+          try { localStorage.setItem('chm_sd_mirror', text); } catch(e) {}
+          console.log('[CHM CMS] Loaded from GitHub (' + urls[i].split('?')[0].split('/').pop() + ')');
           return true;
         }
-      } catch(e) {}
+      } catch(e) {
+        console.log('[CHM CMS] URL ' + i + ' failed: ' + e.message);
+      }
     }
-    // Fallback to localStorage mirror
+    /* All URLs failed — use localStorage mirror */
     try {
-      var saved = localStorage.getItem('chm_sitedata_mirror') || localStorage.getItem('chm_sitedata');
-      if (saved) { data = JSON.parse(saved); return true; }
+      var saved = localStorage.getItem('chm_sd_mirror') || localStorage.getItem('chm_sitedata');
+      if (saved) {
+        siteData = JSON.parse(saved);
+        console.log('[CHM CMS] Loaded from localStorage mirror');
+        return true;
+      }
     } catch(e) {}
+    console.log('[CHM CMS] No data available');
     return false;
   }
 
-  function getCol(col) {
-    if (!data || !data[col]) return [];
-    return data[col].filter(function(x) { return x._status === 'published'; });
+  function col(name) {
+    if (!siteData || !siteData[name]) return [];
+    return siteData[name].filter(function(x) { return x._status === 'published'; });
   }
 
-  function getCfg(section) {
-    if (!data || !data.site_config) return {};
-    return data.site_config[section] || {};
+  function cfg(section) {
+    if (!siteData || !siteData.site_config) return {};
+    return siteData.site_config[section] || {};
   }
 
-  /* ── INIT ────────────────────────────────────────────────── */
-  async function init() {
-    var ok = await fetchData();
+  /* ── MAIN ──────────────────────────────────────────────────── */
+  async function run() {
+    var ok = await fetchSiteData();
     if (!ok) return;
-    applyAll();
-  }
 
-  function applyAll() {
     applyTheme();
-    applyChurchInfo();
-    var page = location.pathname.split('/').pop() || 'index.html';
-    if (page === '' || page === 'index.html') loadHome();
-    if (page === 'leaders.html')              loadLeaders();
-    if (page === 'announcements.html')        loadAnnouncements();
-    if (page === 'events.html')               loadEvents();
-    if (page === 'sermons.html')              loadSermons();
-    if (page === 'gallery.html')              loadGallery();
-    if (page === 'ministries.html')           loadMinistries();
-    if (page === 'about.html')               loadAbout();
-    if (page === 'watch-live.html')          loadWatchLive();
+    applyInfo();
+
+    var page = (location.pathname.split('/').pop() || 'index.html').toLowerCase();
+
+    if (page === '' || page === 'index.html')   doHome();
+    if (page === 'leaders.html')                doLeaders();
+    if (page === 'announcements.html')          doAnnouncements();
+    if (page === 'events.html')                 doEvents();
+    if (page === 'sermons.html')                doSermons();
+    if (page === 'gallery.html')                doGallery();
+    if (page === 'ministries.html')             doMinistries();
+    if (page === 'about.html')                  doAbout();
+    if (page === 'watch-live.html')             doWatchLive();
   }
 
-  /* ── THEME ───────────────────────────────────────────────── */
+  /* ── THEME ─────────────────────────────────────────────────── */
   function applyTheme() {
-    var c = getCfg('colors');
+    var c = cfg('colors');
+    if (!c) return;
     var r = document.documentElement.style;
     if (c.navy) r.setProperty('--navy', c.navy);
     if (c.gold) r.setProperty('--gold', c.gold);
+    if (c.text) r.setProperty('--text', c.text);
     var bg = c.bgCss || c.bg;
     if (bg) document.body.style.background = bg;
-    if (c.footerBg || c.footerText) {
-      document.querySelectorAll('.site-footer').forEach(function(el) {
-        if (c.footerBg)   el.style.background = c.footerBg;
-        if (c.footerText) el.style.color = c.footerText;
-      });
-    }
+    document.querySelectorAll('.site-footer').forEach(function(el) {
+      if (c.footerBg)   el.style.setProperty('background', c.footerBg, 'important');
+      if (c.footerText) el.style.setProperty('color',      c.footerText,'important');
+    });
   }
 
-  /* ── CHURCH INFO ─────────────────────────────────────────── */
-  function applyChurchInfo() {
-    var info  = getCfg('church_info');
-    var times = getCfg('service_times');
-    var hero  = getCfg('hero');
-    if (info.addr)  document.querySelectorAll('[data-cms="address"]').forEach(function(el){ el.textContent = info.addr; });
-    if (info.phone) document.querySelectorAll('[data-cms="phone"]').forEach(function(el){ el.textContent = info.phone; });
-    if (info.email) document.querySelectorAll('[data-cms="email"]').forEach(function(el){ el.textContent = info.email; });
-    if (info.about) document.querySelectorAll('.footer-about').forEach(function(el){ el.textContent = info.about; });
-    if (times.sun) document.querySelectorAll('[data-cms="time-sun"]').forEach(function(el){ el.textContent = times.sun; });
-    if (times.wed) document.querySelectorAll('[data-cms="time-wed"]').forEach(function(el){ el.textContent = times.wed; });
-    if (times.fri) document.querySelectorAll('[data-cms="time-fri"]').forEach(function(el){ el.textContent = times.fri; });
-    // Hero background video
-    var vid = (hero && hero.videoUrl) || '';
-    if (vid) injectHeroVideo(vid);
+  /* ── CHURCH INFO ───────────────────────────────────────────── */
+  function applyInfo() {
+    var info  = cfg('church_info');
+    var times = cfg('service_times');
+    var hero  = cfg('hero');
+
+    q('[data-cms="address"]', function(el){ el.textContent = info.addr  || el.textContent; });
+    q('[data-cms="phone"]',   function(el){ el.textContent = info.phone || el.textContent; });
+    q('[data-cms="email"]',   function(el){ el.textContent = info.email || el.textContent; });
+    q('.footer-about',        function(el){ if(info.about) el.textContent = info.about; });
+    q('[data-cms="time-sun"]',function(el){ if(times.sun) el.textContent = times.sun; });
+    q('[data-cms="time-wed"]',function(el){ if(times.wed) el.textContent = times.wed; });
+    q('[data-cms="time-fri"]',function(el){ if(times.fri) el.textContent = times.fri; });
+
+    /* Hero background video */
+    var vidUrl = (hero && hero.videoUrl) ? hero.videoUrl : '';
+    if (vidUrl) injectVideo(vidUrl);
   }
 
-  function injectHeroVideo(url) {
-    var hero = document.querySelector('.hero');
-    if (!hero || hero.querySelector('.hero-video-bg')) return;
+  function injectVideo(url) {
+    var heroEl = document.querySelector('.hero');
+    if (!heroEl || heroEl.querySelector('.cms-hero-video')) return;
     var v = document.createElement('video');
+    v.className = 'cms-hero-video';
     v.autoplay = true; v.muted = true; v.loop = true; v.playsInline = true;
-    v.className = 'hero-video-bg';
-    v.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0;opacity:.45;pointer-events:none;';
-    v.innerHTML = '<source src="' + url + '" type="video/mp4"/>';
-    hero.style.position = 'relative';
-    hero.insertBefore(v, hero.firstChild);
+    v.setAttribute('playsinline','');
+    v.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0;opacity:.4;pointer-events:none;';
+    var s = document.createElement('source');
+    s.src = url; s.type = 'video/mp4';
+    v.appendChild(s);
+    heroEl.style.position = 'relative';
+    heroEl.insertBefore(v, heroEl.firstChild);
   }
 
-  /* ── HOME ────────────────────────────────────────────────── */
-  function loadHome() {
-    var h = getCfg('page_home');
-    if (h.eyebrow) { var el = document.querySelector('.hero-eyebrow'); if(el) el.innerHTML = h.eyebrow; }
-    if (h.title)   { var el = document.querySelector('.hero-title');   if(el) el.innerHTML = h.title; }
-    if (h.verse)   { var el = document.querySelector('.hero-verse');   if(el) el.innerHTML = h.verse; }
+  /* ── HOME ──────────────────────────────────────────────────── */
+  function doHome() {
+    var h = cfg('page_home');
+    if (h.eyebrow) set('.hero-eyebrow', h.eyebrow);
+    if (h.title)   html('.hero-title',  h.title);
+    if (h.verse)   html('.hero-verse',  h.verse);
   }
 
-  /* ── WATCH LIVE ──────────────────────────────────────────── */
-  function loadWatchLive() {
-    // Admin can set a custom YouTube video ID via site_config
-    var live = getCfg('watch_live');
-    if (live.youtubeId) {
-      var frame = document.getElementById('cmsYouTubeFrame');
-      if (frame) {
-        frame.src = 'https://www.youtube.com/embed/' + live.youtubeId +
-          '?rel=0&modestbranding=1&iv_load_policy=3&disablekb=1';
-      }
-    }
-  }
-
-  /* ── LEADERS ─────────────────────────────────────────────── */
-  function loadLeaders() {
-    var leaders = getCol('leaders');
+  /* ── LEADERS ───────────────────────────────────────────────── */
+  function doLeaders() {
+    var leaders = col('leaders');
     if (!leaders.length) return;
     var grid = document.getElementById('cms-leaders-grid');
     if (!grid) return;
     grid.style.display = 'grid';
+    grid.style.gridTemplateColumns = 'repeat(auto-fill, minmax(220px, 1fr))';
+    grid.style.gap = '2rem';
+    grid.style.marginBottom = '4rem';
     grid.innerHTML = leaders.map(function(l) {
+      var name = ((l.first || '') + ' ' + (l.last || '')).trim();
       var photo = l.photo
-        ? '<img src="'+l.photo+'" alt="'+(l.first||'')+' '+(l.last||'')+'" style="width:100%;aspect-ratio:1;object-fit:cover;" onerror="this.outerHTML=\'<div class=&quot;leader-img-placeholder&quot;>👤</div>\'">'
-        : '<div class="leader-img-placeholder">👤</div>';
-      return '<div class="leader-card"><div class="leader-photo-wrap" style="overflow:hidden;">' + photo + '</div>'
-        + '<div class="leader-body"><h4 class="leader-name">'+(l.first||'')+' '+(l.last||'')+'</h4>'
-        + '<div class="leader-title">'+(l.role||'')+'</div>'
-        + '<p class="leader-bio">'+(l.bio||'')+'</p>'
-        + (l.email ? '<p style="font-size:.78rem;color:var(--gold);margin-top:.5rem;">✉️ '+l.email+'</p>' : '')
+        ? '<img src="' + esc(l.photo) + '" alt="' + esc(name) + '" style="width:100%;aspect-ratio:1;object-fit:cover;display:block;" onerror="this.parentElement.innerHTML=\'<div style=&quot;aspect-ratio:1;display:flex;align-items:center;justify-content:center;font-size:3rem;background:#f4f5f7;&quot;>👤</div>\'">'
+        : '<div style="aspect-ratio:1;display:flex;align-items:center;justify-content:center;font-size:3rem;background:#f4f5f7;">👤</div>';
+      return '<div class="leader-card" style="background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,.08);">'
+        + '<div style="overflow:hidden;">' + photo + '</div>'
+        + '<div style="padding:1.25rem;">'
+        + '<h4 style="font-size:1.1rem;font-weight:700;color:#0a1f44;margin-bottom:.25rem;">' + esc(name) + '</h4>'
+        + '<div style="font-size:.8rem;font-weight:700;color:#c8913a;text-transform:uppercase;letter-spacing:.06em;margin-bottom:.5rem;">' + esc(l.role || '') + '</div>'
+        + (l.dept ? '<div style="font-size:.78rem;color:#6b7280;margin-bottom:.5rem;">' + esc(l.dept) + '</div>' : '')
+        + (l.bio  ? '<p style="font-size:.83rem;color:#374151;line-height:1.6;">' + esc(l.bio) + '</p>' : '')
         + '</div></div>';
     }).join('');
-    // Hide static placeholder leaders
-    document.querySelectorAll('.grid-4:not(#cms-leaders-grid), .grid-3:not(#cms-leaders-grid)').forEach(function(el){ el.style.display='none'; });
+    /* Hide static placeholder leaders once CMS ones are loaded */
+    document.querySelectorAll('.grid-4:not(#cms-leaders-grid)').forEach(function(el){ el.style.display='none'; });
   }
 
-  /* ── ANNOUNCEMENTS ───────────────────────────────────────── */
-  function loadAnnouncements() {
-    var items = getCol('announcements');
+  /* ── ANNOUNCEMENTS ─────────────────────────────────────────── */
+  function doAnnouncements() {
+    var items = col('announcements');
     if (!items.length) return;
     var el = document.getElementById('cms-announcements-grid');
     if (!el) return;
     el.innerHTML = items.map(function(a) {
-      return '<div class="ann-card '+(a._status==='pinned'?'pinned':'')+'">'
-        + (a._status==='pinned' ? '<span class="ann-pin">📌</span>' : '')
-        + '<div class="ann-cat">'+(a.category||'Announcement')+'</div>'
-        + '<h4 class="ann-title">'+(a.title||'')+'</h4>'
-        + '<p class="ann-body">'+(a.body||'')+'</p>'
-        + '<div class="ann-date">'+(a.date||'')+'</div></div>';
+      return '<div class="ann-card" style="background:#fff;border-radius:14px;padding:1.5rem;border-left:4px solid #c8913a;box-shadow:0 2px 8px rgba(0,0,0,.07);">'
+        + '<div style="font-size:.68rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:#c8913a;margin-bottom:.5rem;">' + esc(a.category || 'Announcement') + '</div>'
+        + '<h4 style="font-size:1.1rem;font-weight:700;color:#0a1f44;margin-bottom:.6rem;">' + esc(a.title || '') + '</h4>'
+        + '<p style="font-size:.88rem;color:#374151;line-height:1.7;">' + esc(a.body || '') + '</p>'
+        + (a.date ? '<div style="font-size:.75rem;color:#9ca3af;margin-top:.75rem;">' + esc(a.date) + '</div>' : '')
+        + '</div>';
     }).join('');
   }
 
-  /* ── EVENTS ──────────────────────────────────────────────── */
-  function loadEvents() {
-    var items = getCol('events');
+  /* ── EVENTS ────────────────────────────────────────────────── */
+  function doEvents() {
+    var items = col('events');
     if (!items.length) return;
     var el = document.getElementById('cms-events-grid');
     if (!el) return;
     var months = ['','Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
     el.innerHTML = items.map(function(e) {
-      var p = (e.date||'').split('-');
-      return '<div class="event-card">'
-        + '<div class="event-date-col"><div class="event-month">'+(p[1]?months[+p[1]]:'')+' </div>'
-        + '<div class="event-day">'+(p[2]||e.date||'—')+'</div><div class="event-year">'+(p[0]||'')+'</div></div>'
-        + '<div class="event-body"><div class="event-cat">'+(e.category||e.type||'Event')+'</div>'
-        + '<h4 class="event-title">'+(e.name||'')+'</h4>'
-        + '<div class="event-meta">'+(e.time?'<span>🕐 '+e.time+'</span>':'')+(e.location?'<span>📍 '+e.location+'</span>':'')+'</div>'
-        + (e.desc?'<p style="font-size:.84rem;color:var(--text-muted);margin-top:.5rem;">'+e.desc+'</p>':'')
+      var p = (e.date || '').split('-');
+      return '<div class="event-card" style="background:#fff;border-radius:14px;padding:1.5rem;box-shadow:0 2px 8px rgba(0,0,0,.07);display:flex;gap:1.25rem;align-items:flex-start;">'
+        + '<div style="text-align:center;min-width:52px;background:#0a1f44;color:#fff;border-radius:10px;padding:.6rem .5rem;flex-shrink:0;">'
+        + '<div style="font-size:.65rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:#c8913a;">' + (p[1] ? months[+p[1]] : '') + '</div>'
+        + '<div style="font-size:1.5rem;font-weight:900;line-height:1;">' + (p[2] || '—') + '</div>'
+        + '<div style="font-size:.62rem;color:rgba(255,255,255,.5);">' + (p[0] || '') + '</div>'
+        + '</div>'
+        + '<div style="flex:1;">'
+        + '<div style="font-size:.68rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:#c8913a;margin-bottom:.3rem;">' + esc(e.category || 'Event') + '</div>'
+        + '<h4 style="font-size:1rem;font-weight:700;color:#0a1f44;margin-bottom:.4rem;">' + esc(e.name || '') + '</h4>'
+        + (e.time     ? '<div style="font-size:.8rem;color:#6b7280;">🕐 ' + esc(e.time) + '</div>' : '')
+        + (e.location ? '<div style="font-size:.8rem;color:#6b7280;">📍 ' + esc(e.location) + '</div>' : '')
+        + (e.desc     ? '<p style="font-size:.82rem;color:#6b7280;margin-top:.4rem;">' + esc(e.desc) + '</p>' : '')
         + '</div></div>';
     }).join('');
   }
 
-  /* ── SERMONS ─────────────────────────────────────────────── */
-  function loadSermons() {
-    var items = getCol('sermons');
+  /* ── SERMONS ───────────────────────────────────────────────── */
+  function doSermons() {
+    var items = col('sermons');
     if (!items.length) return;
     var el = document.getElementById('cms-sermons-grid');
     if (!el) return;
+    el.style.display = 'grid';
+    el.style.gridTemplateColumns = 'repeat(auto-fill,minmax(280px,1fr))';
+    el.style.gap = '1.5rem';
     el.innerHTML = items.map(function(s) {
-      return '<div class="card"><div class="card-body">'
-        + '<div style="font-size:.7rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);margin-bottom:.4rem;">'+(s.series||'Sermon')+(s.date?' · '+s.date:'')+'</div>'
-        + '<h4 style="font-family:var(--font-display);font-size:1.15rem;color:var(--navy);margin-bottom:.3rem;">'+(s.title||'')+'</h4>'
-        + (s.speaker?'<div style="font-size:.82rem;color:var(--text-muted);margin-bottom:.5rem;">🎙 '+s.speaker+'</div>':'')
-        + (s.scripture?'<div style="font-size:.8rem;color:var(--gold);margin-bottom:.75rem;">📖 '+s.scripture+'</div>':'')
-        + (s.desc?'<p style="font-size:.84rem;color:var(--text-muted);margin-bottom:.75rem;">'+s.desc+'</p>':'')
-        + '<div style="display:flex;gap:.6rem;flex-wrap:wrap;">'
-        + (s.video?'<a href="'+s.video+'" target="_blank" class="btn btn-primary btn-sm">▶ Watch</a>':'')
-        + (s.audio?'<a href="'+s.audio+'" target="_blank" class="btn btn-outline btn-sm">🎵 Listen</a>':'')
-        + '</div></div></div>';
+      return '<div style="background:#fff;border-radius:16px;padding:1.5rem;box-shadow:0 2px 12px rgba(0,0,0,.08);">'
+        + '<div style="font-size:.68rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:#c8913a;margin-bottom:.4rem;">' + esc(s.series || 'Sermon') + (s.date ? ' · ' + esc(s.date) : '') + '</div>'
+        + '<h4 style="font-size:1.1rem;font-weight:700;color:#0a1f44;margin-bottom:.35rem;">' + esc(s.title || '') + '</h4>'
+        + (s.speaker   ? '<div style="font-size:.82rem;color:#6b7280;margin-bottom:.4rem;">🎙 ' + esc(s.speaker) + '</div>' : '')
+        + (s.scripture ? '<div style="font-size:.8rem;color:#c8913a;margin-bottom:.75rem;">📖 ' + esc(s.scripture) + '</div>' : '')
+        + (s.desc      ? '<p style="font-size:.83rem;color:#6b7280;line-height:1.6;margin-bottom:.85rem;">' + esc(s.desc) + '</p>' : '')
+        + '<div style="display:flex;gap:.5rem;flex-wrap:wrap;">'
+        + (s.video ? '<a href="' + esc(s.video) + '" target="_blank" style="display:inline-block;padding:.45rem 1rem;background:#0a1f44;color:#c8913a;border-radius:50px;font-size:.78rem;font-weight:700;text-decoration:none;">▶ Watch</a>' : '')
+        + (s.audio ? '<a href="' + esc(s.audio) + '" target="_blank" style="display:inline-block;padding:.45rem 1rem;background:#f4f5f7;color:#0a1f44;border-radius:50px;font-size:.78rem;font-weight:700;text-decoration:none;">🎵 Listen</a>' : '')
+        + '</div></div>';
     }).join('');
   }
 
-  /* ── GALLERY ─────────────────────────────────────────────── */
-  function loadGallery() {
-    var items = getCol('gallery');
+  /* ── GALLERY ───────────────────────────────────────────────── */
+  function doGallery() {
+    var items = col('gallery');
     if (!items.length) return;
     var el = document.getElementById('cms-gallery-grid');
     if (!el) return;
     el.innerHTML = items.map(function(g, i) {
-      return '<div class="gallery-item '+(i===0||i===3?'wide':'')+'">'
-        + '<img src="'+g.url+'" alt="'+(g.title||'')+'" loading="lazy" onerror="this.parentElement.style.display=\'none\'"/>'
-        + '<div class="gallery-overlay"><span class="gallery-caption">'+(g.title||'')+'</span></div></div>';
-    }).join('');
-  }
-
-  /* ── MINISTRIES ──────────────────────────────────────────── */
-  function loadMinistries() {
-    var items = getCol('ministries');
-    if (!items.length) return;
-    var el = document.getElementById('cms-ministries-grid');
-    if (!el) return;
-    el.innerHTML = items.map(function(m) {
-      return '<div class="ministry-card">'
-        + '<div class="min-icon">'+(m.icon||'⛪')+'</div>'
-        + '<h3 class="min-title">'+(m.name||'')+'</h3>'
-        + '<p class="min-desc">'+(m.desc||'')+'</p>'
-        + (m.leader?'<p style="font-size:.78rem;font-weight:700;color:var(--gold);margin-top:.75rem;">👤 '+m.leader+'</p>':'')
-        + (m.meeting?'<p style="font-size:.78rem;color:var(--text-muted);">🕐 '+m.meeting+'</p>':'')
+      return '<div class="gallery-item ' + (i===0||i===3?'wide':'') + '" style="overflow:hidden;border-radius:12px;cursor:pointer;" onclick="if(window.openLightbox)openLightbox(\'' + esc(g.url) + '\',\'' + esc(g.title||'') + '\')">'
+        + '<img src="' + esc(g.url) + '" alt="' + esc(g.title||'') + '" loading="lazy" style="width:100%;height:100%;object-fit:cover;" onerror="this.parentElement.style.display=\'none\'"/>'
+        + '<div class="gallery-overlay"><span class="gallery-caption">' + esc(g.title||'') + '</span></div>'
         + '</div>';
     }).join('');
   }
 
-  /* ── ABOUT ───────────────────────────────────────────────── */
-  function loadAbout() {
-    var a = getCfg('page_about');
-    if (a.mission) { var el=document.getElementById('cms-mission'); if(el) el.textContent=a.mission; }
-    if (a.vision)  { var el=document.getElementById('cms-vision');  if(el) el.textContent=a.vision; }
-    if (a.story)   { var el=document.getElementById('cms-story');   if(el) el.textContent=a.story; }
+  /* ── MINISTRIES ────────────────────────────────────────────── */
+  function doMinistries() {
+    var items = col('ministries');
+    if (!items.length) return;
+    var el = document.getElementById('cms-ministries-grid');
+    if (!el) return;
+    el.innerHTML = items.map(function(m) {
+      return '<div class="ministry-card" style="background:#fff;border-radius:16px;padding:1.75rem;box-shadow:0 2px 12px rgba(0,0,0,.08);text-align:center;">'
+        + '<div style="font-size:2.5rem;margin-bottom:.75rem;">' + (m.icon||'⛪') + '</div>'
+        + '<h3 style="font-size:1.15rem;font-weight:700;color:#0a1f44;margin-bottom:.5rem;">' + esc(m.name||'') + '</h3>'
+        + '<p style="font-size:.85rem;color:#6b7280;line-height:1.7;">' + esc(m.desc||'') + '</p>'
+        + (m.leader  ? '<p style="font-size:.78rem;font-weight:700;color:#c8913a;margin-top:.75rem;">👤 ' + esc(m.leader) + '</p>' : '')
+        + (m.meeting ? '<p style="font-size:.78rem;color:#9ca3af;">🕐 ' + esc(m.meeting) + '</p>' : '')
+        + '</div>';
+    }).join('');
   }
 
-  /* ── START ───────────────────────────────────────────────── */
+  /* ── ABOUT ─────────────────────────────────────────────────── */
+  function doAbout() {
+    var a = cfg('page_about');
+    if (a.mission) set('#cms-mission', a.mission);
+    if (a.vision)  set('#cms-vision',  a.vision);
+    if (a.story)   set('#cms-story',   a.story);
+  }
+
+  /* ── WATCH LIVE ────────────────────────────────────────────── */
+  function doWatchLive() {
+    var live = cfg('watch_live');
+    if (live && live.youtubeId) {
+      var frame = document.getElementById('cmsYouTubeFrame');
+      if (frame) {
+        frame.src = 'https://www.youtube.com/embed/' + live.youtubeId
+          + '?rel=0&modestbranding=1&iv_load_policy=3&disablekb=1&fs=1';
+      }
+    }
+  }
+
+  /* ── HELPERS ───────────────────────────────────────────────── */
+  function q(selector, fn) {
+    document.querySelectorAll(selector).forEach(fn);
+  }
+  function set(selector, text) {
+    var el = document.querySelector(selector);
+    if (el) el.textContent = text;
+  }
+  function html(selector, markup) {
+    var el = document.querySelector(selector);
+    if (el) el.innerHTML = markup;
+  }
+  function esc(str) {
+    return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+  }
+
+  /* ── START ─────────────────────────────────────────────────── */
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', init);
+    document.addEventListener('DOMContentLoaded', run);
   } else {
-    init();
+    run();
   }
 
 })();
