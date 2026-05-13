@@ -129,3 +129,208 @@ document.addEventListener('DOMContentLoaded', async()=>{
   // ESC to close modals
   document.addEventListener('keydown',e=>{ if(e.key==='Escape') document.querySelectorAll('.modal-overlay.open').forEach(m=>{ m.classList.remove('open'); document.body.style.overflow=''; }); });
 });
+
+
+
+/* ═══════════════════════════════════════════
+   CHM BLUEPRINT CMS EXTENSION v5
+   Adds full blueprint modules, publish workflow, Firebase Storage upload,
+   site/page color controls, menus, and global public publishing.
+═══════════════════════════════════════════ */
+const CHM_BLUEPRINT_COLLECTIONS = {
+  adm_home: { col:'page_home', title:'Home Page', icon:'🏠', fields:['title','subtitle','body','buttonText','buttonUrl','mediaUrl','textColor','backgroundColor'] },
+  adm_about: { col:'page_about', title:'About Page', icon:'ℹ️', fields:['title','subtitle','body','mediaUrl','textColor','backgroundColor'] },
+  adm_give: { col:'page_give', title:'Give Page', icon:'💰', fields:['title','subtitle','body','buttonText','buttonUrl','mediaUrl','textColor','backgroundColor'] },
+  adm_teams: { col:'teams', title:'Church Teams', icon:'🧩', fields:['title','category','leader','summary','body','mediaUrl','textColor','backgroundColor'] },
+  adm_departments: { col:'departments', title:'Departments', icon:'🏛️', fields:['title','category','leader','summary','body','mediaUrl','textColor','backgroundColor'] },
+  adm_sacred: { col:'sacred_ministries', title:'Sacred Ministries', icon:'✝️', fields:['title','category','leader','summary','body','mediaUrl','textColor','backgroundColor'] },
+  adm_locations: { col:'locations', title:'Locations / Campuses', icon:'🌐', fields:['title','address','country','state','city','phone','email','leader','summary','body','mediaUrl','mapUrl','textColor','backgroundColor'] },
+  adm_media_settings: { col:'media_settings', title:'Live Video / Radio / Media', icon:'📡', fields:['title','streamType','videoUrl','audioUrl','youtubeUrl','facebookUrl','summary','body','mediaUrl','textColor','backgroundColor'] },
+  adm_navigation: { col:'navigation_items', title:'Navigation & Dropdown Menus', icon:'🧭', fields:['title','parentMenu','label','url','sortOrder','summary','body'] },
+  adm_footer: { col:'footer_items', title:'Footer & Bottom Page Content', icon:'⬇️', fields:['title','column','label','url','summary','body','textColor','backgroundColor'] },
+  adm_languages: { col:'languages', title:'Translation Languages', icon:'🌐', fields:['title','languageCode','label','summary','body'] },
+  adm_uploads: { col:'media_library', title:'Media Upload Library', icon:'⬆️', fields:['title','category','summary','body','mediaUrl','fileType'] },
+  adm_blueprint: { col:'blueprint_sections', title:'Blueprint Sections', icon:'📘', fields:['title','category','summary','body','mediaUrl','textColor','backgroundColor'] }
+};
+
+async function chmUploadFile(file, folder='uploads'){
+  if(!file) return '';
+  if(fbReady && typeof firebase !== 'undefined' && firebase.storage){
+    try{
+      const safe = file.name.replace(/[^a-zA-Z0-9._-]/g,'_');
+      const path = `chm/${folder}/${Date.now()}_${safe}`;
+      const ref = firebase.storage().ref().child(path);
+      const snap = await ref.put(file);
+      return await snap.ref.getDownloadURL();
+    }catch(e){
+      toast('Firebase Storage upload failed. Falling back to local preview only.','warning');
+    }
+  }
+  return await new Promise((resolve,reject)=>{
+    const reader=new FileReader();
+    reader.onload=()=>resolve(reader.result);
+    reader.onerror=reject;
+    reader.readAsDataURL(file);
+  });
+}
+
+function chmFieldHtml(name, value=''){
+  const label = name.replace(/([A-Z])/g,' $1').replace(/^./,s=>s.toUpperCase());
+  const esc = (value||'').toString().replace(/"/g,'&quot;');
+  if(name==='body' || name==='summary'){
+    return `<label class="form-label">${label}</label><textarea class="form-input" name="${name}" rows="${name==='body'?8:3}">${value||''}</textarea>`;
+  }
+  if(name.toLowerCase().includes('color')){
+    return `<label class="form-label">${label}</label><input class="form-input" type="color" name="${name}" value="${esc || '#0a1f44'}"/>`;
+  }
+  if(name.toLowerCase().includes('url') || name==='mediaUrl' || name==='mapUrl'){
+    return `<label class="form-label">${label}</label><input class="form-input" type="url" name="${name}" value="${esc}" placeholder="https://..."/>`;
+  }
+  return `<label class="form-label">${label}</label><input class="form-input" name="${name}" value="${esc}" placeholder="${label}"/>`;
+}
+
+function chmStatusSelect(value='draft'){
+  return `<label class="form-label">Status</label><select class="form-input" name="_status">
+    <option value="draft" ${value==='draft'?'selected':''}>Draft</option>
+    <option value="published" ${value==='published'?'selected':''}>Published</option>
+    <option value="archived" ${value==='archived'?'selected':''}>Archived</option>
+  </select>`;
+}
+
+function chmGetFormData(form){
+  const data = Object.fromEntries(new FormData(form).entries());
+  return data;
+}
+
+function chmRenderAdminShell(cfg){
+  const root = document.querySelector('[data-blueprint-crud]');
+  if(!root) return;
+  root.innerHTML = `
+    <div class="content-header">
+      <div>
+        <span class="eyebrow">${cfg.icon||'📌'} CHM CMS</span>
+        <h1>${cfg.title}</h1>
+        <p>Full control: add, upload, edit, save, publish/post, archive, remove, and push globally to public pages through Firebase when connected.</p>
+      </div>
+      <div class="header-actions">
+        <button class="btn btn-primary" data-open="bpModal">＋ Add New</button>
+        <button class="btn btn-secondary" onclick="chmRefreshBlueprint()">↻ Refresh</button>
+      </div>
+    </div>
+    <div class="firebase-status status-offline">🟡 Checking…</div>
+    <div class="stat-grid" style="margin-top:1rem">
+      <div class="stat-card"><div class="stat-label">Module</div><div class="stat-value">${cfg.title}</div></div>
+      <div class="stat-card"><div class="stat-label">Collection</div><div class="stat-value">${cfg.col}</div></div>
+      <div class="stat-card"><div class="stat-label">Publish</div><div class="stat-value">Global</div></div>
+      <div class="stat-card"><div class="stat-label">Storage</div><div class="stat-value">Upload/URL</div></div>
+    </div>
+    <div class="panel" style="margin-top:1.5rem">
+      <div class="panel-header">
+        <h2>Published / Draft / Archived Records</h2>
+        <p>Only items marked Published appear on public pages.</p>
+      </div>
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead><tr><th>Title</th><th>Category/Menu</th><th>Status</th><th>Updated</th><th>Actions</th></tr></thead>
+          <tbody id="bpRows"><tr><td colspan="5">Loading...</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+    <div class="modal-overlay" id="bpModal">
+      <div class="modal modal-lg">
+        <div class="modal-header">
+          <h2 id="bpModalTitle">Add / Edit ${cfg.title}</h2>
+          <button class="modal-close" data-close="bpModal">×</button>
+        </div>
+        <form id="bpForm" class="modal-body">
+          <input type="hidden" name="id"/>
+          <div class="form-grid">
+            ${cfg.fields.map(f=>`<div class="form-group ${f==='body' || f==='summary' ? 'full' : ''}">${chmFieldHtml(f)}</div>`).join('')}
+            <div class="form-group full">
+              <label class="form-label">Upload Image / Video / Audio / File</label>
+              <input class="form-input" type="file" name="_file" accept="image/*,video/*,audio/*,.pdf,.doc,.docx"/>
+              <small>When Firebase Storage is configured, this uploads globally. Otherwise it saves a local preview only.</small>
+            </div>
+            <div class="form-group">${chmStatusSelect('draft')}</div>
+          </div>
+          <div class="form-actions">
+            <button class="btn btn-secondary" type="button" data-close="bpModal">Cancel</button>
+            <button class="btn btn-outline" type="button" id="bpSaveDraft">Save Draft</button>
+            <button class="btn btn-primary" type="button" id="bpPublish">Publish / Post</button>
+            <button class="btn btn-warning" type="button" id="bpArchive">Archive</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  `;
+}
+
+async function chmRefreshBlueprint(){
+  const root = document.querySelector('[data-blueprint-crud]');
+  if(!root) return;
+  const key = root.dataset.blueprintCrud;
+  const cfg = CHM_BLUEPRINT_COLLECTIONS[key];
+  if(!cfg) return;
+  const items = await cmsGet(cfg.col);
+  const rows = document.getElementById('bpRows');
+  if(!rows) return;
+  rows.innerHTML = items.length ? items.map(item=>{
+    const cat = item.category || item.parentMenu || item.column || item.streamType || item.country || '';
+    const updated = item._updatedAt ? new Date(item._updatedAt).toLocaleString() : '—';
+    return `<tr>
+      <td><strong>${item.title || item.label || 'Untitled'}</strong><br><small>${(item.summary||item.body||'').toString().slice(0,120)}</small></td>
+      <td>${cat || '—'}</td>
+      <td>${badge(item._status||'draft')}</td>
+      <td>${updated}</td>
+      <td>${rowActions(cfg.col,item.id,item._status||'draft','chmRefreshBlueprint')}<button class="act act-edit" onclick="chmBlueprintEdit('${key}','${item.id}')">📝 Full Edit</button></td>
+    </tr>`;
+  }).join('') : `<tr><td colspan="5">No records yet. Click Add New.</td></tr>`;
+}
+
+async function chmBlueprintEdit(key,id){
+  const cfg = CHM_BLUEPRINT_COLLECTIONS[key];
+  const items = await cmsGet(cfg.col);
+  const item = items.find(x=>x.id===id);
+  if(!item) return;
+  const form = document.getElementById('bpForm');
+  if(!form) return;
+  form.reset();
+  form.elements.id.value = item.id;
+  cfg.fields.forEach(f=>{ if(form.elements[f]) form.elements[f].value = item[f] || ''; });
+  if(form.elements._status) form.elements._status.value = item._status || 'draft';
+  openModal('bpModal');
+}
+
+async function chmBlueprintSubmit(status){
+  const root = document.querySelector('[data-blueprint-crud]');
+  const cfg = CHM_BLUEPRINT_COLLECTIONS[root.dataset.blueprintCrud];
+  const form = document.getElementById('bpForm');
+  const data = chmGetFormData(form);
+  const id = data.id; delete data.id;
+  data._status = status || data._status || 'draft';
+  const file = form.elements._file?.files?.[0];
+  if(file){
+    const url = await chmUploadFile(file, cfg.col);
+    data.mediaUrl = url;
+    data.fileName = file.name;
+    data.fileType = file.type;
+  }
+  await cmsSave(cfg.col,id,data,data._status);
+  toast(data._status==='published'?'Published globally':'Saved','success');
+  closeModal('bpModal');
+  form.reset();
+  await chmRefreshBlueprint();
+}
+
+document.addEventListener('DOMContentLoaded', async()=>{
+  const root = document.querySelector('[data-blueprint-crud]');
+  if(!root) return;
+  const cfg = CHM_BLUEPRINT_COLLECTIONS[root.dataset.blueprintCrud];
+  if(!cfg) return;
+  await initFirebase();
+  chmRenderAdminShell(cfg);
+  await chmRefreshBlueprint();
+  document.getElementById('bpSaveDraft')?.addEventListener('click',()=>chmBlueprintSubmit('draft'));
+  document.getElementById('bpPublish')?.addEventListener('click',()=>chmBlueprintSubmit('published'));
+  document.getElementById('bpArchive')?.addEventListener('click',()=>chmBlueprintSubmit('archived'));
+});

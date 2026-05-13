@@ -1,0 +1,67 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Live Video / Radio / Media Control | CHM Admin</title>
+<link rel="stylesheet" href="admin.css"/>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
+<script src="firebase-config.js"></script>
+</head><body onload="requireAuth()"><div class="admin-wrap">
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-brand">
+    <img src="logo-dark.png" alt="CHM" class="brand-logo" onerror="this.outerHTML='<div class=&quot;brand-logo-fallback&quot;>✝</div>'"/>
+    <div class="brand-text"><span class="brand-name">CHM Church of God</span><span class="brand-sub">Admin Panel</span></div>
+  </div>
+  <div class="sidebar-conn"><span class="firebase-status status-offline">🟡 Checking…</span></div>
+  <div class="sidebar-section"><div class="sidebar-section-label">Main</div>
+    <a href="dashboard.html" class="sidebar-link"><span class="icon">🏠</span> Dashboard</a>
+  </div>
+  <div class="sidebar-section"><div class="sidebar-section-label">Content</div>
+    <a href="adm-announcements.html" class="sidebar-link"><span class="icon">📢</span> Announcements</a>
+    <a href="adm-events.html" class="sidebar-link"><span class="icon">📅</span> Events</a>
+    <a href="adm-sermons.html" class="sidebar-link"><span class="icon">🎙</span> Sermons</a>
+    <a href="adm-gallery.html" class="sidebar-link"><span class="icon">🖼</span> Gallery</a>
+    <a href="pages.html" class="sidebar-link"><span class="icon">📄</span> Page Content</a>
+    <a href="navigation.html" class="sidebar-link"><span class="icon">🧭</span> Navigation</a>
+  </div>
+  <div class="sidebar-section"><div class="sidebar-section-label">People</div>
+    <a href="adm-leaders.html" class="sidebar-link"><span class="icon">👤</span> Leadership</a>
+    <a href="members.html" class="sidebar-link"><span class="icon">👥</span> Members</a>
+    <a href="adm-ministries.html" class="sidebar-link"><span class="icon">⛪</span> Ministries</a>
+  
+    <a href="adm-home.html" class="sidebar-link"><span class="icon">🏡</span> Home Page</a>
+    <a href="adm-about.html" class="sidebar-link"><span class="icon">ℹ️</span> About Page</a>
+    <a href="adm-teams.html" class="sidebar-link"><span class="icon">🧩</span> Teams</a>
+    <a href="adm-departments.html" class="sidebar-link"><span class="icon">🏛️</span> Departments</a>
+    <a href="adm-sacred.html" class="sidebar-link"><span class="icon">✝️</span> Sacred Ministries</a>
+    <a href="adm-locations.html" class="sidebar-link"><span class="icon">🌍</span> Locations / Campuses</a>
+    <a href="adm-give.html" class="sidebar-link"><span class="icon">💝</span> Give Page</a>
+    <a href="adm-media-settings.html" class="sidebar-link"><span class="icon">📡</span> Live Media Settings</a>
+    <a href="adm-uploads.html" class="sidebar-link"><span class="icon">⬆️</span> Media Uploads</a>
+    <a href="adm-blueprint.html" class="sidebar-link"><span class="icon">📘</span> Blueprint Sections</a>
+</div>
+  <div class="sidebar-section"><div class="sidebar-section-label">Inbox</div>
+    <a href="prayer-requests.html" class="sidebar-link"><span class="icon">🙏</span> Prayer Requests</a>
+    <a href="messages.html" class="sidebar-link"><span class="icon">✉️</span> Messages</a>
+    <a href="giving.html" class="sidebar-link"><span class="icon">💰</span> Giving Records</a>
+  </div>
+  <div class="sidebar-section"><div class="sidebar-section-label">System</div>
+    
+    <a href="adm-navigation.html" class="sidebar-link"><span class="icon">🧭</span> Navigation Menus</a>
+    <a href="adm-footer.html" class="sidebar-link"><span class="icon">⬇️</span> Footer Content</a>
+    <a href="adm-languages.html" class="sidebar-link"><span class="icon">🌐</span> Languages</a>
+    <a href="settings.html" class="sidebar-link"><span class="icon">⚙️</span> Settings & Colors</a>
+    <a href="index.html" class="sidebar-link" target="_blank"><span class="icon">🌐</span> View Public Site ↗</a>
+  </div>
+  <div class="sidebar-footer">
+    <div class="sidebar-user">
+      <div class="sidebar-avatar">A</div>
+      <div><span class="sidebar-user-name">Administrator</span><span class="sidebar-user-role">Super Admin</span></div>
+      <button class="sidebar-logout" data-logout title="Sign Out">⏻</button>
+    </div>
+  </div>
+</aside>
+<main class="main-content">
+  <div class="topbar-admin"><button id="hamburger" class="hamburger">☰</button><div class="topbar-title">Live Video / Radio / Media Control</div><button class="btn btn-ghost" data-logout>Logout</button></div>
+  <div class="page-body"><div data-blueprint-crud="adm_media_settings"></div></div>
+</main>
+</div><script src="admin.js"></script></body></html>
