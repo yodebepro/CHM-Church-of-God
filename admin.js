@@ -76,6 +76,58 @@ function lsGet(k){ try{ return JSON.parse(localStorage.getItem('chm_'+k))||[]; }
 function lsSet(k,d){ localStorage.setItem('chm_'+k, JSON.stringify(d)); }
 function genId(){ return Date.now().toString(36)+Math.random().toString(36).slice(2,6); }
 
+
+/* ===== CHM PUBLIC PUBLISH SYNC PATCH ===== */
+function chmNormalizePublicDoc(col, item){
+  const status = item._status || item.status || 'draft';
+  const media = item.mediaUrl || item.imageUrl || item.photoUrl || item.thumbnailUrl || '';
+  return {
+    ...item,
+    collection: col,
+    _status: status,
+    status: status,
+    archived: status === 'archived' || item.archived === true,
+    mediaUrl: media,
+    imageUrl: item.imageUrl || media,
+    photoUrl: item.photoUrl || media,
+    thumbnailUrl: item.thumbnailUrl || media,
+    title: item.title || item.name || item.label || 'Untitled',
+    summary: item.summary || item.subtitle || item.description || '',
+    body: item.body || item.content || item.message || ''
+  };
+}
+function chmMirrorPublicItem(col,item){
+  try{
+    const key='chm_public_feed';
+    const feed=JSON.parse(localStorage.getItem(key)||'{}');
+    if(!feed[col]) feed[col]=[];
+    const normalized=chmNormalizePublicDoc(col,item);
+    const idx=feed[col].findIndex(x=>x.id===normalized.id);
+    if(idx>=0) feed[col][idx]=normalized; else feed[col].unshift(normalized);
+    localStorage.setItem(key,JSON.stringify(feed));
+  }catch(e){}
+}
+async function chmSaveAndMirror(col,id,data,status='draft'){
+  const now=Date.now();
+  const finalStatus = status || data._status || data.status || 'draft';
+  const doc = chmNormalizePublicDoc(col, {
+    ...data,
+    id: id || genId(),
+    _status: finalStatus,
+    status: finalStatus,
+    archived: finalStatus === 'archived',
+    _updatedAt: now,
+    updatedAt: now
+  });
+  if(!id){ doc._createdAt=now; doc.createdAt=now; }
+  if(fbReady){ try{ await db.collection(col).doc(doc.id).set(doc,{merge:true}); }catch(e){ console.warn('Firebase save failed', e); } }
+  const local=lsGet(col), idx=local.findIndex(x=>x.id===doc.id);
+  if(idx>=0) local[idx]=doc; else local.unshift(doc);
+  lsSet(col,local);
+  chmMirrorPublicItem(col,doc);
+  return doc;
+}
+
 // ── STATUS BADGE ──────────────────────────────────────────────
 function badge(s){
   const m={published:'badge-published',draft:'badge-draft',archived:'badge-archived',pinned:'badge-pinned',active:'badge-green',inactive:'badge-archived',new:'badge-draft',read:'badge-archived',prayed:'badge-green',unread:'badge-draft'};
@@ -334,3 +386,17 @@ document.addEventListener('DOMContentLoaded', async()=>{
   document.getElementById('bpPublish')?.addEventListener('click',()=>chmBlueprintSubmit('published'));
   document.getElementById('bpArchive')?.addEventListener('click',()=>chmBlueprintSubmit('archived'));
 });
+
+
+/* ===== CHM OVERRIDES: ensure public page sees published admin changes ===== */
+cmsSave = async function(col,id,data,status='draft'){ return chmSaveAndMirror(col,id,data,status); };
+cmsPublish = async function(col,id){
+  const items = lsGet(col);
+  const item = items.find(x=>x.id===id) || {id};
+  await chmSaveAndMirror(col,id,{...item,_publishedAt:Date.now(),publishedAt:Date.now()},'published');
+};
+cmsArchive = async function(col,id){
+  const items = lsGet(col);
+  const item = items.find(x=>x.id===id) || {id};
+  await chmSaveAndMirror(col,id,item,'archived');
+};
