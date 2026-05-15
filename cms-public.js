@@ -1,160 +1,55 @@
-/* CHM CHURCH OF GOD — CMS Public Loader v5
-   Reads site-data.json from GitHub — works on ALL devices globally */
-(function() {
-  'use strict';
-
-  var OWNER  = 'yodebepro';
-  var REPO   = 'CHM-Church-of-God';
-  var BRANCH = 'main';
-
-  var siteData = null;
-
-  /* ── Fetch site-data.json from GitHub ─────────────────────── */
-  async function load() {
-    var ts = '?_=' + Date.now();
-    var urls = [
-      'https://raw.githubusercontent.com/'+OWNER+'/'+REPO+'/'+BRANCH+'/site-data.json'+ts,
-      'https://raw.githubusercontent.com/'+OWNER+'/'+REPO+'/refs/heads/'+BRANCH+'/site-data.json'+ts,
-      'https://cdn.jsdelivr.net/gh/'+OWNER+'/'+REPO+'@'+BRANCH+'/site-data.json'+ts
-    ];
-
-    for (var i = 0; i < urls.length; i++) {
-      try {
-        var res = await fetch(urls[i], { cache: 'no-store', headers: { 'Pragma': 'no-cache' } });
-        if (res.ok) {
-          var text = await res.text();
-          siteData = JSON.parse(text);
-          try { localStorage.setItem('chm_sd_bk', text); } catch(e) {}
-          applyAll();
-          return;
-        }
-      } catch(e) {}
-    }
-
-    // Fallback: localStorage backup
-    try {
-      var bk = localStorage.getItem('chm_sd_bk') || localStorage.getItem('chm_sitedata');
-      if (bk) { siteData = JSON.parse(bk); applyAll(); }
-    } catch(e) {}
-  }
-
-  function published(col) {
-    return (siteData && siteData[col] || []).filter(function(x){ return x._status==='published'; });
-  }
-  function cfg(key) {
-    return (siteData && siteData.site_config && siteData.site_config[key]) || {};
-  }
-
-  /* ── Apply everything ──────────────────────────────────────── */
-  function applyAll() {
-    applyTheme();
-    applyInfo();
-
-    var page = (location.pathname.split('/').pop() || 'index.html').toLowerCase();
-    if (page===''||page==='index.html')  doHome();
-    if (page==='leaders.html')           doLeaders();
-    if (page==='announcements.html')     doAnnouncements();
-    if (page==='events.html')            doEvents();
-    if (page==='sermons.html')           doSermons();
-    if (page==='gallery.html')           doGallery();
-    if (page==='ministries.html')        doMinistries();
-    if (page==='about.html')             doAbout();
-  }
-
-  /* ── Theme ─────────────────────────────────────────────────── */
-  function applyTheme() {
-    var c = cfg('colors');
-    var r = document.documentElement.style;
-    if (c.navy) r.setProperty('--navy', c.navy);
-    if (c.gold) r.setProperty('--gold', c.gold);
-    var bg = c.bgCss || c.bg;
-    if (bg) document.body.style.background = bg;
-    if (c.footerBg || c.footerText) {
-      each('.site-footer', function(el){
-        if (c.footerBg)   el.style.setProperty('background', c.footerBg, 'important');
-        if (c.footerText) el.style.setProperty('color', c.footerText, 'important');
-      });
-    }
-  }
-
-  /* ── Church info ───────────────────────────────────────────── */
-  function applyInfo() {
-    var info  = cfg('church_info');
-    var times = cfg('service_times');
-    var hero  = cfg('hero');
-
-    if (info.addr)  each('[data-cms="address"]', function(el){ el.textContent=info.addr; });
-    if (info.phone) each('[data-cms="phone"]',   function(el){ el.textContent=info.phone; });
-    if (info.email) each('[data-cms="email"]',   function(el){ el.textContent=info.email; });
-    if (info.about) each('.footer-about',        function(el){ el.textContent=info.about; });
-    if (times.sun)  each('[data-cms="time-sun"]',function(el){ el.textContent=times.sun; });
-    if (times.wed)  each('[data-cms="time-wed"]',function(el){ el.textContent=times.wed; });
-    if (times.fri)  each('[data-cms="time-fri"]',function(el){ el.textContent=times.fri; });
-
-    var vid = hero.videoUrl || '';
-    if (vid) injectHeroVideo(vid);
-  }
-
-  function injectHeroVideo(url) {
-    var heroEl = document.querySelector('.hero');
-    if (!heroEl || heroEl.querySelector('.cms-hero-video')) return;
-    var v = document.createElement('video');
-    v.className='cms-hero-video'; v.autoplay=true; v.muted=true; v.loop=true; v.playsInline=true;
-    v.style.cssText='position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0;opacity:.4;pointer-events:none;';
-    v.innerHTML='<source src="'+url+'" type="video/mp4"/>';
-    heroEl.style.position='relative';
-    heroEl.insertBefore(v, heroEl.firstChild);
-  }
-
-  /* ── HOME ──────────────────────────────────────────────────── */
-  function doHome() {
-    var h = cfg('page_home');
-    if (h.eyebrow) { var el=qs('.hero-eyebrow'); if(el) el.innerHTML=h.eyebrow; }
-    if (h.title)   { var el=qs('.hero-title');   if(el) el.innerHTML=h.title; }
-    if (h.verse)   { var el=qs('.hero-verse');   if(el) el.innerHTML=h.verse; }
-  }
-
   /* ── LEADERS ───────────────────────────────────────────────── */
   function doLeaders() {
     var leaders = published('leaders');
-    if (!leaders.length) return; // keep static fallback
+    if (!leaders.length) return; // keep static placeholders if none published
 
-    var grid = document.getElementById('cms-leaders-grid');
-    if (!grid) return;
+    // Inject each published leader into their matching slot card
+    leaders.forEach(function(l) {
+      var slotId = 'slot-' + (l.slot || '');
+      var card = document.getElementById(slotId);
 
-    // Show the dynamic grid
-    grid.style.display = 'grid';
-    grid.style.gridTemplateColumns = 'repeat(auto-fill, minmax(220px, 1fr))';
-    grid.style.gap = '2rem';
-    grid.style.marginBottom = '3rem';
-
-    grid.innerHTML = leaders.map(function(l) {
       var name = ((l.first||'') + ' ' + (l.last||'')).trim();
-
-      var photoHtml = l.photo
+      var photoHtml = l.photo && !l.photo.includes('[photo-stored-locally]')
         ? '<img src="' + l.photo + '" alt="' + esc(name) + '" '
-          + 'style="width:100%;height:100%;object-fit:cover;display:block;" '
-          + 'onerror="this.parentElement.innerHTML=\'<div class=&quot;leader-img-placeholder&quot;>👤</div>\'">'
-        : '<div class="leader-img-placeholder">👤</div>';
+          + 'style="width:100%;aspect-ratio:1;object-fit:cover;display:block;" '
+          + 'onerror="this.parentElement.innerHTML='<div class=&quot;leader-img-placeholder&quot;>&#128100;</div>'">'
+        : '<div class="leader-img-placeholder">&#128100;</div>';
 
-      return '<div class="leader-card">'
-        + '<div style="overflow:hidden;">' + photoHtml + '</div>'
-        + '<div class="leader-body">'
-        + '<h4 class="leader-name">' + esc(name) + '</h4>'
-        + '<div class="leader-title">' + esc(l.role||'') + '</div>'
-        + (l.dept ? '<div style="font-size:.75rem;color:var(--text-muted);margin-bottom:.4rem;">' + esc(l.dept) + '</div>' : '')
-        + (l.bio  ? '<p class="leader-bio">' + esc(l.bio) + '</p>' : '')
-        + (l.email? '<p style="font-size:.75rem;color:var(--gold);margin-top:.5rem;">✉️ ' + esc(l.email) + '</p>' : '')
-        + '</div></div>';
-    }).join('');
+      if (card) {
+        // Update the existing slot card with real data
+        card.innerHTML = '<div style="overflow:hidden;">' + photoHtml + '</div>'
+          + '<div class="leader-body">'
+          + '<h4 class="leader-name">' + esc(name) + '</h4>'
+          + '<div class="leader-title">' + esc(l.role||'') + '</div>'
+          + (l.dept ? '<div style="font-size:.75rem;color:var(--text-muted);margin-bottom:.4rem;">' + esc(l.dept) + '</div>' : '')
+          + (l.bio  ? '<p class="leader-bio">' + esc(l.bio) + '</p>' : '')
+          + (l.email? '<p style="font-size:.75rem;color:var(--gold);margin-top:.5rem;">&#9993; ' + esc(l.email) + '</p>' : '')
+          + '</div>';
+      }
+    });
 
-    // Hide static placeholders now that we have real data
-    each('.grid-4', function(el){
-      if (el.id !== 'cms-leaders-grid') el.style.display = 'none';
-    });
-    each('.grid-3', function(el){
-      if (el.id !== 'cms-leaders-grid') el.style.display = 'none';
-    });
+    // Also show any extra leaders (no slot) in cms-leaders-grid
+    var extra = leaders.filter(function(l){ return !l.slot || !document.getElementById('slot-'+l.slot); });
+    if (extra.length) {
+      var grid = document.getElementById('cms-leaders-grid');
+      if (grid) {
+        grid.style.display = 'grid';
+        grid.style.gridTemplateColumns = 'repeat(auto-fill, minmax(220px, 1fr))';
+        grid.style.gap = '2rem';
+        grid.style.marginBottom = '2rem';
+        grid.innerHTML += extra.map(function(l) {
+          var name = ((l.first||'') + ' ' + (l.last||'')).trim();
+          var photoHtml = l.photo && !l.photo.includes('[photo-stored-locally]')
+            ? '<img src="' + l.photo + '" alt="' + esc(name) + '" style="width:100%;aspect-ratio:1;object-fit:cover;">'
+            : '<div class="leader-img-placeholder">&#128100;</div>';
+          return '<div class="leader-card"><div style="overflow:hidden;">' + photoHtml + '</div>'
+            + '<div class="leader-body"><h4 class="leader-name">' + esc(name) + '</h4>'
+            + '<div class="leader-title">' + esc(l.role||'') + '</div>'
+            + (l.bio ? '<p class="leader-bio">' + esc(l.bio) + '</p>' : '')
+            + '</div></div>';
+        }).join('');
+      }
+    }
   }
 
   /* ── ANNOUNCEMENTS ─────────────────────────────────────────── */

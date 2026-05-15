@@ -1,6 +1,16 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/><title>Leadership | CHM Admin</title><link rel="stylesheet" href="admin.css"/><script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Leadership | CHM Admin</title>
+<link rel="stylesheet" href="admin.css"/>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-<script src="firebase-config.js"></script></head><body><div class="admin-wrap">
+<script src="firebase-config.js"></script>
+</head>
+<body>
+<div class="admin-wrap">
 <aside class="sidebar" id="sidebar">
   <div class="sidebar-brand">
     <img src="logo-dark.png" alt="CHM" class="brand-logo" onerror="this.outerHTML='<div class=&quot;brand-logo-fallback&quot;>✝</div>'"/>
@@ -40,109 +50,195 @@
     </div>
   </div>
 </aside>
-<div class="main-content"><div class="top-bar"><div class="top-bar-left"><button class="hamburger" id="hamburger"><span></span><span></span><span></span></button><h1 class="top-bar-title">👤 Leadership</h1></div><div class="top-bar-actions"><button class="btn btn-gold btn-sm" data-open="lM">+ Add Leader</button></div></div><div class="page-body"><div class="filter-bar"><div class="search-box"><span class="si">🔍</span><input type="text" id="lQ" placeholder="Search leaders…"/></div></div><div class="card"><div class="table-wrap"><table><thead><tr><th>Leader</th><th>Role</th><th>Department</th><th>Email</th><th>Status</th><th>Actions</th></tr></thead><tbody id="lB"></tbody></table></div></div><div class="modal-overlay" id="lM"><div class="modal"><div class="modal-header"><h2 class="modal-title" id="lMT">Leader</h2><button class="modal-close" data-close="lM">✕</button></div><div class="modal-body">
-<input type="hidden" id="lId"/>
-<div class="form-row"><div class="form-group"><label class="form-label">First Name <span class="req">*</span></label><input type="text" class="fi" id="lFi"/></div><div class="form-group"><label class="form-label">Last Name <span class="req">*</span></label><input type="text" class="fi" id="lLa"/></div></div>
-<div class="form-row"><div class="form-group"><label class="form-label">Title / Role</label><select class="fs" id="lRo"><option>Senior Pastor</option><option>Associate Pastor</option><option>Youth Pastor</option><option>Ministry Director</option><option>Elder</option><option>Deacon</option><option>Minister</option><option>Evangelist</option><option>Coordinator</option><option>Administrator</option></select></div><div class="form-group"><label class="form-label">Department</label><input type="text" class="fi" id="lDe" placeholder="Pastoral, Youth, Music…"/></div></div>
-<div class="form-row"><div class="form-group"><label class="form-label">Email</label><input type="email" class="fi" id="lEm"/></div><div class="form-group"><label class="form-label">Phone</label><input type="tel" class="fi" id="lPh2"/></div></div>
-<div class="form-group"><label class="form-label">Bio</label><textarea class="ft" id="lBi" rows="3" placeholder="Short biography…"></textarea></div>
-<div style="border:2px dashed var(--border);border-radius:var(--radius);padding:1rem 1.1rem;background:var(--off-white);margin-bottom:.85rem;">
-      <label class="form-label" style="margin-bottom:.65rem;">📸 Leader Photo</label>
-      <div style="display:flex;gap:.85rem;align-items:flex-start;flex-wrap:wrap;">
-        <div id="lPhPrev" style="width:88px;height:88px;border-radius:50%;background:linear-gradient(135deg,var(--navy),#1e3a6e);display:flex;align-items:center;justify-content:center;font-size:2.2rem;overflow:hidden;flex-shrink:0;border:3px solid var(--gold);">👤</div>
-        <div style="flex:1;min-width:190px;">
-          <label class="form-label" style="font-size:.74rem;margin-bottom:.3rem;">📁 Upload Photo from Computer</label>
-          <input type="file" id="lPhFile" accept="image/*" style="width:100%;font-size:.8rem;margin-bottom:.35rem;"/>
-          <div id="lPhSt" style="font-size:.74rem;color:var(--text-muted);line-height:1.5;min-height:1.1rem;margin-bottom:.5rem;"></div>
-          <label class="form-label" style="font-size:.74rem;margin-bottom:.3rem;">🔗 — OR — Paste Photo URL</label>
-          <input type="url" class="fi" id="lPo" placeholder="https://… direct image link" style="font-size:.82rem;"/>
+<div class="main-content">
+  <div class="top-bar">
+    <div class="top-bar-left"><button class="hamburger" id="hamburger"><span></span><span></span><span></span></button><h1 class="top-bar-title">&#128100; Leadership</h1></div>
+    <div class="top-bar-actions"><button class="btn btn-gold btn-sm" data-open="lM">+ Add Leader</button></div>
+  </div>
+  <div class="page-body">
+
+    <!-- Filter bar -->
+    <div class="filter-bar">
+      <div class="chips" id="lC"><button class="chip active" data-f="">All</button><button class="chip" data-f="published">Published</button><button class="chip" data-f="draft">Draft</button></div>
+      <div class="search-box"><span class="si">&#128269;</span><input type="text" id="lQ" placeholder="Search leaders..."/></div>
+    </div>
+
+    <!-- Table -->
+    <div class="card"><div class="table-wrap"><table>
+      <thead><tr><th>Photo</th><th>Name</th><th>Role / Slot</th><th>Department</th><th>Status</th><th>Actions</th></tr></thead>
+      <tbody id="lB"></tbody>
+    </table></div></div>
+
+    <!-- ADD/EDIT MODAL -->
+    <div class="modal-overlay" id="lM"><div class="modal" style="max-width:720px;">
+      <div class="modal-header"><h2 class="modal-title" id="lMT">Add Leader</h2><button class="modal-close" data-close="lM">X</button></div>
+      <div class="modal-body">
+        <input type="hidden" id="lId"/>
+
+        <!-- PHOTO UPLOAD -->
+        <div style="border:2px dashed var(--border);border-radius:var(--radius);padding:1rem;background:var(--off-white);margin-bottom:1rem;">
+          <label class="form-label" style="margin-bottom:.6rem;">&#128248; Leader Photo</label>
+          <div style="display:flex;gap:.85rem;align-items:flex-start;flex-wrap:wrap;">
+            <div id="lPhPrev" style="width:90px;height:90px;border-radius:50%;background:linear-gradient(135deg,var(--navy),#1e3a6e);display:flex;align-items:center;justify-content:center;font-size:2.2rem;overflow:hidden;flex-shrink:0;border:3px solid var(--gold);">&#128100;</div>
+            <div style="flex:1;min-width:190px;">
+              <label class="form-label" style="font-size:.74rem;">&#128193; Upload Photo from Computer</label>
+              <input type="file" id="lPhFile" accept="image/*" style="width:100%;font-size:.8rem;margin-bottom:.35rem;"/>
+              <div id="lPhSt" style="font-size:.74rem;color:var(--text-muted);line-height:1.5;min-height:1rem;margin-bottom:.5rem;"></div>
+              <label class="form-label" style="font-size:.74rem;">&#128279; OR Paste Photo URL</label>
+              <input type="url" class="fi" id="lPo" placeholder="https://... direct image URL"/>
+              <div class="form-hint">URL works best for global sharing. ImgBB (free) is the easiest option.</div>
+            </div>
+          </div>
         </div>
+
+        <!-- LEADER SLOT (which position on the page) -->
+        <div class="form-group">
+          <label class="form-label">Position Slot <span class="req">*</span> <small style="font-weight:400;color:var(--text-muted);">— matches the card on the public Leaders page</small></label>
+          <select class="fs" id="lSlot">
+            <optgroup label="Pastoral Team">
+              <option value="senior-pastor">Senior Pastor — Lead Pastor &amp; Founder</option>
+              <option value="first-lady">First Lady — Co-Pastor / Women's Ministry</option>
+              <option value="associate-pastor">Associate Pastor — Pastoral Care &amp; Discipleship</option>
+              <option value="executive-pastor">Executive Pastor — Church Operations</option>
+            </optgroup>
+            <optgroup label="Department Directors">
+              <option value="worship-director">Worship Director — Worship &amp; Arts</option>
+              <option value="prayer-director">Prayer Director — Prayer &amp; Intercession</option>
+              <option value="youth-pastor">Youth Pastor — Youth &amp; Young Adults</option>
+              <option value="childrens-director">Children's Director — Children's Ministry</option>
+              <option value="outreach-director">Outreach Director — Missions &amp; Outreach</option>
+              <option value="media-director">Media Director — Media &amp; Communications</option>
+              <option value="finance-director">Finance Director — Stewardship &amp; Finance</option>
+              <option value="education-director">Education Director — Christian Education</option>
+            </optgroup>
+            <optgroup label="Governance">
+              <option value="elder-1">Elder 1</option>
+              <option value="elder-2">Elder 2</option>
+              <option value="elder-3">Elder 3</option>
+              <option value="deacon-1">Deacon 1</option>
+              <option value="deacon-2">Deacon 2</option>
+              <option value="other">Other Position</option>
+            </optgroup>
+          </select>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">First Name <span class="req">*</span></label><input type="text" class="fi" id="lFi"/></div>
+          <div class="form-group"><label class="form-label">Last Name <span class="req">*</span></label><input type="text" class="fi" id="lLa"/></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">Title / Role Display</label><input type="text" class="fi" id="lRo" placeholder="e.g. Senior Pastor, Lead Pastor"/></div>
+          <div class="form-group"><label class="form-label">Department</label><input type="text" class="fi" id="lDe" placeholder="Pastoral, Youth, Music..."/></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">Email</label><input type="email" class="fi" id="lEm"/></div>
+          <div class="form-group"><label class="form-label">Phone</label><input type="tel" class="fi" id="lPh2"/></div>
+        </div>
+        <div class="form-group"><label class="form-label">Bio</label><textarea class="ft" id="lBi" rows="3" placeholder="Short biography shown on the public Leaders page..."></textarea></div>
       </div>
-    </div></div><div class="modal-footer"><button class="btn btn-outline btn-sm" data-close="lM">Cancel</button><button class="btn btn-save btn-sm" onclick="lSave('draft')">💾 Save Draft</button><button class="btn btn-publish btn-sm" onclick="lSave('published')">🌐 Publish</button></div></div></div></div></div></div><script src="admin.js"></script>
-<script>requireAuth();
+      <div class="modal-footer">
+        <button class="btn btn-outline btn-sm" data-close="lM">Cancel</button>
+        <button class="btn btn-save btn-sm" onclick="lSave('draft')">Save Draft</button>
+        <button class="btn btn-publish btn-sm" onclick="lSave('published')">Publish Globally</button>
+      </div>
+    </div></div>
+
+  </div>
+</div>
+</div>
+
+<script src="admin.js"></script>
+<script>
+requireAuth();
 const LC = 'leaders';
 
-// ── Photo preview ──────────────────────────────────────────────
+// Photo file upload
 document.getElementById('lPhFile').addEventListener('change', async function() {
-  const file = this.files[0];
-  if (!file) return;
+  const file = this.files[0]; if (!file) return;
   const url = await uploadPhoto(file, document.getElementById('lPhSt'));
-  if (url) {
-    document.getElementById('lPo').value = url;
-    updatePreview(url);
-  }
+  if (url) { document.getElementById('lPo').value = url; lUpdatePreview(url); }
 });
-document.getElementById('lPo').addEventListener('input', function() {
-  updatePreview(this.value.trim());
-});
-function updatePreview(url) {
+document.getElementById('lPo').addEventListener('input', function() { lUpdatePreview(this.value.trim()); });
+function lUpdatePreview(url) {
   const p = document.getElementById('lPhPrev');
-  if (url) {
-    p.innerHTML = `<img src="${url}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" onerror="this.parentElement.innerHTML='👤'"/>`;
-  } else {
-    p.innerHTML = '👤';
-  }
+  p.innerHTML = url
+    ? `<img src="${url}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" onerror="this.parentElement.innerHTML='&#128100;'"/>`
+    : '&#128100;';
 }
 
-// ── Load leaders table ─────────────────────────────────────────
+// Filter chips
+document.querySelectorAll('#lC .chip').forEach(c => c.addEventListener('click', () => {
+  document.querySelectorAll('#lC .chip').forEach(x => x.classList.remove('active'));
+  c.classList.add('active'); lLoad();
+}));
+document.getElementById('lQ').addEventListener('input', lLoad);
+
+// Load table
 async function lLoad() {
   const data = await cmsGet(LC);
-  const q = (document.getElementById('lQ')||{}).value?.toLowerCase() || '';
-  const fChip = document.querySelector('#lC .chip.active');
-  const fVal = fChip ? fChip.dataset.f : '';
-
+  const q  = document.getElementById('lQ').value.toLowerCase();
+  const fv = document.querySelector('#lC .chip.active')?.dataset.f || '';
   const fil = data.filter(l =>
-    (!fVal || l._status === fVal) &&
-    (!q || `${l.first||''} ${l.last||''}`.toLowerCase().includes(q))
+    (!fv || l._status === fv) &&
+    (!q  || `${l.first||''} ${l.last||''}`.toLowerCase().includes(q) || (l.slot||'').includes(q))
   );
-
-  document.getElementById('lB').innerHTML = fil.length ? fil.map(l => `
-    <tr>
-      <td>
-        <div style="width:46px;height:46px;border-radius:50%;overflow:hidden;background:linear-gradient(135deg,var(--navy),#1e3a6e);display:flex;align-items:center;justify-content:center;font-size:1.3rem;border:2px solid var(--gold);flex-shrink:0;">
-          ${l.photo
-            ? `<img src="${l.photo}" style="width:100%;height:100%;object-fit:cover;" onerror="this.outerHTML='👤'"/>`
-            : '👤'}
-        </div>
-      </td>
-      <td class="td-primary">${l.first||''} ${l.last||''}</td>
-      <td><span class="badge badge-pinned">${l.role||'—'}</span></td>
-      <td class="td-muted">${l.dept||'—'}</td>
-      <td class="td-muted">${l.email||'—'}</td>
-      <td>${badge(l._status)}</td>
-      <td><div class="row-actions">
-        ${l._status==='published'
-          ? `<button class="act act-unpublish" onclick="cmsUnpublish('${LC}','${l.id}').then(()=>{toast('Hidden','warning');lLoad()})">⏸ Hide</button>`
-          : `<button class="act act-publish"   onclick="cmsPublish('${LC}','${l.id}').then(()=>lLoad())">🌐 Publish</button>`}
-        <button class="act act-edit"    onclick="lLoad_edit('${l.id}')">✏️ Edit</button>
-        <button class="act act-delete"  onclick="confirmDel(()=>cmsDelete('${LC}','${l.id}').then(()=>{toast('Deleted','error');lLoad()}))">🗑</button>
-      </div></td>
-    </tr>`).join('')
-    : '<tr><td colspan="7" style="text-align:center;padding:2.5rem;color:var(--text-muted);">No leaders yet. Click <strong>+ Add Leader</strong> to add one.</td></tr>';
+  document.getElementById('lB').innerHTML = fil.length ? fil.map(l => `<tr>
+    <td>
+      <div style="width:46px;height:46px;border-radius:50%;overflow:hidden;background:linear-gradient(135deg,var(--navy),#1e3a6e);display:flex;align-items:center;justify-content:center;font-size:1.3rem;border:2px solid var(--gold);">
+        ${l.photo ? `<img src="${l.photo}" style="width:100%;height:100%;object-fit:cover;" onerror="this.outerHTML='&#128100;'"/>` : '&#128100;'}
+      </div>
+    </td>
+    <td class="td-primary">${l.first||''} ${l.last||''}</td>
+    <td><span class="badge badge-pinned">${l.slot||l.role||'--'}</span></td>
+    <td class="td-muted">${l.dept||l.de||'--'}</td>
+    <td>${badge(l._status)}</td>
+    <td><div class="row-actions">
+      ${l._status==='published'
+        ? `<button class="act act-unpublish" onclick="lSetStatus('${l.id}','draft')">Unpublish</button>`
+        : `<button class="act act-publish"   onclick="lSetStatus('${l.id}','published')">Publish</button>`}
+      <button class="act act-edit"   onclick="lEdit('${l.id}')">Edit</button>
+      <button class="act act-delete" onclick="confirmDel(()=>lDel('${l.id}'))">Delete</button>
+    </div></td>
+  </tr>`).join('')
+  : '<tr><td colspan="6" style="text-align:center;padding:2.5rem;color:var(--text-muted);">No leaders yet. Click <strong>+ Add Leader</strong> above.</td></tr>';
 }
 
-// ── Edit ───────────────────────────────────────────────────────
-async function lLoad_edit(id) {
-  const d = (await cmsGet(LC)).find(x => x.id===id);
-  if (!d) return;
-  document.getElementById('lId').value  = d.id;
-  document.getElementById('lFi').value  = d.first  || '';
-  document.getElementById('lLa').value  = d.last   || '';
-  document.getElementById('lRo').value  = d.role   || 'Senior Pastor';
-  document.getElementById('lDe').value  = d.dept   || '';
-  document.getElementById('lEm').value  = d.email  || '';
-  document.getElementById('lPh2').value = d.phone  || '';
-  document.getElementById('lBi').value  = d.bio    || '';
+async function lSetStatus(id, status) {
+  const d = await loadData();
+  const idx = (d[LC]||[]).findIndex(x=>x.id===id);
+  if (idx>=0) { d[LC][idx]._status=status; if(status==='published') d[LC][idx]._publishedAt=Date.now(); }
+  const ok = await pushToGitHub();
+  toast(ok?(status==='published'?'Leader published globally! Live within 60 seconds.':'Hidden from website.'):'Saved locally. Set up GitHub token to go global.', ok?'success':'warning');
+  lLoad();
+}
+
+async function lDel(id) {
+  const d = await loadData();
+  if (d[LC]) d[LC] = d[LC].filter(x=>x.id!==id);
+  const ok = await pushToGitHub();
+  toast(ok?'Deleted.':'Deleted locally.','error'); lLoad();
+}
+
+async function lEdit(id) {
+  const d = (await cmsGet(LC)).find(x=>x.id===id); if(!d) return;
+  document.getElementById('lId').value    = d.id;
+  document.getElementById('lSlot').value  = d.slot || 'senior-pastor';
+  document.getElementById('lFi').value    = d.first  || '';
+  document.getElementById('lLa').value    = d.last   || '';
+  document.getElementById('lRo').value    = d.role   || '';
+  document.getElementById('lDe').value    = d.dept   || d.de || '';
+  document.getElementById('lEm').value    = d.email  || '';
+  document.getElementById('lPh2').value   = d.phone  || '';
+  document.getElementById('lBi').value    = d.bio    || '';
   const photo = d.photo || '';
-  document.getElementById('lPo').value  = photo;
-  updatePreview(photo);
+  document.getElementById('lPo').value    = photo;
+  lUpdatePreview(photo);
   document.getElementById('lPhFile').value = '';
   document.getElementById('lPhSt').textContent = '';
   document.getElementById('lMT').textContent = 'Edit Leader';
   openModal('lM');
 }
 
-// ── Save (draft or publish) ────────────────────────────────────
 async function lSave(status) {
   const fi = document.getElementById('lFi').value.trim();
   const la = document.getElementById('lLa').value.trim();
@@ -151,12 +247,12 @@ async function lSave(status) {
   const id    = document.getElementById('lId').value || null;
   const photo = document.getElementById('lPo').value.trim();
   const dept  = document.getElementById('lDe').value;
+  const slot  = document.getElementById('lSlot').value;
 
-  // Save the record
   await cmsSave(LC, id, {
-    first: fi,
-    last:  la,
-    role:  document.getElementById('lRo').value,
+    first: fi, last: la,
+    slot,    // slot ID matches the card on public leaders page
+    role:  document.getElementById('lRo').value || slot.replace(/-/g,' ').replace(/\b\w/g,c=>c.toUpperCase()),
     dept,  de: dept,
     email: document.getElementById('lEm').value,
     phone: document.getElementById('lPh2').value,
@@ -164,41 +260,30 @@ async function lSave(status) {
     photo
   }, status);
 
-  // Push to GitHub (makes it global)
+  // Push to GitHub -- same pattern as Leadership
   const ok = await pushToGitHub();
-
   if (ok && status === 'published') {
-    toast('🌐 Leader published globally! Showing on website within 60 seconds.', 'success');
+    toast('Leader published globally! Showing on website within 60 seconds.', 'success');
   } else if (ok) {
     toast('Draft saved to GitHub.', 'success');
   } else {
-    toast('Saved locally only. Set up your GitHub token to publish globally.', 'warning');
+    toast('Saved locally. Set up GitHub token to publish globally.', 'warning');
   }
 
   closeModal('lM');
   lLoad();
 }
 
-// ── Filter chips ───────────────────────────────────────────────
-document.querySelectorAll('#lC .chip').forEach(c => c.addEventListener('click', () => {
-  document.querySelectorAll('#lC .chip').forEach(x => x.classList.remove('active'));
-  c.classList.add('active');
-  lLoad();
-}));
-if (document.getElementById('lQ')) document.getElementById('lQ').addEventListener('input', lLoad);
-
-// ── Reset form on "Add Leader" ─────────────────────────────────
-const addBtn = document.querySelector('[data-open="lM"]');
-if (addBtn) addBtn.addEventListener('click', () => {
-  ['lId','lFi','lLa','lDe','lEm','lPh2','lBi','lPo'].forEach(f => {
-    const el = document.getElementById(f); if(el) el.value = '';
-  });
-  const ro = document.getElementById('lRo'); if(ro) ro.value = 'Senior Pastor';
-  const mt = document.getElementById('lMT'); if(mt) mt.textContent = 'Add Leader';
-  document.getElementById('lPhPrev').innerHTML = '👤';
+// Reset modal when opening for new leader
+document.querySelector('[data-open="lM"]')?.addEventListener('click', () => {
+  ['lId','lFi','lLa','lRo','lDe','lEm','lPh2','lBi','lPo'].forEach(f=>{const el=document.getElementById(f);if(el)el.value='';});
+  document.getElementById('lSlot').value = 'senior-pastor';
+  document.getElementById('lMT').textContent = 'Add Leader';
+  document.getElementById('lPhPrev').innerHTML = '&#128100;';
   document.getElementById('lPhFile').value = '';
   document.getElementById('lPhSt').textContent = '';
 });
 
 lLoad();
-</script></body></html>
+</script>
+</body></html>
