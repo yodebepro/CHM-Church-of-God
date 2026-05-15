@@ -1,11 +1,16 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-<title>Departments Control | CHM Admin</title>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Departments | CHM Admin</title>
 <link rel="stylesheet" href="admin.css"/>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
 <script src="firebase-config.js"></script>
-</head><body onload="requireAuth()"><div class="admin-wrap">
+</head>
+<body>
+<div class="admin-wrap">
 <aside class="sidebar" id="sidebar">
   <div class="sidebar-brand">
     <img src="logo-dark.png" alt="CHM" class="brand-logo" onerror="this.outerHTML='<div class=&quot;brand-logo-fallback&quot;>✝</div>'"/>
@@ -21,34 +26,20 @@
     <a href="adm-sermons.html" class="sidebar-link"><span class="icon">🎙</span> Sermons</a>
     <a href="adm-gallery.html" class="sidebar-link"><span class="icon">🖼</span> Gallery</a>
     <a href="pages.html" class="sidebar-link"><span class="icon">📄</span> Page Content</a>
+    <a href="adm-departments.html" class="sidebar-link"><span class="icon">&#127970;</span> Departments</a>
     <a href="navigation.html" class="sidebar-link"><span class="icon">🧭</span> Navigation</a>
   </div>
   <div class="sidebar-section"><div class="sidebar-section-label">People</div>
     <a href="adm-leaders.html" class="sidebar-link"><span class="icon">👤</span> Leadership</a>
     <a href="members.html" class="sidebar-link"><span class="icon">👥</span> Members</a>
     <a href="adm-ministries.html" class="sidebar-link"><span class="icon">⛪</span> Ministries</a>
-  
-    <a href="adm-home.html" class="sidebar-link"><span class="icon">🏡</span> Home Page</a>
-    <a href="adm-about.html" class="sidebar-link"><span class="icon">ℹ️</span> About Page</a>
-    <a href="adm-teams.html" class="sidebar-link"><span class="icon">🧩</span> Teams</a>
-    <a href="adm-departments.html" class="sidebar-link"><span class="icon">🏛️</span> Departments</a>
-    <a href="adm-sacred.html" class="sidebar-link"><span class="icon">✝️</span> Sacred Ministries</a>
-    <a href="adm-locations.html" class="sidebar-link"><span class="icon">🌍</span> Locations / Campuses</a>
-    <a href="adm-give.html" class="sidebar-link"><span class="icon">💝</span> Give Page</a>
-    <a href="adm-media-settings.html" class="sidebar-link"><span class="icon">📡</span> Live Media Settings</a>
-    <a href="adm-uploads.html" class="sidebar-link"><span class="icon">⬆️</span> Media Uploads</a>
-    <a href="adm-blueprint.html" class="sidebar-link"><span class="icon">📘</span> Blueprint Sections</a>
-</div>
+  </div>
   <div class="sidebar-section"><div class="sidebar-section-label">Inbox</div>
     <a href="prayer-requests.html" class="sidebar-link"><span class="icon">🙏</span> Prayer Requests</a>
     <a href="messages.html" class="sidebar-link"><span class="icon">✉️</span> Messages</a>
     <a href="giving.html" class="sidebar-link"><span class="icon">💰</span> Giving Records</a>
   </div>
   <div class="sidebar-section"><div class="sidebar-section-label">System</div>
-    
-    <a href="adm-navigation.html" class="sidebar-link"><span class="icon">🧭</span> Navigation Menus</a>
-    <a href="adm-footer.html" class="sidebar-link"><span class="icon">⬇️</span> Footer Content</a>
-    <a href="adm-languages.html" class="sidebar-link"><span class="icon">🌐</span> Languages</a>
     <a href="settings.html" class="sidebar-link"><span class="icon">⚙️</span> Settings & Colors</a>
     <a href="index.html" class="sidebar-link" target="_blank"><span class="icon">🌐</span> View Public Site ↗</a>
   </div>
@@ -60,8 +51,231 @@
     </div>
   </div>
 </aside>
-<main class="main-content">
-  <div class="topbar-admin"><button id="hamburger" class="hamburger">☰</button><div class="topbar-title">Departments Control</div><button class="btn btn-ghost" data-logout>Logout</button></div>
-  <div class="page-body"><div data-blueprint-crud="adm_departments"></div></div>
-</main>
-</div><script src="admin.js"></script></body></html>
+<div class="main-content">
+  <div class="top-bar">
+    <div class="top-bar-left"><button class="hamburger" id="hamburger"><span></span><span></span><span></span></button>
+    <h1 class="top-bar-title">&#128194; Departments</h1></div>
+    <div class="top-bar-actions">
+      <button class="btn btn-save btn-sm" onclick="loadDefaults()">&#128257; Load Default Departments</button>
+      <button class="btn btn-gold btn-sm" data-open="dM">+ Add Department</button>
+    </div>
+  </div>
+  <div class="page-body">
+
+    <div style="background:var(--gold-pale);border:1px solid rgba(200,145,58,.3);border-radius:var(--radius);padding:.85rem 1.1rem;margin-bottom:1.25rem;font-size:.84rem;color:var(--navy);">
+      <strong>&#128161; How it works:</strong> Click <strong>Load Default Departments</strong> to pre-fill all 22 departments. Then edit any department, upload a photo if desired, and click <strong>Publish Globally</strong>. Changes appear on the public Departments page within 60 seconds.
+    </div>
+
+    <div class="filter-bar">
+      <div class="chips" id="dC"><button class="chip active" data-f="">All</button><button class="chip" data-f="published">Published</button><button class="chip" data-f="draft">Draft</button></div>
+      <div class="search-box"><span class="si">&#128269;</span><input type="text" id="dQ" placeholder="Search departments..."/></div>
+    </div>
+
+    <div id="dGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:1rem;"></div>
+
+    <!-- MODAL -->
+    <div class="modal-overlay" id="dM"><div class="modal" style="max-width:680px;">
+      <div class="modal-header"><h2 class="modal-title" id="dMT">Add Department</h2><button class="modal-close" data-close="dM">X</button></div>
+      <div class="modal-body">
+        <input type="hidden" id="dId"/>
+
+        <!-- PHOTO UPLOAD -->
+        <div style="border:2px dashed var(--border);border-radius:var(--radius);padding:1rem;background:var(--off-white);margin-bottom:1rem;">
+          <label class="form-label" style="margin-bottom:.55rem;">&#128248; Department Photo (optional)</label>
+          <div style="display:flex;gap:.85rem;align-items:flex-start;flex-wrap:wrap;">
+            <div id="dPhPrev" style="width:80px;height:60px;border-radius:10px;background:linear-gradient(135deg,var(--navy),#1e3a6e);display:flex;align-items:center;justify-content:center;font-size:1.8rem;overflow:hidden;flex-shrink:0;">&#128194;</div>
+            <div style="flex:1;min-width:190px;">
+              <label class="form-label" style="font-size:.74rem;">&#128193; Upload from Computer</label>
+              <input type="file" id="dPhFile" accept="image/*" style="width:100%;font-size:.8rem;margin-bottom:.35rem;"/>
+              <div id="dPhSt" style="font-size:.74rem;color:var(--text-muted);line-height:1.5;margin-bottom:.5rem;"></div>
+              <label class="form-label" style="font-size:.74rem;">&#128279; OR Paste Image URL</label>
+              <input type="url" class="fi" id="dPo" placeholder="https://... direct image URL"/>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">Icon / Emoji <span class="req">*</span></label><input type="text" class="fi" id="dIc" placeholder="e.g. &#10016;&#65039; &#128218; &#127925;"/></div>
+          <div class="form-group"><label class="form-label">Department Name <span class="req">*</span></label><input type="text" class="fi" id="dNm" placeholder="Department name"/></div>
+        </div>
+        <div class="form-group"><label class="form-label">Description <span class="req">*</span></label><textarea class="ft" id="dDe" rows="3" placeholder="Brief description of this department's role..."></textarea></div>
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">Department Leader</label><input type="text" class="fi" id="dLe" placeholder="Director name (optional)"/></div>
+          <div class="form-group"><label class="form-label">Sort Order</label><input type="number" class="fi" id="dOr" min="1" max="99" value="99" placeholder="1 = first"/></div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline btn-sm" data-close="dM">Cancel</button>
+        <button class="btn btn-save btn-sm" onclick="dSave('draft')">Save Draft</button>
+        <button class="btn btn-publish btn-sm" onclick="dSave('published')">Publish Globally</button>
+      </div>
+    </div></div>
+
+  </div>
+</div>
+</div>
+
+<script src="admin.js"></script>
+<script>
+requireAuth();
+const DC = 'departments';
+
+// Default 22 departments
+const DEFAULT_DEPTS = [
+  {icon:'✝️', name:'Pastoral Department', desc:'Led by the Senior Pastor and pastoral staff, this department provides spiritual oversight, vision, and direction for the entire church.', order:1},
+  {icon:'📋', name:'Church Administration', desc:'Manages day-to-day operations, records, compliance, and organizational effectiveness across all church functions.', order:2},
+  {icon:'💼', name:'Finance Department', desc:'Oversees budgeting, accounting, payroll, financial reporting, and stewardship of all church resources.', order:3},
+  {icon:'🙏', name:'Prayer Department', desc:'Coordinating all prayer ministries, prayer schedules, intercessory teams, and spiritual covering for the church.', order:4},
+  {icon:'🎵', name:'Worship & Arts Dept.', desc:'Overseeing all musical and creative arts ministries, worship team scheduling, and praise culture.', order:5},
+  {icon:'📖', name:'Christian Education', desc:'Developing curriculum, Sunday School, Bible training programs, and discipleship pathways for all ages.', order:6},
+  {icon:'👨‍👩‍👧', name:'Family Services Dept.', desc:'Supporting families through counseling referrals, parenting resources, and marriage enrichment programs.', order:7},
+  {icon:'🔥', name:'Youth Department', desc:'Overseeing all programming, discipleship, and spiritual formation for youth ages 13–25.', order:8},
+  {icon:'🧒', name:"Children's Department", desc:'Providing age-appropriate, engaging ministry for children from nursery through elementary school.', order:9},
+  {icon:'👴', name:'Senior Adult Dept.', desc:'Programming, pastoral care, and community for members aged 60 and above.', order:10},
+  {icon:'🌍', name:'Missions Department', desc:'Coordinating domestic and international missions, partnerships, and evangelism strategy.', order:11},
+  {icon:'❤️', name:'Outreach & Community', desc:'Leading community engagement, social services, partnerships, and mercy ministry initiatives.', order:12},
+  {icon:'🏥', name:'Health & Wellness Dept.', desc:'Promoting physical, emotional, and spiritual health through programming, education, and clinical outreach.', order:13},
+  {icon:'🕊️', name:'Deliverance & Healing', desc:'Providing structured support for individuals seeking spiritual deliverance, inner healing, and restoration.', order:14},
+  {icon:'📺', name:'Media & Communications', desc:'Managing all digital, print, and broadcast communications including website, social media, and streaming.', order:15},
+  {icon:'🔊', name:'Technology Department', desc:'Supporting IT infrastructure, audio/visual systems, software, and digital services across the church.', order:16},
+  {icon:'🏗️', name:'Facilities & Property', desc:'Responsible for the maintenance, renovation, and management of all church-owned properties and spaces.', order:17},
+  {icon:'🎪', name:'Events Department', desc:'Planning and executing all church conferences, revivals, special services, and ministry events.', order:18},
+  {icon:'🛡️', name:'Safety & Security Dept.', desc:'Implementing safety protocols, coordinating security teams, and ensuring the wellbeing of all attendees.', order:19},
+  {icon:'🤝', name:'Hospitality Department', desc:'Coordinating ushers, greeters, decoration, kitchen, and all aspects of the welcoming experience.', order:20},
+  {icon:'💛', name:'Stewardship & Giving', desc:'Teaching biblical stewardship and coordinating all giving campaigns, special offerings, and fund drives.', order:21},
+  {icon:'📊', name:'Planning & Strategy', desc:'Supporting leadership with data, strategic plans, goal setting, and long-term ministry vision development.', order:22}
+];
+
+// Photo upload
+document.getElementById('dPhFile').addEventListener('change', async function() {
+  const file = this.files[0]; if (!file) return;
+  const url = await uploadPhoto(file, document.getElementById('dPhSt'));
+  if (url) { document.getElementById('dPo').value = url; dUpdatePrev(url); }
+});
+document.getElementById('dPo').addEventListener('input', function() { dUpdatePrev(this.value.trim()); });
+function dUpdatePrev(url) {
+  const p = document.getElementById('dPhPrev');
+  p.innerHTML = url
+    ? `<img src="${url}" style="width:100%;height:100%;object-fit:cover;border-radius:10px;" onerror="this.parentElement.innerHTML='&#128194;'"/>`
+    : '&#128194;';
+}
+
+// Filter
+document.querySelectorAll('#dC .chip').forEach(c => c.addEventListener('click', () => {
+  document.querySelectorAll('#dC .chip').forEach(x => x.classList.remove('active'));
+  c.classList.add('active'); dLoad();
+}));
+document.getElementById('dQ').addEventListener('input', dLoad);
+
+async function dLoad() {
+  const data = await cmsGet(DC);
+  const q  = document.getElementById('dQ').value.toLowerCase();
+  const fv = document.querySelector('#dC .chip.active')?.dataset.f || '';
+  const fil = data
+    .filter(d => (!fv || d._status===fv) && (!q || d.name.toLowerCase().includes(q)))
+    .sort((a,b) => (a.order||99) - (b.order||99));
+
+  document.getElementById('dGrid').innerHTML = fil.length ? fil.map(d => `
+    <div style="background:#fff;border:1px solid var(--border);border-radius:14px;overflow:hidden;transition:.2s;"
+         onmouseover="this.style.transform='translateY(-3px)';this.style.boxShadow='0 8px 24px rgba(0,0,0,.1)'"
+         onmouseout="this.style.transform='';this.style.boxShadow=''">
+      ${d.photo&&!d.photo.includes('[photo-stored')
+        ? `<div style="height:100px;overflow:hidden;"><img src="${d.photo}" style="width:100%;height:100%;object-fit:cover;" onerror="this.parentElement.remove()"/></div>`
+        : `<div style="height:60px;background:linear-gradient(135deg,var(--navy),#1e3a6e);display:flex;align-items:center;justify-content:center;font-size:2rem;">${d.icon||'&#128194;'}</div>`}
+      <div style="padding:.85rem;">
+        <div style="font-size:1.5rem;margin-bottom:.35rem;">${d.icon||''}</div>
+        <div style="font-weight:700;font-size:.88rem;color:var(--navy);margin-bottom:.3rem;">${d.name}</div>
+        <div style="font-size:.74rem;color:var(--text-muted);line-height:1.5;margin-bottom:.6rem;">${(d.desc||'').slice(0,80)}...</div>
+        <div style="margin-bottom:.5rem;">${badge(d._status)}</div>
+        <div style="display:flex;gap:.3rem;flex-wrap:wrap;">
+          ${d._status!=='published'
+            ? `<button class="act act-publish" onclick="dSetStatus('${d.id}','published')" style="font-size:.7rem;">Publish</button>`
+            : `<button class="act act-unpublish" onclick="dSetStatus('${d.id}','draft')" style="font-size:.7rem;">Unpublish</button>`}
+          <button class="act act-edit" onclick="dEdit('${d.id}')" style="font-size:.7rem;">Edit</button>
+          <button class="act act-delete" onclick="confirmDel(()=>dDel('${d.id}'))" style="font-size:.7rem;">Del</button>
+        </div>
+      </div>
+    </div>`).join('')
+  : '<div style="grid-column:1/-1;text-align:center;padding:3rem;color:var(--text-muted);">No departments yet. Click <strong>Load Default Departments</strong> or <strong>+ Add Department</strong>.</div>';
+}
+
+async function dSetStatus(id, status) {
+  const d = await loadData();
+  const idx = (d[DC]||[]).findIndex(x=>x.id===id);
+  if (idx>=0) { d[DC][idx]._status=status; if(status==='published') d[DC][idx]._publishedAt=Date.now(); }
+  const ok = await pushToGitHub();
+  toast(ok?(status==='published'?'Department published globally!':'Unpublished.'):'Saved locally. Set up GitHub token to go global.', ok?'success':'warning');
+  dLoad();
+}
+
+async function dDel(id) {
+  const d = await loadData();
+  if (d[DC]) d[DC] = d[DC].filter(x=>x.id!==id);
+  const ok = await pushToGitHub();
+  toast(ok?'Deleted.':'Deleted locally.','error'); dLoad();
+}
+
+async function dEdit(id) {
+  const d = (await cmsGet(DC)).find(x=>x.id===id); if(!d) return;
+  document.getElementById('dId').value = d.id;
+  document.getElementById('dIc').value = d.icon || '';
+  document.getElementById('dNm').value = d.name || '';
+  document.getElementById('dDe').value = d.desc || '';
+  document.getElementById('dLe').value = d.leader || '';
+  document.getElementById('dOr').value = d.order || 99;
+  const photo = d.photo || '';
+  document.getElementById('dPo').value = photo;
+  dUpdatePrev(photo);
+  document.getElementById('dPhFile').value = '';
+  document.getElementById('dPhSt').textContent = '';
+  document.getElementById('dMT').textContent = 'Edit Department';
+  openModal('dM');
+}
+
+async function dSave(status) {
+  const name = document.getElementById('dNm').value.trim();
+  const desc = document.getElementById('dDe').value.trim();
+  if (!name) { toast('Department name required', 'error'); return; }
+  const id = document.getElementById('dId').value || null;
+  const photo = document.getElementById('dPo').value.trim();
+
+  await cmsSave(DC, id, {
+    icon:   document.getElementById('dIc').value,
+    name,   desc,
+    leader: document.getElementById('dLe').value,
+    order:  parseInt(document.getElementById('dOr').value) || 99,
+    photo
+  }, status);
+
+  const ok = await pushToGitHub();
+  if (ok && status==='published') toast('Department published globally! Live within 60 seconds.', 'success');
+  else if (ok)                     toast('Draft saved to GitHub.', 'success');
+  else                             toast('Saved locally. Set up GitHub token to publish globally.', 'warning');
+
+  closeModal('dM'); dLoad();
+}
+
+async function loadDefaults() {
+  if (!window.confirm('Load all 22 default departments? This will add them as drafts — you can then edit and publish each one.')) return;
+  toast('Loading departments...', 'info');
+  for (let i=0; i<DEFAULT_DEPTS.length; i++) {
+    const d = DEFAULT_DEPTS[i];
+    await cmsSave(DC, null, { icon:d.icon, name:d.name, desc:d.desc, order:d.order, leader:'', photo:'' }, 'draft');
+  }
+  const ok = await pushToGitHub();
+  toast(ok?'All 22 departments loaded! Edit and publish each one.':'Departments saved locally. Set up GitHub token to go global.', ok?'success':'warning');
+  dLoad();
+}
+
+document.querySelector('[data-open="dM"]')?.addEventListener('click', () => {
+  ['dId','dIc','dNm','dDe','dLe','dPo'].forEach(f => { const el=document.getElementById(f); if(el) el.value=''; });
+  document.getElementById('dOr').value = '99';
+  document.getElementById('dMT').textContent = 'Add Department';
+  document.getElementById('dPhPrev').innerHTML = '&#128194;';
+  document.getElementById('dPhFile').value = '';
+  document.getElementById('dPhSt').textContent = '';
+});
+
+dLoad();
+</script>
+</body></html>

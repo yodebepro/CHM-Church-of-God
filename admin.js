@@ -232,13 +232,11 @@ async function uploadPhoto(file, statusEl) {
   }
 
   // For images under 500KB: store as base64 in localStorage (persists locally)
-  // Store the photo separately in localStorage by a unique key
   if (file.size < 500*1024) {
-    const photoKey = 'chm_photo_' + Date.now().toString(36);
     try {
-      localStorage.setItem(photoKey, b64full);
-      statusEl.textContent = 'Photo stored (' + Math.round(file.size/1024) + ' KB). Will show on this device. For global sharing, get ImgBB key.';
-      return b64full; // Return base64 — stored in localStorage separately too
+      statusEl.innerHTML = 'Photo stored locally (' + Math.round(file.size/1024) + ' KB). Visible on this device. '
+        + 'For global sharing: get a free key at <a href="https://imgbb.com/api" target="_blank" style="color:var(--gold)">imgbb.com/api</a> and save it in Settings.';
+      return b64full;
     } catch(e) {}
   }
 

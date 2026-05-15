@@ -26,6 +26,7 @@
     <a href="adm-sermons.html" class="sidebar-link"><span class="icon">🎙</span> Sermons</a>
     <a href="adm-gallery.html" class="sidebar-link"><span class="icon">🖼</span> Gallery</a>
     <a href="pages.html" class="sidebar-link"><span class="icon">📄</span> Page Content</a>
+    <a href="adm-departments.html" class="sidebar-link"><span class="icon">&#127970;</span> Departments</a>
     <a href="navigation.html" class="sidebar-link"><span class="icon">🧭</span> Navigation</a>
   </div>
   <div class="sidebar-section"><div class="sidebar-section-label">People</div>
@@ -68,7 +69,7 @@
       <div class="modal-header"><h2 class="modal-title" id="sMT">Add Sermon</h2><button class="modal-close" data-close="sM">X</button></div>
       <div class="modal-body">
         <input type="hidden" id="sId"/>
-        <div class="form-group"><label class="form-label">Sermon Title <span class="req">*</span></label><input type="text" class="fi" id="sTi"/></div>
+        <div class="form-row"><div class="form-group"><label class="form-label">Icon / Emoji</label><input type="text" class="fi" id="sIc" placeholder="e.g. &#128293; &#9889; &#128218;"/><div class="form-hint">Shown as the sermon card thumbnail icon</div></div><div class="form-group"><label class="form-label">Sermon Title <span class="req">*</span></label><input type="text" class="fi" id="sTi"/></div></div>
         <div class="form-row">
           <div class="form-group"><label class="form-label">Speaker</label><input type="text" class="fi" id="sSp" placeholder="Pastor / Speaker name"/></div>
           <div class="form-group"><label class="form-label">Date</label><input type="date" class="fi" id="sDt"/></div>
@@ -146,17 +147,18 @@ async function sLoad(){
 }
 async function sSetStatus(id,status){const d=await loadData();const idx=(d[SC]||[]).findIndex(x=>x.id===id);if(idx>=0){d[SC][idx]._status=status;if(status==='published')d[SC][idx]._publishedAt=Date.now();}const ok=await pushToGitHub();toast(ok?(status==='published'?'Sermon published globally! Live within 60 seconds.':'Updated.'):'Saved locally only. Set up GitHub token.',ok?'success':'warning');sLoad();}
 async function sDel(id){const d=await loadData();if(d[SC])d[SC]=d[SC].filter(x=>x.id!==id);await pushToGitHub();toast('Deleted','error');sLoad();}
-async function sEdit(id){const d=(await cmsGet(SC)).find(x=>x.id===id);if(!d)return;document.getElementById('sId').value=d.id;document.getElementById('sTi').value=d.title||'';document.getElementById('sSp').value=d.speaker||'';document.getElementById('sDt').value=d.date||'';document.getElementById('sSr').value=d.series||'Sunday';document.getElementById('sSc').value=d.scripture||'';document.getElementById('sVi').value=d.video||'';document.getElementById('sAu').value=d.audio||'';document.getElementById('sDe').value=d.desc||'';['sAudFile','sVidFile'].forEach(f=>{const el=document.getElementById(f);if(el)el.value='';});['sAudSt','sVidSt'].forEach(f=>{const el=document.getElementById(f);if(el)el.textContent='';});document.getElementById('sMT').textContent='Edit Sermon';openModal('sM');}
+async function sEdit(id){const d=(await cmsGet(SC)).find(x=>x.id===id);if(!d)return;document.getElementById('sId').value=d.id;document.getElementById('sIc').value=d.icon||'';
+  document.getElementById('sTi').value=d.title||'';document.getElementById('sSp').value=d.speaker||'';document.getElementById('sDt').value=d.date||'';document.getElementById('sSr').value=d.series||'Sunday';document.getElementById('sSc').value=d.scripture||'';document.getElementById('sVi').value=d.video||'';document.getElementById('sAu').value=d.audio||'';document.getElementById('sDe').value=d.desc||'';['sAudFile','sVidFile'].forEach(f=>{const el=document.getElementById(f);if(el)el.value='';});['sAudSt','sVidSt'].forEach(f=>{const el=document.getElementById(f);if(el)el.textContent='';});document.getElementById('sMT').textContent='Edit Sermon';openModal('sM');}
 async function sSave(status){
   const t=document.getElementById('sTi').value.trim();if(!t){toast('Title required','error');return;}
   const id=document.getElementById('sId').value||null;
-  await cmsSave(SC,id,{title:t,speaker:document.getElementById('sSp').value,date:document.getElementById('sDt').value,series:document.getElementById('sSr').value,scripture:document.getElementById('sSc').value,video:document.getElementById('sVi').value,audio:document.getElementById('sAu').value,desc:document.getElementById('sDe').value},status);
+  await cmsSave(SC,id,{icon:document.getElementById('sIc').value,title:t,speaker:document.getElementById('sSp').value,date:document.getElementById('sDt').value,series:document.getElementById('sSr').value,scripture:document.getElementById('sSc').value,video:document.getElementById('sVi').value,audio:document.getElementById('sAu').value,desc:document.getElementById('sDe').value},status);
   const ok=await pushToGitHub();
   if(ok&&status==='published')toast('Sermon published globally! Live within 60 seconds.','success');
   else if(ok)toast('Draft saved to GitHub.','success');
   else toast('Saved locally only. Open github-setup.html to publish globally.','warning');
   closeModal('sM');sLoad();
 }
-document.querySelector('[data-open="sM"]')?.addEventListener('click',()=>{['sId','sTi','sSp','sDt','sSc','sVi','sAu','sDe'].forEach(f=>{const el=document.getElementById(f);if(el)el.value='';});document.getElementById('sSr').value='Sunday';document.getElementById('sMT').textContent='Add Sermon';['sAudFile','sVidFile'].forEach(f=>{const el=document.getElementById(f);if(el)el.value='';});['sAudSt','sVidSt'].forEach(f=>{const el=document.getElementById(f);if(el)el.textContent='';});});
+document.querySelector('[data-open="sM"]')?.addEventListener('click',()=>{['sId','sIc','sTi','sSp','sDt','sSc','sVi','sAu','sDe'].forEach(f=>{const el=document.getElementById(f);if(el)el.value='';});document.getElementById('sSr').value='Sunday';document.getElementById('sMT').textContent='Add Sermon';['sAudFile','sVidFile'].forEach(f=>{const el=document.getElementById(f);if(el)el.value='';});['sAudSt','sVidSt'].forEach(f=>{const el=document.getElementById(f);if(el)el.textContent='';});});
 sLoad();
 </script></body></html>
