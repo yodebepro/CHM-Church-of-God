@@ -78,14 +78,25 @@
   <div class="card" style="border:2px solid rgba(200,145,58,.35);">
     <div class="card-header" style="background:linear-gradient(135deg,var(--navy),var(--navy-mid));"><span class="label" style="color:rgba(200,145,58,.7);">Homepage Feature</span><div class="card-title" style="color:#fff;">🎬 Hero Background Video</div></div>
     <div class="card-body">
-      <div class="form-group"><label class="form-label">Direct MP4 Video URL</label><input type="url" class="fi" id="pVi" placeholder="https://… direct .mp4 link"/><div class="form-hint">Paste any publicly accessible MP4 link. It will autoplay silently behind the homepage hero section.</div></div>
+      <!-- UPLOAD OR URL -->
+      <div style="border:2px dashed rgba(200,145,58,.4);border-radius:var(--radius);padding:1.1rem;background:rgba(10,31,68,.04);margin-bottom:1rem;">
+        <div class="form-label" style="margin-bottom:.75rem;">Option 1 — Upload Video from Computer</div>
+        <input type="file" id="pVidFile" accept="video/mp4,video/*" style="width:100%;font-size:.85rem;margin-bottom:.4rem;"/>
+        <div id="pVidFileSt" style="font-size:.75rem;color:var(--text-muted);line-height:1.5;min-height:1rem;"></div>
+      </div>
+      <div style="text-align:center;font-size:.82rem;color:var(--text-muted);margin-bottom:.85rem;font-weight:700;">— OR —</div>
+      <div class="form-group">
+        <label class="form-label">Option 2 — Paste Direct MP4 Video URL</label>
+        <input type="url" class="fi" id="pVi" placeholder="https://… direct .mp4 link"/>
+        <div class="form-hint">Any public direct MP4 URL. The video autoplays silently behind the homepage hero section.</div>
+      </div>
       <div id="pVW" style="display:none;margin-bottom:1rem;"><video id="pVEl" muted controls style="width:100%;max-height:220px;border-radius:var(--radius);object-fit:cover;"></video></div>
       <div style="display:flex;gap:.6rem;flex-wrap:wrap;">
-        <button class="btn btn-publish btn-sm" onclick="saveVid()">💾 Save & Activate</button>
+        <button class="btn btn-publish btn-sm" onclick="saveVid()">🌐 Save & Publish Globally</button>
         <button class="btn btn-save btn-sm" onclick="previewVid()">▶ Preview</button>
         <button class="btn btn-danger-soft btn-sm" onclick="clearVid()">✕ Remove</button>
       </div>
-      <div id="pVSt" style="margin-top:.5rem;font-size:.78rem;color:var(--text-muted);"></div>
+      <div id="pVSt" style="margin-top:.6rem;font-size:.78rem;font-weight:600;"></div>
     </div>
   </div>
 </div></div></div></div><script src="admin.js"></script><script>requireAuth();
@@ -122,7 +133,30 @@ async function publishPC(pg){
   await cfgSave('page_'+pg,d);
   toast('🌐 Published globally — live on ALL devices within 60 seconds!','success');
 }
-async function saveVid(){const url=document.getElementById('pVi').value.trim();if(url){await cfgSave('hero',{videoUrl:url});document.getElementById('pVSt').textContent='✅ Video active on homepage for ALL visitors.';toast('🎬 Hero video published globally!','success');}else{await cfgSave('hero',{videoUrl:''});document.getElementById('pVSt').textContent='Removed.';toast('Video removed','warning');}}
+async function saveVid(){
+  const st=document.getElementById('pVSt');
+  // Check file upload first
+  const fileInput=document.getElementById('pVidFile');
+  const fileSt=document.getElementById('pVidFileSt');
+  if(fileInput&&fileInput.files[0]){
+    const f=fileInput.files[0];
+    if(f.size>50*1024*1024){st.innerHTML='<span style="color:var(--danger)">⚠️ Video over 50MB. Upload to <a href="https://youtube.com" target="_blank">YouTube</a> and paste the URL instead.</span>';return;}
+    fileSt.textContent='⏳ Processing video…';
+    const b64=await new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result);r.onerror=rej;r.readAsDataURL(f);});
+    document.getElementById('pVi').value=b64;
+    fileSt.textContent='✅ Video ready ('+Math.round(f.size/1024/1024*10)/10+' MB)';
+  }
+  const url=document.getElementById('pVi').value.trim();
+  if(url){
+    await cfgSave('hero',{videoUrl:url});
+    st.innerHTML='<span style="color:var(--success)">🌐 Hero video published globally to ALL devices!</span>';
+    toast('🎬 Hero video live on website!','success');
+  }else{
+    await cfgSave('hero',{videoUrl:''});
+    st.textContent='Video removed.';
+    toast('Video removed','warning');
+  }
+}
 function previewVid(){const url=document.getElementById('pVi').value.trim();if(!url){toast('Enter a URL first','warning');return;}const w=document.getElementById('pVW');const v=document.getElementById('pVEl');v.src=url;w.style.display='block';v.play().catch(()=>document.getElementById('pVSt').textContent='⚠️ Cannot load. Use a direct MP4 URL.');}
 function clearVid(){localStorage.removeItem('chm_hero_video');cfgSave('hero',{videoUrl:''});document.getElementById('pVi').value='';document.getElementById('pVW').style.display='none';document.getElementById('pVSt').textContent='Removed.';toast('Cleared','warning');}
 loadPC();</script></body></html>

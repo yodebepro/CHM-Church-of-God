@@ -60,48 +60,84 @@
     <div class="form-group"><label class="form-label">Notes</label><textarea class="ft" id="gvNo" rows="2"></textarea></div>
   </div>
   <div class="modal-footer"><button class="btn btn-outline btn-sm" data-close="gvM">Cancel</button><button class="btn btn-publish btn-sm" onclick="gvSave()">💾 Save Record</button></div>
-</div></div></div></div></div><script src="admin.js"></script><script>requireAuth();
-const GVC='giving';let gvF='';
-document.querySelectorAll('#gvC .chip').forEach(c=>c.addEventListener('click',()=>{document.querySelectorAll('#gvC .chip').forEach(x=>x.classList.remove('active'));c.classList.add('active');gvF=c.dataset.f;gvLoad();}));
-document.getElementById('gvQ').addEventListener('input',gvLoad);
-async function gvLoad(){
-  const data=await cmsGet(GVC);
-  const tot=data.reduce((a,g)=>a+(g.amount||0),0);
-  const now=new Date().toISOString().slice(0,7);
-  const mT=data.filter(g=>g.date&&g.date.startsWith(now)).reduce((a,g)=>a+(g.amount||0),0);
-  const tiT=data.filter(g=>g.fund&&(g.fund.includes('Tithe')||g.fund.includes('General'))).reduce((a,g)=>a+(g.amount||0),0);
-  document.getElementById('gvT').textContent=tot.toLocaleString();
-  document.getElementById('gvM').textContent=mT.toLocaleString();
-  document.getElementById('gvTi').textContent=tiT.toLocaleString();
-  document.getElementById('gvOf').textContent=(tot-tiT).toLocaleString();
-  const q=document.getElementById('gvQ').value.toLowerCase();
-  const fil=data.filter(g=>(!gvF||g.fund===gvF)&&(!q||(g.name||'').toLowerCase().includes(q)));
-  document.getElementById('gvB').innerHTML=fil.length?fil.map(g=>`<tr>
+</div></div></div></div></div><script src="admin.js"></script>
+<script>requireAuth();
+const GVC = 'giving';
+
+async function gvLoad() {
+  const data = await cmsGet(GVC);
+  const now = new Date().toISOString().slice(0,7);
+  const tot  = data.reduce((a,g)=>a+(parseFloat(g.amount)||0),0);
+  const mT   = data.filter(g=>g.date&&g.date.startsWith(now)).reduce((a,g)=>a+(parseFloat(g.amount)||0),0);
+  const tiT  = data.filter(g=>g.fund&&(g.fund.includes('Tithe')||g.fund.includes('General'))).reduce((a,g)=>a+(parseFloat(g.amount)||0),0);
+  document.getElementById('gvT').textContent  = tot.toLocaleString();
+  document.getElementById('gvM').textContent  = mT.toLocaleString();
+  document.getElementById('gvTi').textContent = tiT.toLocaleString();
+  document.getElementById('gvOf').textContent = (tot-tiT).toLocaleString();
+
+  const fChip = document.querySelector('#gvC .chip.active');
+  const fVal  = fChip ? fChip.dataset.f : '';
+  const q = document.getElementById('gvQ')?.value.toLowerCase() || '';
+  const fil = data.filter(g=>(!fVal||g.fund===fVal)&&(!q||(g.name||'').toLowerCase().includes(q)));
+
+  document.getElementById('gvB').innerHTML = fil.length ? fil.map(g=>`<tr>
     <td class="td-primary">${g.name||'Anonymous'}</td>
-    <td style="font-family:var(--font-display);font-size:1.05rem;font-weight:700;color:var(--success);">$${(g.amount||0).toLocaleString()}</td>
+    <td style="font-family:var(--font-display);font-size:1.05rem;font-weight:700;color:var(--success);">$${parseFloat(g.amount||0).toLocaleString()}</td>
     <td><span class="badge badge-pinned">${g.fund||'—'}</span></td>
     <td><span class="badge badge-archived">${g.method||'—'}</span></td>
-    <td class="td-muted">${g.date||'—'}</td><td class="td-muted">${g.ref||'—'}</td>
-    <td><div class="row-actions"><button class="act act-edit" onclick="gvLoad_edit('${g.id}')">✏️</button><button class="act act-delete" onclick="confirmDel(()=>cmsDelete('${GVC}','${g.id}').then(()=>{toast('Deleted','error');gvLoad()}))">🗑</button></div></td>
-  </tr>`).join(''):'<tr><td colspan="7" style="text-align:center;padding:2.5rem;color:var(--text-muted);">No giving records. Click <strong>+ Record Gift</strong> to add one.</td></tr>';
+    <td class="td-muted">${g.date||'—'}</td>
+    <td class="td-muted">${g.ref||'—'}</td>
+    <td><div class="row-actions">
+      <button class="act act-edit" onclick="gvLoad_edit('${g.id}')">✏️ Edit</button>
+      <button class="act act-delete" onclick="confirmDel(()=>cmsDelete('${GVC}','${g.id}').then(()=>{toast('Deleted','error');gvLoad()}))">🗑</button>
+    </div></td>
+  </tr>`).join('')
+  : '<tr><td colspan="7" style="text-align:center;padding:2.5rem;color:var(--text-muted);">No giving records yet. Click <strong>+ Record Gift</strong> to add one.</td></tr>';
 }
-async function gvLoad_edit(id){
-  const d=(await cmsGet(GVC)).find(x=>x.id===id);if(!d)return;
-  document.getElementById('gvId').value=d.id;document.getElementById('gvNm').value=d.name||'';
-  document.getElementById('gvAm').value=d.amount||'';document.getElementById('gvFu').value=d.fund||'General / Tithes';
-  document.getElementById('gvMe').value=d.method||'Cash';document.getElementById('gvDt').value=d.date||'';
-  document.getElementById('gvRf').value=d.ref||'';document.getElementById('gvNo').value=d.notes||'';
-  document.getElementById('gvMT').textContent='Edit Record';openModal('gvM');
+
+async function gvLoad_edit(id) {
+  const d=(await cmsGet(GVC)).find(x=>x.id===id); if(!d) return;
+  document.getElementById('gvId').value=d.id;
+  document.getElementById('gvNm').value=d.name||'';
+  document.getElementById('gvAm').value=d.amount||'';
+  document.getElementById('gvFu').value=d.fund||'General / Tithes';
+  document.getElementById('gvMe').value=d.method||'Cash';
+  document.getElementById('gvDt').value=d.date||'';
+  document.getElementById('gvRf').value=d.ref||'';
+  document.getElementById('gvNo').value=d.notes||'';
+  document.getElementById('gvMT').textContent='Edit Record';
+  openModal('gvM');
 }
-async function gvSave(){
-  const amt=parseFloat(document.getElementById('gvAm').value);if(!amt||amt<=0){toast('Valid amount required','error');return;}
+
+async function gvSave() {
+  const amt=parseFloat(document.getElementById('gvAm').value);
+  if(!amt||amt<=0){toast('Valid amount required','error');return;}
   const id=document.getElementById('gvId').value||null;
-  await cmsSave(GVC,id,{name:document.getElementById('gvNm').value||'Anonymous',amount:amt,fund:document.getElementById('gvFu').value,method:document.getElementById('gvMe').value,date:document.getElementById('gvDt').value||new Date().toISOString().slice(0,10),ref:document.getElementById('gvRf').value,notes:document.getElementById('gvNo').value},'active');
-  toast('Gift recorded ✓');closeModal('gvM');gvLoad();
+  await cmsSave(GVC,id,{
+    name:document.getElementById('gvNm').value||'Anonymous',
+    amount:amt,
+    fund:document.getElementById('gvFu').value,
+    method:document.getElementById('gvMe').value,
+    date:document.getElementById('gvDt').value||new Date().toISOString().slice(0,10),
+    ref:document.getElementById('gvRf').value,
+    notes:document.getElementById('gvNo').value
+  },'active');
+  const ok=await pushToGitHub();
+  toast(ok?'✅ Giving record saved globally!':'Saved locally','success');
+  closeModal('gvM'); gvLoad();
 }
-document.querySelector('[data-open="gvM"]').addEventListener('click',()=>{
-  ['gvId','gvNm','gvAm','gvRf','gvNo'].forEach(f=>document.getElementById(f).value='');
-  document.getElementById('gvDt').value=new Date().toISOString().slice(0,10);
-  document.getElementById('gvFu').value='General / Tithes';document.getElementById('gvMe').value='Cash';
+
+document.querySelectorAll('#gvC .chip').forEach(c=>c.addEventListener('click',()=>{
+  document.querySelectorAll('#gvC .chip').forEach(x=>x.classList.remove('active'));
+  c.classList.add('active'); gvLoad();
+}));
+document.getElementById('gvQ')?.addEventListener('input', gvLoad);
+document.querySelector('[data-open="gvM"]')?.addEventListener('click',()=>{
+  ['gvId','gvNm','gvAm','gvRf','gvNo'].forEach(f=>{const el=document.getElementById(f);if(el)el.value='';});
+  const dt=document.getElementById('gvDt'); if(dt) dt.value=new Date().toISOString().slice(0,10);
+  document.getElementById('gvFu').value='General / Tithes';
+  document.getElementById('gvMe').value='Cash';
   document.getElementById('gvMT').textContent='Record Gift';
-});gvLoad();</script></body></html>
+});
+gvLoad();
+</script></body></html>

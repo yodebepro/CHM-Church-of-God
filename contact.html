@@ -477,15 +477,15 @@ p{margin-bottom:1rem}p:last-child{margin-bottom:0}
           </div>
           <div class="form-group">
             <label class="form-label">Email Address *</label>
-            <input type="email" class="form-input" placeholder="john@email.com" required/>
+            <input type="email" id="ctEmail" class="form-input" placeholder="john@email.com" required/>
           </div>
           <div class="form-group">
             <label class="form-label">Phone Number</label>
-            <input type="tel" class="form-input" placeholder="(xxx) xxx-xxxx"/>
+            <input type="tel" id="ctPhone" class="form-input" placeholder="(xxx) xxx-xxxx"/>
           </div>
           <div class="form-group">
             <label class="form-label">Subject</label>
-            <select class="form-select">
+            <select id="ctSubject" class="form-select">
               <option value="">Select a subject…</option>
               <option>General Inquiry</option>
               <option>Membership Information</option>
@@ -499,9 +499,10 @@ p{margin-bottom:1rem}p:last-child{margin-bottom:0}
           </div>
           <div class="form-group">
             <label class="form-label">Message *</label>
-            <textarea class="form-textarea" placeholder="How can we help you?" rows="5" required></textarea>
+            <textarea class="form-textarea" placeholder="How can we help you?" rows="5" id="ctMsg" required></textarea>
           </div>
-          <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center;">Send Message →</button>
+          <div id="ctResp" style="display:none;margin-bottom:1rem;padding:1rem;border-radius:12px;font-size:.88rem;font-weight:600;text-align:center;"></div>
+          <button type="button" onclick="submitContact()" class="btn btn-primary" style="width:100%;justify-content:center;">Send Message →</button>
           <p style="font-size:.8rem;color:var(--text-muted);margin-top:1rem;text-align:center;">Your message will be sent to <strong>yodebepro@gmail.com</strong></p>
         </form>
       </div>
@@ -997,5 +998,73 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 });
 
+</script>
+
+<script>
+async function submitContact() {
+  const name    = document.getElementById('ctName')?.value.trim()  || '';
+  const email   = document.getElementById('ctEmail')?.value.trim() || '';
+  const phone   = document.getElementById('ctPhone')?.value.trim() || '';
+  const subject = document.getElementById('ctSubject')?.value      || 'General Inquiry';
+  const message = document.getElementById('ctMsg')?.value.trim()   || '';
+
+  if (!name || !message) {
+    showCtMsg('Please fill in your name and message.', '#fee2e2', '#b91c1c'); return;
+  }
+
+  const GH = { owner:'yodebepro', repo:'CHM-Church-of-God', branch:'main' };
+
+  try {
+    const res = await fetch(
+      `https://raw.githubusercontent.com/${GH.owner}/${GH.repo}/${GH.branch}/site-data.json?_=` + Date.now(),
+      { cache:'no-store' }
+    );
+    let data = res.ok ? await res.json() : { messages: [] };
+    if (!data.messages) data.messages = [];
+
+    data.messages.unshift({
+      id: Date.now().toString(36) + Math.random().toString(36).slice(2,5),
+      name, email, phone, subject, message,
+      date: new Date().toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'}),
+      _status: 'unread', _createdAt: Date.now()
+    });
+    data._updated = new Date().toISOString();
+
+    const token = (data.site_config?.submission_token) || '';
+    if (token) {
+      const getR = await fetch(`https://api.github.com/repos/${GH.owner}/${GH.repo}/contents/site-data.json`, {
+        headers:{ 'Authorization':`token ${token}`,'Accept':'application/vnd.github.v3+json' }
+      });
+      const sha = getR.ok ? (await getR.json()).sha : '';
+      const content = btoa(unescape(encodeURIComponent(JSON.stringify(data, null, 2))));
+      const putR = await fetch(`https://api.github.com/repos/${GH.owner}/${GH.repo}/contents/site-data.json`, {
+        method:'PUT',
+        headers:{'Authorization':`token ${token}`,'Content-Type':'application/json','Accept':'application/vnd.github.v3+json'},
+        body: JSON.stringify({ message:'Contact form submission', content, sha, branch: GH.branch })
+      });
+      if (putR.ok) {
+        showCtMsg('✅ Message sent! We will get back to you within 1-2 business days.', '#dcfce7', '#15803d');
+        ['ctName','ctEmail','ctPhone','ctMsg'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+        return;
+      }
+    }
+    // Fallback: mailto
+    const sub = encodeURIComponent(subject + ' — ' + name);
+    const bod = encodeURIComponent('Name: '+name+'\nEmail: '+email+'\nPhone: '+phone+'\n\n'+message);
+    window.open('mailto:yodebepro@gmail.com?subject='+sub+'&body='+bod);
+    showCtMsg('📧 Opening your email app… If it did not open, email us at yodebepro@gmail.com', '#fef9c3', '#854d0e');
+  } catch(e) {
+    const sub = encodeURIComponent('Message from ' + name);
+    const bod = encodeURIComponent('Name: '+name+'\nEmail: '+email+'\n\n'+message);
+    window.open('mailto:yodebepro@gmail.com?subject='+sub+'&body='+bod);
+    showCtMsg('📧 Opening your email app…', '#fef9c3', '#854d0e');
+  }
+}
+function showCtMsg(msg, bg, color) {
+  const el = document.getElementById('ctResp');
+  if (!el) return;
+  el.style.display='block'; el.style.background=bg; el.style.color=color; el.textContent=msg;
+  el.scrollIntoView({behavior:'smooth',block:'center'});
+}
 </script>
 </body></html>

@@ -1,6 +1,16 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/><title>Gallery | CHM Admin</title><link rel="stylesheet" href="admin.css"/><script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Gallery | CHM Admin</title>
+<link rel="stylesheet" href="admin.css"/>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-<script src="firebase-config.js"></script></head><body><div class="admin-wrap">
+<script src="firebase-config.js"></script>
+</head>
+<body>
+<div class="admin-wrap">
 <aside class="sidebar" id="sidebar">
   <div class="sidebar-brand">
     <img src="logo-dark.png" alt="CHM" class="brand-logo" onerror="this.outerHTML='<div class=&quot;brand-logo-fallback&quot;>✝</div>'"/>
@@ -40,97 +50,91 @@
     </div>
   </div>
 </aside>
-<div class="main-content"><div class="top-bar"><div class="top-bar-left"><button class="hamburger" id="hamburger"><span></span><span></span><span></span></button><h1 class="top-bar-title">🖼 Gallery</h1></div><div class="top-bar-actions"><button class="btn btn-gold btn-sm" data-open="gM">+ Add Photo</button></div></div><div class="page-body"><div class="filter-bar">
-  <div class="chips" id="gC"><button class="chip active" data-f="">All</button><button class="chip" data-f="published">Published</button><button class="chip" data-f="draft">Draft</button></div>
-  <select class="fs" id="gCF" style="max-width:150px;border-radius:20px;padding:.42rem .85rem;"><option value="">All Categories</option><option>Worship</option><option>Youth</option><option>Outreach</option><option>Events</option><option>Leadership</option><option>Missions</option></select>
+<div class="main-content">
+  <div class="top-bar">
+    <div class="top-bar-left"><button class="hamburger" id="hamburger"><span></span><span></span><span></span></button><h1 class="top-bar-title">&#128444; Gallery</h1></div>
+    <div class="top-bar-actions"><button class="btn btn-gold btn-sm" data-open="gM">+ Add Photo</button></div>
+  </div>
+  <div class="page-body">
+    <div class="filter-bar">
+      <div class="chips" id="gC"><button class="chip active" data-f="">All</button><button class="chip" data-f="published">Published</button><button class="chip" data-f="draft">Draft</button></div>
+      <select class="fs" id="gCF" style="max-width:150px;border-radius:20px;padding:.42rem .85rem;"><option value="">All Categories</option><option>Worship</option><option>Youth</option><option>Outreach</option><option>Events</option><option>Leadership</option><option>Missions</option></select>
+    </div>
+    <div id="gGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:1rem;"></div>
+    <div class="modal-overlay" id="gM"><div class="modal">
+      <div class="modal-header"><h2 class="modal-title" id="gMT">Add Photo</h2><button class="modal-close" data-close="gM">X</button></div>
+      <div class="modal-body">
+        <input type="hidden" id="gId"/>
+        <div style="border:2px dashed var(--border);border-radius:var(--radius);padding:1rem;background:var(--off-white);margin-bottom:1rem;">
+          <label class="form-label" style="margin-bottom:.6rem;">&#128248; Photo</label>
+          <div style="display:flex;gap:.85rem;align-items:flex-start;flex-wrap:wrap;">
+            <div id="gPhPrev" style="width:80px;height:80px;border-radius:10px;background:linear-gradient(135deg,var(--navy),#1e3a6e);display:flex;align-items:center;justify-content:center;font-size:2rem;overflow:hidden;flex-shrink:0;">&#128444;</div>
+            <div style="flex:1;min-width:190px;">
+              <label class="form-label" style="font-size:.74rem;">&#128193; Upload from Computer</label>
+              <input type="file" id="gPhFile" accept="image/*" style="font-size:.8rem;width:100%;margin-bottom:.35rem;"/>
+              <div id="gPhSt" style="font-size:.74rem;color:var(--text-muted);line-height:1.5;margin-bottom:.5rem;"></div>
+              <label class="form-label" style="font-size:.74rem;">&#128279; OR Paste Image URL</label>
+              <input type="url" class="fi" id="gUr" placeholder="https://... direct image link" style="font-size:.82rem;"/>
+            </div>
+          </div>
+        </div>
+        <div class="form-group"><label class="form-label">Photo Title <span class="req">*</span></label><input type="text" class="fi" id="gTi"/></div>
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">Category</label><select class="fs" id="gCt"><option>Worship</option><option>Youth</option><option>Outreach</option><option>Events</option><option>Leadership</option><option>Missions</option><option>Other</option></select></div>
+          <div class="form-group"><label class="form-label">Date</label><input type="date" class="fi" id="gDt"/></div>
+        </div>
+        <div class="form-group"><label class="form-label">Caption</label><textarea class="ft" id="gDe" rows="2"></textarea></div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline btn-sm" data-close="gM">Cancel</button>
+        <button class="btn btn-save btn-sm" onclick="gSave('draft')">Save Draft</button>
+        <button class="btn btn-publish btn-sm" onclick="gSave('published')">Publish Globally</button>
+      </div>
+    </div></div>
+  </div>
 </div>
-<div id="gGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:1rem;"></div><div class="modal-overlay" id="gM"><div class="modal"><div class="modal-header"><h2 class="modal-title" id="gMT">Photo</h2><button class="modal-close" data-close="gM">✕</button></div><div class="modal-body">
-<input type="hidden" id="gId"/>
-<div class="form-group"><label class="form-label">Photo Title <span class="req">*</span></label><input type="text" class="fi" id="gTi"/></div>
-<div class="form-group"><label class="form-label">Image URL <span class="req">*</span></label><label class="form-label" style="font-size:.74rem;margin-bottom:.3rem;">📁 Upload Photo from Computer</label><input type="file" id="gPhFile" accept="image/*" style="width:100%;font-size:.8rem;margin-bottom:.4rem;"/><div id="gPhSt" style="font-size:.74rem;color:var(--text-muted);margin-bottom:.5rem;"></div><label class="form-label" style="font-size:.74rem;margin-bottom:.3rem;">🔗 — OR — Paste Image URL</label><input type="url" class="fi" id="gUr" placeholder="https://… direct image link"/><div class="form-hint">Paste a public image URL (Unsplash, Google Photos, Imgur, etc.)</div></div>
-<div class="form-row">
-  <div class="form-group"><label class="form-label">Category</label><select class="fs" id="gCt"><option>Worship</option><option>Youth</option><option>Outreach</option><option>Events</option><option>Leadership</option><option>Missions</option><option>Other</option></select></div>
-  <div class="form-group"><label class="form-label">Date Taken</label><input type="date" class="fi" id="gDt"/></div>
 </div>
-<div class="form-group"><label class="form-label">Caption / Description</label><textarea class="ft" id="gDe" rows="2"></textarea></div></div><div class="modal-footer"><button class="btn btn-outline btn-sm" data-close="gM">Cancel</button><button class="btn btn-save btn-sm" onclick="gSave('draft')">💾 Save Draft</button><button class="btn btn-publish btn-sm" onclick="gSave('published')">🌐 Publish</button></div></div></div></div></div></div><script src="admin.js"></script>
+<script src="admin.js"></script>
 <script>requireAuth();
-const GC='gallery'; let gF='';
-const ICONS={Worship:'🎵',Youth:'⚡',Outreach:'🌍',Events:'🎉',Leadership:'👑',Missions:'✈️',Other:'📷'};
-
-// Photo file upload
-document.getElementById('gPhFile')?.addEventListener('change', async function(){
-  const f=this.files[0]; if(!f) return;
-  const url=await uploadPhoto(f,document.getElementById('gPhSt'));
-  if(url){ document.getElementById('gUr').value=url; gUpdatePrev(url); }
-});
-document.getElementById('gUr')?.addEventListener('input',function(){ gUpdatePrev(this.value.trim()); });
-function gUpdatePrev(url){
-  const p=document.getElementById('gPhPrev'); if(!p) return;
-  p.innerHTML=url?`<img src="${url}" style="width:100%;height:100%;object-fit:cover;border-radius:10px;" onerror="this.parentElement.innerHTML='🖼'"/>`:'🖼';
-}
-
-document.querySelectorAll('#gC .chip').forEach(c=>c.addEventListener('click',()=>{
-  document.querySelectorAll('#gC .chip').forEach(x=>x.classList.remove('active'));
-  c.classList.add('active'); gF=c.dataset.f; gLoad();
-}));
+const GC='gallery';let gF='';
+const ICONS={Worship:'&#127925;',Youth:'&#9889;',Outreach:'&#127757;',Events:'&#127881;',Leadership:'&#128081;',Missions:'&#9992;',Other:'&#128247;'};
+document.getElementById('gPhFile')?.addEventListener('change',async function(){const f=this.files[0];if(!f)return;const url=await uploadPhoto(f,document.getElementById('gPhSt'));if(url){document.getElementById('gUr').value=url;gUpdatePrev(url);}});
+document.getElementById('gUr')?.addEventListener('input',function(){gUpdatePrev(this.value.trim());});
+function gUpdatePrev(url){const p=document.getElementById('gPhPrev');if(!p)return;p.innerHTML=url?`<img src="${url}" style="width:100%;height:100%;object-fit:cover;border-radius:10px;" onerror="this.parentElement.innerHTML='&#128444;'"/>`:'&#128444;';}
+document.querySelectorAll('#gC .chip').forEach(c=>c.addEventListener('click',()=>{document.querySelectorAll('#gC .chip').forEach(x=>x.classList.remove('active'));c.classList.add('active');gF=c.dataset.f;gLoad();}));
 document.getElementById('gCF')?.addEventListener('change',gLoad);
-
 async function gLoad(){
-  const data=await cmsGet(GC); const cf=document.getElementById('gCF')?.value||'';
+  const data=await cmsGet(GC);const cf=document.getElementById('gCF')?.value||'';
   const fil=data.filter(g=>(!gF||g._status===gF)&&(!cf||g.category===cf));
   document.getElementById('gGrid').innerHTML=fil.length?fil.map(g=>`
-    <div style="background:#fff;border:1px solid var(--border);border-radius:14px;overflow:hidden;transition:var(--transition);"
-         onmouseover="this.style.transform='translateY(-3px)';this.style.boxShadow='var(--shadow-md)'"
-         onmouseout="this.style.transform='';this.style.boxShadow=''">
-      ${g.url?`<div style="aspect-ratio:1;overflow:hidden;">
-        <img src="${g.url}" style="width:100%;height:100%;object-fit:cover;" onerror="this.parentElement.innerHTML='<div style=&quot;aspect-ratio:1;display:flex;align-items:center;justify-content:center;font-size:2.5rem;background:var(--off-white);&quot;>${ICONS[g.category]||'📷'}</div>'"/>
-        </div>`:`<div style="aspect-ratio:1;display:flex;align-items:center;justify-content:center;font-size:2.5rem;background:var(--off-white);">${ICONS[g.category]||'📷'}</div>`}
+    <div style="background:#fff;border:1px solid var(--border);border-radius:14px;overflow:hidden;">
+      ${g.url?`<div style="aspect-ratio:1;overflow:hidden;"><img src="${g.url}" style="width:100%;height:100%;object-fit:cover;" onerror="this.parentElement.innerHTML='<div style=&quot;aspect-ratio:1;display:flex;align-items:center;justify-content:center;font-size:2.5rem;background:var(--off-white);&quot;>&#128247;</div>'"/></div>`:`<div style="aspect-ratio:1;display:flex;align-items:center;justify-content:center;font-size:2.5rem;background:var(--off-white);">&#128247;</div>`}
       <div style="padding:.75rem;">
         <div style="font-weight:700;font-size:.82rem;color:var(--navy);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${g.title||'Untitled'}</div>
         <div style="margin:.25rem 0;">${badge(g._status)}</div>
         <div style="display:flex;gap:.3rem;flex-wrap:wrap;margin-top:.4rem;">
-          ${g._status!=='published'
-            ?`<button class="act act-publish" onclick="cmsPublish('${GC}','${g.id}').then(()=>gLoad())">🌐 Publish</button>`
-            :`<button class="act act-unpublish" onclick="cmsUnpublish('${GC}','${g.id}').then(()=>{toast('Hidden','warning');gLoad()})">⏸ Hide</button>`}
-          <button class="act act-edit" onclick="gLoad_edit('${g.id}')">✏️</button>
-          <button class="act act-delete" onclick="confirmDel(()=>cmsDelete('${GC}','${g.id}').then(()=>{toast('Deleted','error');gLoad()}))">🗑</button>
+          ${g._status!=='published'?`<button class="act act-publish" onclick="gSetStatus('${g.id}','published')">Publish</button>`:`<button class="act act-unpublish" onclick="gSetStatus('${g.id}','draft')">Unpublish</button>`}
+          <button class="act act-edit" onclick="gEdit('${g.id}')">Edit</button>
+          <button class="act act-delete" onclick="confirmDel(()=>gDel('${g.id}'))">Delete</button>
         </div>
       </div>
     </div>`).join('')
-  :'<div style="grid-column:1/-1;text-align:center;padding:3rem;color:var(--text-muted);">No photos yet. Click <strong>+ Add Photo</strong> above.</div>';
+  :'<div style="grid-column:1/-1;text-align:center;padding:3rem;color:var(--text-muted);">No photos yet.</div>';
 }
-
-async function gLoad_edit(id){
-  const d=(await cmsGet(GC)).find(x=>x.id===id); if(!d) return;
-  document.getElementById('gId').value=d.id;
-  document.getElementById('gTi').value=d.title||'';
-  document.getElementById('gCt').value=d.category||'Worship';
-  document.getElementById('gDt').value=d.date||'';
-  document.getElementById('gDe').value=d.desc||'';
-  const url=d.url||''; document.getElementById('gUr').value=url; gUpdatePrev(url);
-  if(document.getElementById('gPhFile')) document.getElementById('gPhFile').value='';
-  if(document.getElementById('gPhSt'))   document.getElementById('gPhSt').textContent='';
-  document.getElementById('gMT').textContent='Edit Photo'; openModal('gM');
-}
-
+async function gSetStatus(id,status){const d=await loadData();const idx=(d[GC]||[]).findIndex(x=>x.id===id);if(idx>=0){d[GC][idx]._status=status;if(status==='published')d[GC][idx]._publishedAt=Date.now();}const ok=await pushToGitHub();toast(ok?(status==='published'?'Photo published globally!':'Unpublished.'):'Saved locally only. Set up GitHub token.',ok?'success':'warning');gLoad();}
+async function gDel(id){const d=await loadData();if(d[GC])d[GC]=d[GC].filter(x=>x.id!==id);await pushToGitHub();toast('Deleted','error');gLoad();}
+async function gEdit(id){const d=(await cmsGet(GC)).find(x=>x.id===id);if(!d)return;document.getElementById('gId').value=d.id;document.getElementById('gTi').value=d.title||'';document.getElementById('gCt').value=d.category||'Worship';document.getElementById('gDt').value=d.date||'';document.getElementById('gDe').value=d.desc||'';const url=d.url||'';document.getElementById('gUr').value=url;gUpdatePrev(url);document.getElementById('gPhFile').value='';document.getElementById('gPhSt').textContent='';document.getElementById('gMT').textContent='Edit Photo';openModal('gM');}
 async function gSave(status){
-  const t=document.getElementById('gTi').value.trim(), url=document.getElementById('gUr').value.trim();
-  if(!t){toast('Title required','error');return;}
-  if(!url){toast('Photo required — upload or paste a URL','error');return;}
+  const t=document.getElementById('gTi').value.trim(),url=document.getElementById('gUr').value.trim();
+  if(!t){toast('Title required','error');return;}if(!url){toast('Photo required','error');return;}
   const id=document.getElementById('gId').value||null;
   await cmsSave(GC,id,{title:t,url,category:document.getElementById('gCt').value,date:document.getElementById('gDt').value||new Date().toISOString().slice(0,10),desc:document.getElementById('gDe').value},status);
-  const _ok=await pushToGitHub();
-  toast(_ok?(status==='published'?'🌐 Published globally to gallery!':'✅ Draft saved.'):'⚠️ Saved locally — set up GitHub token.',_ok?'success':'warning');
-  closeModal('gM'); gLoad();
+  const ok=await pushToGitHub();
+  if(ok&&status==='published')toast('Photo published globally to gallery!','success');
+  else if(ok)toast('Draft saved to GitHub.','success');
+  else toast('Saved locally only. Open github-setup.html to publish globally.','warning');
+  closeModal('gM');gLoad();
 }
-
-document.querySelector('[data-open="gM"]')?.addEventListener('click',()=>{
-  ['gId','gTi','gUr','gDt','gDe'].forEach(f=>{const el=document.getElementById(f);if(el)el.value='';});
-  document.getElementById('gCt').value='Worship';
-  document.getElementById('gMT').textContent='Add Photo';
-  if(document.getElementById('gPhPrev')) document.getElementById('gPhPrev').innerHTML='🖼';
-  if(document.getElementById('gPhFile')) document.getElementById('gPhFile').value='';
-  if(document.getElementById('gPhSt'))  document.getElementById('gPhSt').textContent='';
-});
+document.querySelector('[data-open="gM"]')?.addEventListener('click',()=>{['gId','gTi','gUr','gDt','gDe'].forEach(f=>{const el=document.getElementById(f);if(el)el.value='';});document.getElementById('gCt').value='Worship';document.getElementById('gMT').textContent='Add Photo';document.getElementById('gPhPrev').innerHTML='&#128444;';document.getElementById('gPhFile').value='';document.getElementById('gPhSt').textContent='';});
 gLoad();
 </script></body></html>

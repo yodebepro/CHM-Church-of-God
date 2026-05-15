@@ -50,42 +50,71 @@
   <div class="chips" id="prC"><button class="chip active" data-f="">All</button><button class="chip" data-f="new">New</button><button class="chip" data-f="urgent">Urgent</button><button class="chip" data-f="prayed">Prayed Over</button></div>
   <div class="search-box"><span class="si">🔍</span><input type="text" id="prQ" placeholder="Search requests…"/></div>
 </div>
-<div id="prList"></div></div></div></div><script src="admin.js"></script><script>requireAuth();
-const PRC='prayer_requests';let prF='';
-document.querySelectorAll('#prC .chip').forEach(c=>c.addEventListener('click',()=>{document.querySelectorAll('#prC .chip').forEach(x=>x.classList.remove('active'));c.classList.add('active');prF=c.dataset.f;prLoad();}));
-document.getElementById('prQ').addEventListener('input',prLoad);
-async function prLoad(){
-  const data=await cmsGet(PRC);
-  document.getElementById('prT').textContent=data.length;
-  document.getElementById('prU').textContent=data.filter(p=>p.urgent).length;
-  document.getElementById('prP').textContent=data.filter(p=>p._status==='prayed').length;
-  document.getElementById('prN').textContent=data.filter(p=>!p._status||p._status==='new').length;
-  const q=document.getElementById('prQ').value.toLowerCase();
-  const fil=data.filter(p=>{const mf=!prF||(prF==='urgent'&&p.urgent)||(p._status===prF);return mf&&(!q||(p.name||'').toLowerCase().includes(q)||(p.request||'').toLowerCase().includes(q));});
-  document.getElementById('prList').innerHTML=fil.length?fil.map(p=>`
-    <div class="pr-card ${p.urgent?'urgent':p._status==='prayed'?'prayed':''}">
-      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:.6rem;gap:1rem;">
+<div id="prList"></div></div></div></div><script src="admin.js"></script>
+<script>requireAuth();
+const PRC = 'prayer_requests';
+
+async function prLoad() {
+  const data = await cmsGet(PRC);
+  document.getElementById('prT').textContent = data.length;
+  document.getElementById('prU').textContent = data.filter(p=>p.urgent).length;
+  document.getElementById('prP').textContent = data.filter(p=>p._status==='prayed').length;
+  document.getElementById('prN').textContent = data.filter(p=>!p._status||p._status==='new'||p._status==='unread').length;
+
+  const fChip = document.querySelector('#prC .chip.active');
+  const fVal = fChip ? fChip.dataset.f : '';
+  const q = document.getElementById('prQ')?.value.toLowerCase() || '';
+
+  const fil = data.filter(p => {
+    const mf = !fVal || (fVal==='urgent'&&p.urgent) || p._status===fVal;
+    return mf && (!q || (p.name||'').toLowerCase().includes(q) || (p.request||'').toLowerCase().includes(q));
+  });
+
+  document.getElementById('prList').innerHTML = fil.length ? fil.map(p => `
+    <div class="pr-card ${p.urgent?'urgent':p._status==='prayed'?'prayed':''}" style="background:#fff;border-radius:14px;padding:1.2rem 1.35rem;margin-bottom:.85rem;border-left:4px solid ${p.urgent?'var(--danger)':p._status==='prayed'?'var(--success)':'var(--gold)'};box-shadow:0 2px 8px rgba(0,0,0,.07);">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:.6rem;gap:1rem;flex-wrap:wrap;">
         <div>
-          <div style="font-family:var(--font-display);font-size:1rem;font-weight:700;color:var(--navy);">${p.name||'Anonymous'} ${p.urgent?'<span class="badge badge-red">🚨 Urgent</span>':''}</div>
-          ${p.email?`<div class="td-muted" style="margin-top:.15rem;">✉️ ${p.email}</div>`:''}
+          <div style="font-family:var(--font-display);font-size:1rem;font-weight:700;color:var(--navy);">
+            ${p.anonymous ? '🔒 Anonymous' : p.name||'Anonymous'} ${p.urgent?'<span class="badge badge-red">🚨 Urgent</span>':''}
+          </div>
+          ${p.email?`<div style="font-size:.78rem;color:var(--text-muted);margin-top:.1rem;">✉️ ${p.email}</div>`:''}
+          ${p.phone?`<div style="font-size:.78rem;color:var(--text-muted);">📞 ${p.phone}</div>`:''}
         </div>
-        <div style="text-align:right;flex-shrink:0;">${badge(p._status||'new')}<div class="td-muted" style="margin-top:.2rem;">${p.date||''}</div></div>
+        <div style="text-align:right;flex-shrink:0;">${badge(p._status||'new')}<div style="font-size:.74rem;color:var(--text-muted);margin-top:.2rem;">${p.date||''}</div></div>
       </div>
       <div style="font-size:.68rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);margin-bottom:.4rem;">📂 ${p.category||'General Prayer'}</div>
       <p style="font-size:.88rem;color:var(--text);line-height:1.7;margin-bottom:.75rem;">${p.request||''}</p>
       <div class="row-actions">
         ${p._status!=='prayed'?`<button class="act act-publish" onclick="markPrayed('${p.id}')">🙏 Mark Prayed</button>`:'<span class="badge badge-green">✅ Prayed Over</span>'}
-        ${p.email?`<a href="mailto:${p.email}" class="act act-view">✉️ Reply</a>`:''}
+        ${p.email?`<a href="mailto:${p.email}?subject=Re: Your Prayer Request" class="act act-view">✉️ Reply</a>`:''}
         <button class="act act-delete" onclick="confirmDel(()=>cmsDelete('${PRC}','${p.id}').then(()=>{toast('Removed','error');prLoad()}))">🗑 Remove</button>
       </div>
-    </div>`).join(''):'<div style="text-align:center;padding:4rem;color:var(--text-muted);"><div style="font-size:3rem;margin-bottom:.75rem;">🙏</div><h3 style="font-family:var(--font-display);color:var(--navy);margin-bottom:.4rem;">No Prayer Requests Yet</h3><p>Submissions from your website contact & prayer forms will appear here.</p></div>';
+    </div>`).join('')
+  : '<div style="text-align:center;padding:4rem;color:var(--text-muted);"><div style="font-size:3rem;margin-bottom:.75rem;">🙏</div><h3 style="font-family:var(--font-display);color:var(--navy);margin-bottom:.4rem;">No Prayer Requests Yet</h3><p>When visitors submit prayer requests on your website, they will appear here instantly.</p></div>';
 }
-async function markPrayed(id){
-  const d=(await cmsGet(PRC)).find(x=>x.id===id);if(!d)return;
-  await cmsSave(PRC,id,{...d,_status:'prayed'},'prayed');toast('Marked as prayed over ✝️');prLoad();
+
+async function markPrayed(id) {
+  const d = await loadData();
+  const idx = (d[PRC]||[]).findIndex(x=>x.id===id);
+  if(idx>=0){ d[PRC][idx]._status='prayed'; d[PRC][idx]._prayedAt=Date.now(); }
+  const ok = await pushToGitHub();
+  toast(ok?'✅ Marked as prayed over':'Updated locally','success');
+  prLoad();
 }
+
 async function clearAllPR(){
-  if(!window.confirm('Clear ALL prayer requests? This cannot be undone.'))return;
-  const data=await cmsGet(PRC);for(const d of data)await cmsDelete(PRC,d.id);toast('All cleared','warning');prLoad();
+  if(!window.confirm('Clear ALL prayer requests? Cannot be undone.')) return;
+  const d = await loadData();
+  d[PRC] = [];
+  await pushToGitHub();
+  toast('All cleared','warning');
+  prLoad();
 }
-prLoad();</script></body></html>
+
+document.querySelectorAll('#prC .chip').forEach(c=>c.addEventListener('click',()=>{
+  document.querySelectorAll('#prC .chip').forEach(x=>x.classList.remove('active'));
+  c.classList.add('active'); prLoad();
+}));
+document.getElementById('prQ')?.addEventListener('input', prLoad);
+prLoad();
+</script></body></html>

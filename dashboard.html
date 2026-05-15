@@ -65,6 +65,10 @@
     <div>
       <div class="form-group" style="margin-bottom:.6rem;">
         <label class="form-label">Direct MP4 Video URL</label>
+        <label class="form-label" style="font-size:.74rem;margin-bottom:.3rem;">📁 Upload Video from Computer (under 50 MB)</label>
+        <input type="file" id="hvFile" accept="video/mp4,video/*" style="width:100%;font-size:.82rem;margin-bottom:.4rem;"/>
+        <div id="hvFileSt" style="font-size:.74rem;color:rgba(255,255,255,.5);margin-bottom:.5rem;"></div>
+        <label class="form-label" style="font-size:.74rem;margin-bottom:.3rem;">🔗 — OR — Paste Direct MP4 URL</label>
         <input type="url" class="fi" id="hvUrl" placeholder="https://… paste a direct .mp4 link"/>
         <div class="form-hint">Paste any public direct MP4 URL. It will loop silently behind your homepage hero.</div>
       </div>
@@ -121,9 +125,18 @@ const hvIn=document.getElementById('hvUrl');
 const svd=localStorage.getItem('chm_hero_video')||'';
 if(svd){hvIn.value=svd;document.getElementById('hvSt').textContent='✅ Video active on homepage.';}
 async function saveHV(){
+  const fileInput=document.getElementById('hvFile');
+  const fileSt=document.getElementById('hvFileSt');
+  if(fileInput&&fileInput.files[0]){
+    const f=fileInput.files[0];
+    if(f.size>50*1024*1024){fileSt.textContent='⚠️ Over 50MB. Upload to YouTube and paste the URL.';return;}
+    fileSt.textContent='⏳ Processing video…';
+    const b64=await new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result);r.onerror=rej;r.readAsDataURL(f);});
+    hvIn.value=b64; fileSt.textContent='✅ Video ready ('+Math.round(f.size/1024/1024*10)/10+'MB)';
+  }
   const url=hvIn.value.trim();
-  if(url){localStorage.setItem('chm_hero_video',url);await cfgSave('hero',{videoUrl:url});document.getElementById('hvSt').textContent='✅ Live on homepage.';toast('🎬 Hero video activated!');}
-  else{localStorage.removeItem('chm_hero_video');await cfgSave('hero',{videoUrl:''});document.getElementById('hvSt').textContent='Removed.';toast('Video removed','warning');}
+  if(url){await cfgSave('hero',{videoUrl:url});document.getElementById('hvSt').innerHTML='<span style="color:#4ade80">🌐 Hero video live on ALL devices!</span>';toast('🎬 Hero video published globally!','success');}
+  else{await cfgSave('hero',{videoUrl:''});document.getElementById('hvSt').textContent='Removed.';toast('Video removed','warning');}
 }
 function prevHV(){
   const url=hvIn.value.trim();if(!url){toast('Enter a URL first','warning');return;}

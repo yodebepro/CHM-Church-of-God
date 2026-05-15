@@ -1,6 +1,16 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/><title>Ministries | CHM Admin</title><link rel="stylesheet" href="admin.css"/><script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Ministries | CHM Admin</title>
+<link rel="stylesheet" href="admin.css"/>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-<script src="firebase-config.js"></script></head><body><div class="admin-wrap">
+<script src="firebase-config.js"></script>
+</head>
+<body>
+<div class="admin-wrap">
 <aside class="sidebar" id="sidebar">
   <div class="sidebar-brand">
     <img src="logo-dark.png" alt="CHM" class="brand-logo" onerror="this.outerHTML='<div class=&quot;brand-logo-fallback&quot;>✝</div>'"/>
@@ -40,46 +50,82 @@
     </div>
   </div>
 </aside>
-<div class="main-content"><div class="top-bar"><div class="top-bar-left"><button class="hamburger" id="hamburger"><span></span><span></span><span></span></button><h1 class="top-bar-title">⛪ Ministries</h1></div><div class="top-bar-actions"><button class="btn btn-gold btn-sm" data-open="mnM">+ Add Ministry</button></div></div><div class="page-body"><div class="filter-bar">
-  <div class="chips" id="mnC"><button class="chip active" data-f="">All</button><button class="chip" data-f="published">Published</button><button class="chip" data-f="draft">Draft</button><button class="chip" data-f="archived">Archived</button></div>
-  <select class="fs" id="mnCF" style="max-width:155px;border-radius:20px;padding:.42rem .85rem;"><option value="">All Categories</option><option>Sacred Arts</option><option>Spiritual Growth</option><option>Family</option><option>Outreach</option><option>Healing</option><option>Media</option><option>Events</option></select>
-  <div class="search-box"><span class="si">🔍</span><input type="text" id="mnQ" placeholder="Search ministries…"/></div>
-</div><div class="card"><div class="table-wrap"><table><thead><tr><th>Ministry</th><th>Category</th><th>Leader</th><th>Meeting</th><th>Members</th><th>Status</th><th>Actions</th></tr></thead><tbody id="mnB"></tbody></table></div></div><div class="modal-overlay" id="mnM"><div class="modal"><div class="modal-header"><h2 class="modal-title" id="mnMT">Ministry</h2><button class="modal-close" data-close="mnM">✕</button></div><div class="modal-body">
-<input type="hidden" id="mnId"/>
-<div class="form-row"><div class="form-group"><label class="form-label">Ministry Name <span class="req">*</span></label><input type="text" class="fi" id="mnNm"/></div><div class="form-group"><label class="form-label">Icon / Emoji</label><input type="text" class="fi" id="mnIc" placeholder="🎵 🙏 ✝️…"/></div></div>
-<div class="form-row"><div class="form-group"><label class="form-label">Category</label><select class="fs" id="mnCt"><option>Sacred Arts</option><option>Spiritual Growth</option><option>Family</option><option>Outreach</option><option>Healing</option><option>Media</option><option>Events</option><option>Other</option></select></div><div class="form-group"><label class="form-label">Member Count</label><input type="number" class="fi" id="mnCo" min="0" value="0"/></div></div>
-<div class="form-row"><div class="form-group"><label class="form-label">Leader</label><input type="text" class="fi" id="mnLe"/></div><div class="form-group"><label class="form-label">Meeting Day / Time</label><input type="text" class="fi" id="mnMe" placeholder="Sundays 8:00 AM"/></div></div>
-<div class="form-group"><label class="form-label">Description</label><textarea class="ft" id="mnDe" rows="3"></textarea></div></div><div class="modal-footer"><button class="btn btn-outline btn-sm" data-close="mnM">Cancel</button><button class="btn btn-save btn-sm" onclick="mnSave('draft')">💾 Save Draft</button><button class="btn btn-publish btn-sm" onclick="mnSave('published')">🌐 Publish</button></div></div></div></div></div></div><script src="admin.js"></script><script>requireAuth();
-function rowActions(col,id,st,rf){const p=st==='published';return `<div class="row-actions">${p?`<button class="act act-unpublish" onclick="cmsUnpublish('${col}','${id}').then(()=>{toast('Unpublished','warning');${rf}()})">⏸</button>`:`<button class="act act-publish" onclick="cmsPublish('${col}','${id}').then(()=>{toast('🌐 Published!','success');${rf}()})">🌐 Publish</button>`}<button class="act act-edit" onclick="${rf}_edit('${id}')">✏️</button><button class="act act-archive" onclick="cmsArchive('${col}','${id}').then(()=>{toast('Archived');${rf}()})">📦</button><button class="act act-delete" onclick="confirmDel(()=>cmsDelete('${col}','${id}').then(()=>{toast('Deleted','error');${rf}()}))">🗑</button></div>`;}
-const MNC='ministries';let mnF='';
-document.querySelectorAll('#mnC .chip').forEach(c=>c.addEventListener('click',()=>{document.querySelectorAll('#mnC .chip').forEach(x=>x.classList.remove('active'));c.classList.add('active');mnF=c.dataset.f;mnLoad();}));
-document.getElementById('mnCF').addEventListener('change',mnLoad);document.getElementById('mnQ').addEventListener('input',mnLoad);
+<div class="main-content">
+  <div class="top-bar">
+    <div class="top-bar-left"><button class="hamburger" id="hamburger"><span></span><span></span><span></span></button><h1 class="top-bar-title">&#9962; Ministries</h1></div>
+    <div class="top-bar-actions"><button class="btn btn-gold btn-sm" data-open="mnM">+ Add Ministry</button></div>
+  </div>
+  <div class="page-body">
+    <div class="filter-bar">
+      <div class="chips" id="mnC"><button class="chip active" data-f="">All</button><button class="chip" data-f="published">Published</button><button class="chip" data-f="draft">Draft</button><button class="chip" data-f="archived">Archived</button></div>
+      <div class="search-box"><span class="si">&#128269;</span><input type="text" id="mnQ" placeholder="Search ministries..."/></div>
+    </div>
+    <div class="card"><div class="table-wrap"><table>
+      <thead><tr><th>Ministry</th><th>Category</th><th>Leader</th><th>Meeting</th><th>Members</th><th>Status</th><th>Actions</th></tr></thead>
+      <tbody id="mnB"></tbody>
+    </table></div></div>
+    <div class="modal-overlay" id="mnM"><div class="modal">
+      <div class="modal-header"><h2 class="modal-title" id="mnMT">Add Ministry</h2><button class="modal-close" data-close="mnM">X</button></div>
+      <div class="modal-body">
+        <input type="hidden" id="mnId"/>
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">Ministry Name <span class="req">*</span></label><input type="text" class="fi" id="mnNm"/></div>
+          <div class="form-group"><label class="form-label">Icon / Emoji</label><input type="text" class="fi" id="mnIc" placeholder="e.g. &#127925; &#128591; &#10016;&#65039;"/></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">Category</label><select class="fs" id="mnCt"><option>Sacred Arts</option><option>Spiritual Growth</option><option>Family</option><option>Outreach</option><option>Healing</option><option>Media</option><option>Events</option><option>Other</option></select></div>
+          <div class="form-group"><label class="form-label">Member Count</label><input type="number" class="fi" id="mnCo" min="0" value="0"/></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">Leader</label><input type="text" class="fi" id="mnLe"/></div>
+          <div class="form-group"><label class="form-label">Meeting Day / Time</label><input type="text" class="fi" id="mnMe" placeholder="Sundays 8:00 AM"/></div>
+        </div>
+        <div class="form-group"><label class="form-label">Description</label><textarea class="ft" id="mnDe" rows="3"></textarea></div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline btn-sm" data-close="mnM">Cancel</button>
+        <button class="btn btn-save btn-sm" onclick="mnSave('draft')">Save Draft</button>
+        <button class="btn btn-publish btn-sm" onclick="mnSave('published')">Publish Globally</button>
+      </div>
+    </div></div>
+  </div>
+</div>
+</div>
+<script src="admin.js"></script>
+<script>requireAuth();
+const MNC='ministries';
+document.querySelectorAll('#mnC .chip').forEach(c=>c.addEventListener('click',()=>{document.querySelectorAll('#mnC .chip').forEach(x=>x.classList.remove('active'));c.classList.add('active');mnLoad();}));
+document.getElementById('mnQ').addEventListener('input',mnLoad);
 async function mnLoad(){
-  const data=await cmsGet(MNC);const cf=document.getElementById('mnCF').value;const q=document.getElementById('mnQ').value.toLowerCase();
-  const fil=data.filter(m=>(!mnF||m._status===mnF)&&(!cf||m.category===cf)&&(!q||m.name.toLowerCase().includes(q)));
+  const data=await cmsGet(MNC);const q=document.getElementById('mnQ').value.toLowerCase();const fv=document.querySelector('#mnC .chip.active')?.dataset.f||'';
+  const fil=data.filter(m=>(!fv||m._status===fv)&&(!q||m.name.toLowerCase().includes(q)));
   document.getElementById('mnB').innerHTML=fil.length?fil.map(m=>`<tr>
-    <td><div class="td-primary">${m.icon||'⛪'} ${m.name}</div><div class="td-secondary">${(m.desc||'').slice(0,45)}…</div></td>
-    <td><span class="badge badge-pinned">${m.category||'—'}</span></td>
-    <td class="td-muted">${m.leader||'—'}</td><td class="td-muted">${m.meeting||'—'}</td>
+    <td><div class="td-primary">${m.icon||'&#9962;'} ${m.name}</div><div class="td-secondary">${(m.desc||'').slice(0,45)}...</div></td>
+    <td><span class="badge badge-pinned">${m.category||'--'}</span></td>
+    <td class="td-muted">${m.leader||'--'}</td><td class="td-muted">${m.meeting||'--'}</td>
     <td><span class="badge badge-blue">${m.count||0} members</span></td>
-    <td>${badge(m._status)}</td><td>${rowActions(MNC,m.id,m._status,'mnLoad')}</td>
-  </tr>`).join(''):'<tr><td colspan="7" style="text-align:center;padding:2.5rem;color:var(--text-muted);">No ministries yet.</td></tr>';
+    <td>${badge(m._status)}</td>
+    <td><div class="row-actions">
+      ${m._status==='published'?`<button class="act act-unpublish" onclick="mnSetStatus('${m.id}','draft')">Unpublish</button>`:`<button class="act act-publish" onclick="mnSetStatus('${m.id}','published')">Publish</button>`}
+      <button class="act act-edit" onclick="mnEdit('${m.id}')">Edit</button>
+      <button class="act act-archive" onclick="mnSetStatus('${m.id}','archived')">Archive</button>
+      <button class="act act-delete" onclick="confirmDel(()=>mnDel('${m.id}'))">Delete</button>
+    </div></td></tr>`).join('')
+  :'<tr><td colspan="7" style="text-align:center;padding:2.5rem;color:var(--text-muted);">No ministries yet.</td></tr>';
 }
-async function mnLoad_edit(id){
-  const d=(await cmsGet(MNC)).find(x=>x.id===id);if(!d)return;
-  document.getElementById('mnId').value=d.id;document.getElementById('mnNm').value=d.name||'';
-  document.getElementById('mnIc').value=d.icon||'';document.getElementById('mnCt').value=d.category||'Sacred Arts';
-  document.getElementById('mnCo').value=d.count||0;document.getElementById('mnLe').value=d.leader||'';
-  document.getElementById('mnMe').value=d.meeting||'';document.getElementById('mnDe').value=d.desc||'';
-  document.getElementById('mnMT').textContent='Edit Ministry';openModal('mnM');
-}
+async function mnSetStatus(id,status){const d=await loadData();const idx=(d[MNC]||[]).findIndex(x=>x.id===id);if(idx>=0){d[MNC][idx]._status=status;if(status==='published')d[MNC][idx]._publishedAt=Date.now();}const ok=await pushToGitHub();toast(ok?(status==='published'?'Ministry published globally!':'Updated.'):'Saved locally only. Set up GitHub token.',ok?'success':'warning');mnLoad();}
+async function mnDel(id){const d=await loadData();if(d[MNC])d[MNC]=d[MNC].filter(x=>x.id!==id);await pushToGitHub();toast('Deleted','error');mnLoad();}
+async function mnEdit(id){const d=(await cmsGet(MNC)).find(x=>x.id===id);if(!d)return;document.getElementById('mnId').value=d.id;document.getElementById('mnNm').value=d.name||'';document.getElementById('mnIc').value=d.icon||'';document.getElementById('mnCt').value=d.category||'Sacred Arts';document.getElementById('mnCo').value=d.count||0;document.getElementById('mnLe').value=d.leader||'';document.getElementById('mnMe').value=d.meeting||'';document.getElementById('mnDe').value=d.desc||'';document.getElementById('mnMT').textContent='Edit Ministry';openModal('mnM');}
 async function mnSave(status){
   const name=document.getElementById('mnNm').value.trim();if(!name){toast('Name required','error');return;}
   const id=document.getElementById('mnId').value||null;
   await cmsSave(MNC,id,{name,icon:document.getElementById('mnIc').value,category:document.getElementById('mnCt').value,count:parseInt(document.getElementById('mnCo').value)||0,leader:document.getElementById('mnLe').value,meeting:document.getElementById('mnMe').value,desc:document.getElementById('mnDe').value},status);
-  const _ok=await pushToGitHub();toast(_ok?(status==='published'?'🌐 Published globally! Live on ALL devices within 60 seconds.':'✅ Draft saved to GitHub.'):'⚠️ Saved locally only — set up GitHub token to go global.',_ok?'success':'warning');closeModal('mnM');mnLoad();
+  const ok=await pushToGitHub();
+  if(ok&&status==='published')toast('Ministry published globally! Live within 60 seconds.','success');
+  else if(ok)toast('Draft saved to GitHub.','success');
+  else toast('Saved locally only. Open github-setup.html to publish globally.','warning');
+  closeModal('mnM');mnLoad();
 }
-document.querySelector('[data-open="mnM"]').addEventListener('click',()=>{
-  ['mnId','mnNm','mnIc','mnLe','mnMe','mnDe'].forEach(f=>document.getElementById(f).value='');
-  document.getElementById('mnCt').value='Sacred Arts';document.getElementById('mnCo').value='0';document.getElementById('mnMT').textContent='Add Ministry';
-});mnLoad();</script></body></html>
+document.querySelector('[data-open="mnM"]')?.addEventListener('click',()=>{['mnId','mnNm','mnIc','mnLe','mnMe','mnDe'].forEach(f=>{const el=document.getElementById(f);if(el)el.value='';});document.getElementById('mnCt').value='Sacred Arts';document.getElementById('mnCo').value='0';document.getElementById('mnMT').textContent='Add Ministry';});
+mnLoad();
+</script></body></html>

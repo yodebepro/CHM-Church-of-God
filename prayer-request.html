@@ -487,11 +487,11 @@ background:linear-gradient(150deg,var(--navy) 0%,var(--navy-mid) 50%,#112050 100
           </div>
           <div class="form-group">
             <label class="form-label">Phone Number</label>
-            <input type="tel" class="form-input" placeholder="(xxx) xxx-xxxx (optional)"/>
+            <input type="tel" class="form-input" id="prPhone" placeholder="(xxx) xxx-xxxx (optional)"/>
           </div>
           <div class="form-group">
             <label class="form-label">Prayer Category</label>
-            <select class="form-select">
+            <select class="form-select" id="prCat">
               <option value="">Select a category…</option>
               <option>Healing &amp; Health</option>
               <option>Family &amp; Relationships</option>
@@ -506,7 +506,7 @@ background:linear-gradient(150deg,var(--navy) 0%,var(--navy-mid) 50%,#112050 100
           </div>
           <div class="form-group">
             <label class="form-label">Your Prayer Request *</label>
-            <textarea class="form-textarea" rows="6" placeholder="Please share your request in as much detail as you are comfortable with…" required></textarea>
+            <textarea class="form-textarea" id="prText" rows="6" placeholder="Please share your request in as much detail as you are comfortable with…" required></textarea>
           </div>
           <div class="checkbox-group">
             <input type="checkbox" id="urgent" name="urgent"/>
@@ -520,7 +520,8 @@ background:linear-gradient(150deg,var(--navy) 0%,var(--navy-mid) 50%,#112050 100
             <input type="checkbox" id="testimony" name="testimony"/>
             <label for="testimony">I would like to be contacted to share a testimony of answered prayer</label>
           </div>
-          <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center;margin-top:1.75rem;">🙏 Submit Prayer Request</button>
+          <button type="button" class="btn btn-primary" id="prSubmitBtn" onclick="submitPrayerRequest()" style="width:100%;justify-content:center;margin-top:1.75rem;">🙏 Submit Prayer Request</button>
+          <div id="prMsg" style="display:none;margin-top:1rem;padding:1rem;border-radius:12px;font-size:.88rem;font-weight:600;text-align:center;"></div>
           <div class="privacy-note">
             <strong>Confidentiality:</strong> Your prayer request is shared only with our trusted prayer team and treated with the highest level of discretion. We do not share personal information with anyone outside the ministry.
           </div>
@@ -1019,5 +1020,117 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 });
 
+</script>
+
+<script>
+/* Prayer Request Submission → writes to site-data.json on GitHub */
+async function submitPrayerRequest() {
+  const name    = document.getElementById('prName')?.value.trim()  || 'Anonymous';
+  const email   = document.getElementById('prEmail')?.value.trim() || '';
+  const phone   = document.getElementById('prPhone')?.value.trim() || '';
+  const cat     = document.getElementById('prCat')?.value          || 'General Prayer';
+  const request = document.getElementById('prText')?.value.trim()  || '';
+  const urgent  = document.getElementById('urgent')?.checked       || false;
+  const anon    = document.getElementById('anonymous')?.checked    || false;
+
+  if (!request) { showPRMsg('Please write your prayer request before submitting.', '#fee2e2', '#b91c1c'); return; }
+
+  const btn = document.getElementById('prSubmitBtn');
+  btn.disabled = true;
+  btn.textContent = '⏳ Submitting…';
+
+  const GH = {
+    owner:  'yodebepro',
+    repo:   'CHM-Church-of-God',
+    branch: 'main'
+  };
+
+  try {
+    // Load current site-data.json
+    const res = await fetch(
+      `https://raw.githubusercontent.com/${GH.owner}/${GH.repo}/${GH.branch}/site-data.json?_=` + Date.now(),
+      { cache: 'no-store' }
+    );
+
+    let data = res.ok ? await res.json() : { prayer_requests: [] };
+    if (!data.prayer_requests) data.prayer_requests = [];
+
+    // Add new prayer request
+    const newReq = {
+      id: Date.now().toString(36) + Math.random().toString(36).slice(2,5),
+      name: anon ? 'Anonymous' : name,
+      email, phone,
+      category: cat,
+      request,
+      urgent,
+      anonymous: anon,
+      date: new Date().toLocaleDateString('en-US', {year:'numeric',month:'long',day:'numeric'}),
+      _status: 'new',
+      _createdAt: Date.now()
+    };
+    data.prayer_requests.unshift(newReq);
+    data._updated = new Date().toISOString();
+
+    // Write back via GitHub API (using public token for submissions only)
+    // NOTE: For public submissions, we use a limited-scope token stored in site-data config
+    const token = (data.site_config?.submission_token) || '';
+
+    if (token) {
+      // Get SHA
+      const getR = await fetch(
+        `https://api.github.com/repos/${GH.owner}/${GH.repo}/contents/site-data.json`,
+        { headers: { 'Authorization': `token ${token}`, 'Accept': 'application/vnd.github.v3+json' } }
+      );
+      const sha = getR.ok ? (await getR.json()).sha : '';
+      const content = btoa(unescape(encodeURIComponent(JSON.stringify(data, null, 2))));
+      const putR = await fetch(
+        `https://api.github.com/repos/${GH.owner}/${GH.repo}/contents/site-data.json`,
+        { method:'PUT', headers:{ 'Authorization':`token ${token}`,'Content-Type':'application/json','Accept':'application/vnd.github.v3+json' },
+          body: JSON.stringify({ message:'Prayer request submitted', content, sha, branch: GH.branch }) }
+      );
+      if (putR.ok) {
+        showPRMsg('🙏 Your prayer request has been submitted! Our prayer team will be praying for you.', '#dcfce7', '#15803d');
+        clearPRForm();
+      } else {
+        fallbackPR(name, email, request, cat, urgent);
+      }
+    } else {
+      // No submission token - use email fallback
+      fallbackPR(name, email, request, cat, urgent);
+    }
+  } catch(e) {
+    fallbackPR(name, email, request, cat, urgent);
+  }
+  btn.disabled = false;
+  btn.textContent = '🙏 Submit Prayer Request';
+}
+
+function fallbackPR(name, email, request, cat, urgent) {
+  // Fallback: mailto link
+  const subject = encodeURIComponent((urgent?'[URGENT] ':'') + 'Prayer Request from ' + name);
+  const body = encodeURIComponent('Name: ' + name + '\nEmail: ' + email + '\nCategory: ' + cat + '\nRequest:\n' + request);
+  window.open('mailto:yodebepro@gmail.com?subject=' + subject + '&body=' + body);
+  showPRMsg('🙏 Your prayer request is opening in your email app. If it did not open, please email us at yodebepro@gmail.com', '#fef9c3', '#854d0e');
+}
+
+function showPRMsg(msg, bg, color) {
+  const el = document.getElementById('prMsg');
+  if (!el) return;
+  el.style.display = 'block';
+  el.style.background = bg;
+  el.style.color = color;
+  el.textContent = msg;
+  el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+function clearPRForm() {
+  ['prName','prEmail','prPhone','prText'].forEach(id => {
+    const el = document.getElementById(id); if(el) el.value = '';
+  });
+  const cat = document.getElementById('prCat'); if(cat) cat.value = '';
+  ['urgent','anonymous','testimony'].forEach(id => {
+    const el = document.getElementById(id); if(el) el.checked = false;
+  });
+}
 </script>
 </body></html>

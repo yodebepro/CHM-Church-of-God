@@ -48,39 +48,67 @@
   <div class="modal-header"><h2 class="modal-title">📨 Message Details</h2><button class="modal-close" data-close="msgMod">✕</button></div>
   <div class="modal-body" id="msgBdy"></div>
   <div class="modal-footer"><button class="btn btn-outline btn-sm" data-close="msgMod">Close</button><a href="" id="msgRpl" class="btn btn-publish btn-sm" style="text-decoration:none;">✉️ Reply via Email</a></div>
-</div></div></div></div></div><script src="admin.js"></script><script>requireAuth();
-const MSGC='messages';let msgF='';
-document.querySelectorAll('#msgC .chip').forEach(c=>c.addEventListener('click',()=>{document.querySelectorAll('#msgC .chip').forEach(x=>x.classList.remove('active'));c.classList.add('active');msgF=c.dataset.f;msgLoad();}));
-document.getElementById('msgQ').addEventListener('input',msgLoad);
-async function msgLoad(){
-  const data=await cmsGet(MSGC);const q=document.getElementById('msgQ').value.toLowerCase();
-  const fil=data.filter(m=>(!msgF||m._status===msgF)&&(!q||(m.name||'').toLowerCase().includes(q)||(m.subject||'').toLowerCase().includes(q)));
-  document.getElementById('msgB').innerHTML=fil.length?fil.map(m=>`<tr style="${m._status==='unread'?'background:#fdf6e8;':''}">
-    <td class="td-primary" style="${m._status==='unread'?'font-weight:800;':''}">${m.name}</td>
-    <td class="td-muted">${m.email||'—'}</td><td>${m.subject||'—'}</td>
-    <td class="td-muted">${(m.message||'').slice(0,42)}…</td>
+</div></div></div></div></div><script src="admin.js"></script>
+<script>requireAuth();
+const MSGC = 'messages';
+
+async function msgLoad() {
+  const data = await cmsGet(MSGC);
+  const fChip = document.querySelector('#msgC .chip.active');
+  const fVal = fChip ? fChip.dataset.f : '';
+  const q = document.getElementById('msgQ')?.value.toLowerCase() || '';
+  const fil = data.filter(m=>(!fVal||m._status===fVal)&&(!q||(m.name||'').toLowerCase().includes(q)||(m.subject||'').toLowerCase().includes(q)));
+
+  document.getElementById('msgB').innerHTML = fil.length ? fil.map(m=>`<tr style="${m._status==='unread'?'background:#fdf6e8;':''}">
+    <td class="td-primary" style="${m._status==='unread'?'font-weight:800;':''}">${m.name||'—'}</td>
+    <td class="td-muted">${m.email||'—'}</td>
+    <td>${m.subject||'—'}</td>
+    <td class="td-muted">${(m.message||'').slice(0,45)}…</td>
     <td class="td-muted">${m.date||'—'}</td>
     <td>${badge(m._status||'unread')}</td>
-    <td><div class="row-actions"><button class="act act-view" onclick="viewMsg('${m.id}')">👁 View</button>${m.email?`<a href="mailto:${m.email}?subject=Re: ${encodeURIComponent(m.subject||'')}" class="act act-edit">✉️ Reply</a>`:''}<button class="act act-delete" onclick="confirmDel(()=>cmsDelete('${MSGC}','${m.id}').then(()=>{toast('Deleted','error');msgLoad()}))">🗑</button></div></td>
-  </tr>`).join(''):'<tr><td colspan="7" style="text-align:center;padding:2.5rem;color:var(--text-muted);">No messages yet. Messages from your website contact form will appear here.</td></tr>';
+    <td><div class="row-actions">
+      <button class="act act-view" onclick="viewMsg('${m.id}')">👁 View</button>
+      ${m.email?`<a href="mailto:${m.email}?subject=Re: ${encodeURIComponent(m.subject||'')}" class="act act-edit">✉️ Reply</a>`:''}
+      <button class="act act-delete" onclick="confirmDel(()=>cmsDelete('${MSGC}','${m.id}').then(()=>{toast('Deleted','error');msgLoad()}))">🗑</button>
+    </div></td>
+  </tr>`).join('')
+  : '<tr><td colspan="7" style="text-align:center;padding:2.5rem;color:var(--text-muted);">No messages yet. When visitors fill out the contact form, messages appear here.</td></tr>';
 }
-async function viewMsg(id){
-  const data=await cmsGet(MSGC);const m=data.find(x=>x.id===id);if(!m)return;
-  await cmsSave(MSGC,id,{...m,_status:'read'},'read');
+
+async function viewMsg(id) {
+  const data = await loadData();
+  const m = (data[MSGC]||[]).find(x=>x.id===id);
+  if(!m) return;
+  // Mark as read
+  const idx = (data[MSGC]||[]).findIndex(x=>x.id===id);
+  if(idx>=0 && data[MSGC][idx]._status==='unread'){
+    data[MSGC][idx]._status='read';
+    await pushToGitHub();
+  }
   document.getElementById('msgBdy').innerHTML=`
-    <div style="display:grid;grid-template-columns:90px 1fr;gap:.6rem 1rem;background:var(--off-white);padding:1.1rem;border-radius:var(--radius);margin-bottom:1.1rem;font-size:.85rem;">
-      <span style="color:var(--text-muted);font-weight:700;">From:</span><span style="font-family:var(--font-display);font-weight:700;font-size:1rem;">${m.name}</span>
+    <div style="display:grid;grid-template-columns:80px 1fr;gap:.6rem 1rem;background:var(--off-white);padding:1.1rem;border-radius:var(--radius);margin-bottom:1rem;font-size:.85rem;">
+      <span style="color:var(--text-muted);font-weight:700;">From:</span><span style="font-family:var(--font-display);font-weight:700;font-size:1rem;">${m.name||'—'}</span>
       <span style="color:var(--text-muted);font-weight:700;">Email:</span><span>${m.email||'—'}</span>
       <span style="color:var(--text-muted);font-weight:700;">Phone:</span><span>${m.phone||'—'}</span>
       <span style="color:var(--text-muted);font-weight:700;">Subject:</span><span>${m.subject||'—'}</span>
       <span style="color:var(--text-muted);font-weight:700;">Date:</span><span>${m.date||'—'}</span>
     </div>
-    <div style="font-size:.9rem;line-height:1.8;border-left:3px solid var(--gold);padding-left:1.1rem;">${m.message||''}</div>`;
+    <div style="font-size:.9rem;line-height:1.8;border-left:3px solid var(--gold);padding-left:1rem;">${m.message||''}</div>`;
   document.getElementById('msgRpl').href=`mailto:${m.email||''}?subject=Re: ${encodeURIComponent(m.subject||'')}`;
-  openModal('msgMod');msgLoad();
+  openModal('msgMod');
+  msgLoad();
 }
+
 async function clearAllMsgs(){
-  if(!window.confirm('Clear ALL messages?'))return;
-  const data=await cmsGet(MSGC);for(const d of data)await cmsDelete(MSGC,d.id);toast('All cleared','warning');msgLoad();
+  if(!window.confirm('Clear ALL messages?')) return;
+  const d=await loadData(); d[MSGC]=[];
+  await pushToGitHub(); toast('All cleared','warning'); msgLoad();
 }
-msgLoad();</script></body></html>
+
+document.querySelectorAll('#msgC .chip').forEach(c=>c.addEventListener('click',()=>{
+  document.querySelectorAll('#msgC .chip').forEach(x=>x.classList.remove('active'));
+  c.classList.add('active'); msgLoad();
+}));
+document.getElementById('msgQ')?.addEventListener('input', msgLoad);
+msgLoad();
+</script></body></html>

@@ -1,9 +1,16 @@
-<!DOCTYPE html><html lang="en">
-<head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-<title>Sermons | CHM Admin</title><link rel="stylesheet" href="admin.css"/><script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Sermons | CHM Admin</title>
+<link rel="stylesheet" href="admin.css"/>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-<script src="firebase-config.js"></script></head>
-<body><div class="admin-wrap">
+<script src="firebase-config.js"></script>
+</head>
+<body>
+<div class="admin-wrap">
 <aside class="sidebar" id="sidebar">
   <div class="sidebar-brand">
     <img src="logo-dark.png" alt="CHM" class="brand-logo" onerror="this.outerHTML='<div class=&quot;brand-logo-fallback&quot;>✝</div>'"/>
@@ -43,137 +50,113 @@
     </div>
   </div>
 </aside>
-
 <div class="main-content">
   <div class="top-bar">
-    <div class="top-bar-left"><button class="hamburger" id="hamburger"><span></span><span></span><span></span></button><h1 class="top-bar-title">🎙 Sermons</h1></div>
+    <div class="top-bar-left"><button class="hamburger" id="hamburger"><span></span><span></span><span></span></button><h1 class="top-bar-title">&#127897; Sermons</h1></div>
     <div class="top-bar-actions"><button class="btn btn-gold btn-sm" data-open="sM">+ Add Sermon</button></div>
   </div>
-  <div class="page-body"><div class="filter-bar">
-  <div class="chips" id="sC"><button class="chip active" data-f="">All</button><button class="chip" data-f="published">Published</button><button class="chip" data-f="draft">Draft</button><button class="chip" data-f="archived">Archived</button></div>
-  <div class="search-box"><span class="si">🔍</span><input type="text" id="sQ" placeholder="Search sermons…"/></div>
-</div><div class="card"><div class="table-wrap"><table><thead><tr><th>Title & Scripture</th><th>Speaker</th><th>Date</th><th>Series</th><th>Media</th><th>Status</th><th>Actions</th></tr></thead><tbody id="sB"></tbody></table></div></div><div class="modal-overlay" id="sM"><div class="modal">
-  <div class="modal-header"><h2 class="modal-title" id="sMT">Sermon</h2><button class="modal-close" data-close="sM">✕</button></div>
-  <div class="modal-body">
-<input type="hidden" id="sId"/>
-<div class="form-group"><label class="form-label">Sermon Title <span class="req">*</span></label><input type="text" class="fi" id="sTi" placeholder="Sermon title"/></div>
-<div class="form-row">
-  <div class="form-group"><label class="form-label">Speaker</label><input type="text" class="fi" id="sSp" placeholder="Pastor / Speaker name"/></div>
-  <div class="form-group"><label class="form-label">Date</label><input type="date" class="fi" id="sDt"/></div>
-</div>
-<div class="form-row">
-  <div class="form-group"><label class="form-label">Series</label><select class="fs" id="sSr"><option>Sunday</option><option>Wednesday</option><option>Special</option><option>Youth</option><option>Conference</option></select></div>
-  <div class="form-group"><label class="form-label">Scripture Reference</label><input type="text" class="fi" id="sSc" placeholder="John 3:16"/></div>
-</div>
-<div style="border:2px dashed var(--border);border-radius:var(--radius);padding:1rem;background:var(--off-white);margin-bottom:.7rem;">
-      <label class="form-label" style="margin-bottom:.5rem;">🎬 Video</label>
-      <div class="form-row" style="margin-bottom:.3rem;">
-        <div class="form-group" style="margin-bottom:0;"><label class="form-label" style="font-size:.74rem;">📁 Upload Video File (under 50 MB)</label>
-          <input type="file" id="sVidFile" accept="video/*" style="font-size:.8rem;width:100%;"/>
-          <div id="sVidSt" style="font-size:.74rem;color:var(--text-muted);margin-top:.2rem;line-height:1.5;"></div></div>
-        <div class="form-group" style="margin-bottom:0;"><label class="form-label" style="font-size:.74rem;">🔗 — OR — YouTube / Vimeo URL</label>
-          <input type="url" class="fi" id="sVi" placeholder="https://youtube.com/watch?v=…" style="font-size:.82rem;"/>
-          <div class="form-hint">Tip: Upload to YouTube first for best quality.</div></div>
-      </div>
+  <div class="page-body">
+    <div class="filter-bar">
+      <div class="chips" id="sC"><button class="chip active" data-f="">All</button><button class="chip" data-f="published">Published</button><button class="chip" data-f="draft">Draft</button><button class="chip" data-f="archived">Archived</button></div>
+      <div class="search-box"><span class="si">&#128269;</span><input type="text" id="sQ" placeholder="Search sermons..."/></div>
     </div>
-<div style="border:2px dashed var(--border);border-radius:var(--radius);padding:1rem;background:var(--off-white);margin-bottom:.7rem;">
-      <label class="form-label" style="margin-bottom:.5rem;">🎵 Audio</label>
-      <div class="form-row" style="margin-bottom:.3rem;">
-        <div class="form-group" style="margin-bottom:0;"><label class="form-label" style="font-size:.74rem;">📁 Upload Audio File (under 10 MB)</label>
-          <input type="file" id="sAudFile" accept="audio/*" style="font-size:.8rem;width:100%;"/>
-          <div id="sAudSt" style="font-size:.74rem;color:var(--text-muted);margin-top:.2rem;line-height:1.5;"></div></div>
-        <div class="form-group" style="margin-bottom:0;"><label class="form-label" style="font-size:.74rem;">🔗 — OR — Audio / MP3 URL</label>
-          <input type="url" class="fi" id="sAu" placeholder="https://… SoundCloud, Drive, MP3" style="font-size:.82rem;"/></div>
+    <div class="card"><div class="table-wrap"><table>
+      <thead><tr><th>Title &amp; Scripture</th><th>Speaker</th><th>Date</th><th>Series</th><th>Media</th><th>Status</th><th>Actions</th></tr></thead>
+      <tbody id="sB"></tbody>
+    </table></div></div>
+    <div class="modal-overlay" id="sM"><div class="modal" style="max-width:720px;">
+      <div class="modal-header"><h2 class="modal-title" id="sMT">Add Sermon</h2><button class="modal-close" data-close="sM">X</button></div>
+      <div class="modal-body">
+        <input type="hidden" id="sId"/>
+        <div class="form-group"><label class="form-label">Sermon Title <span class="req">*</span></label><input type="text" class="fi" id="sTi"/></div>
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">Speaker</label><input type="text" class="fi" id="sSp" placeholder="Pastor / Speaker name"/></div>
+          <div class="form-group"><label class="form-label">Date</label><input type="date" class="fi" id="sDt"/></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">Series</label><select class="fs" id="sSr"><option>Sunday</option><option>Wednesday</option><option>Special</option><option>Youth</option><option>Conference</option></select></div>
+          <div class="form-group"><label class="form-label">Scripture</label><input type="text" class="fi" id="sSc" placeholder="John 3:16"/></div>
+        </div>
+        <!-- VIDEO -->
+        <div style="border:2px dashed var(--border);border-radius:var(--radius);padding:1rem;background:var(--off-white);margin-bottom:.85rem;">
+          <label class="form-label" style="margin-bottom:.5rem;">&#127916; Video</label>
+          <div class="form-row">
+            <div class="form-group" style="margin-bottom:0;">
+              <label class="form-label" style="font-size:.74rem;">&#128193; Upload Video File (under 50 MB)</label>
+              <input type="file" id="sVidFile" accept="video/*" style="font-size:.8rem;width:100%;"/>
+              <div id="sVidSt" style="font-size:.74rem;color:var(--text-muted);margin-top:.25rem;"></div>
+            </div>
+            <div class="form-group" style="margin-bottom:0;">
+              <label class="form-label" style="font-size:.74rem;">&#128279; OR Paste YouTube / Vimeo URL</label>
+              <input type="url" class="fi" id="sVi" placeholder="https://youtube.com/watch?v=..."/>
+            </div>
+          </div>
+        </div>
+        <!-- AUDIO -->
+        <div style="border:2px dashed var(--border);border-radius:var(--radius);padding:1rem;background:var(--off-white);margin-bottom:.85rem;">
+          <label class="form-label" style="margin-bottom:.5rem;">&#127925; Audio</label>
+          <div class="form-row">
+            <div class="form-group" style="margin-bottom:0;">
+              <label class="form-label" style="font-size:.74rem;">&#128193; Upload Audio File (under 10 MB)</label>
+              <input type="file" id="sAudFile" accept="audio/*" style="font-size:.8rem;width:100%;"/>
+              <div id="sAudSt" style="font-size:.74rem;color:var(--text-muted);margin-top:.25rem;"></div>
+            </div>
+            <div class="form-group" style="margin-bottom:0;">
+              <label class="form-label" style="font-size:.74rem;">&#128279; OR Paste Audio / MP3 URL</label>
+              <input type="url" class="fi" id="sAu" placeholder="https://... SoundCloud, Drive, MP3"/>
+            </div>
+          </div>
+        </div>
+        <div class="form-group"><label class="form-label">Description / Notes</label><textarea class="ft" id="sDe" rows="3"></textarea></div>
       </div>
-    </div>
-<div class="form-group"><label class="form-label">Description / Notes</label><textarea class="ft" id="sDe" rows="3" placeholder="Brief description or sermon notes…"></textarea></div></div>
-  <div class="modal-footer"><button class="btn btn-outline btn-sm" data-close="sM">Cancel</button><button class="btn btn-save btn-sm" onclick="sSave('draft')">💾 Save Draft</button><button class="btn btn-publish btn-sm" onclick="sSave('published')">🌐 Save & Publish</button></div>
-</div></div></div>
-</div></div>
+      <div class="modal-footer">
+        <button class="btn btn-outline btn-sm" data-close="sM">Cancel</button>
+        <button class="btn btn-save btn-sm" onclick="sSave('draft')">Save Draft</button>
+        <button class="btn btn-publish btn-sm" onclick="sSave('published')">Publish Globally</button>
+      </div>
+    </div></div>
+  </div>
+</div>
+</div>
 <script src="admin.js"></script>
 <script>requireAuth();
-const SC='sermons'; let sF='';
-
+const SC='sermons';
 // Audio upload
-document.getElementById('sAudFile')?.addEventListener('change', async function(){
-  const f=this.files[0]; if(!f) return;
-  const st=document.getElementById('sAudSt');
-  if(f.size>10*1024*1024){st.innerHTML='⚠️ Over 10MB. Upload to <a href="https://soundcloud.com" target="_blank">SoundCloud</a> and paste the link.';return;}
-  st.textContent='⏳ Processing audio…';
-  const b64=await new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result);r.onerror=rej;r.readAsDataURL(f);});
-  document.getElementById('sAu').value=b64;
-  st.textContent='✅ Audio ready! ('+Math.round(f.size/1024)+' KB)';
-});
+document.getElementById('sAudFile')?.addEventListener('change',async function(){const f=this.files[0];if(!f)return;const st=document.getElementById('sAudSt');if(f.size>10*1024*1024){st.innerHTML='Over 10MB. Upload to SoundCloud and paste link.';return;}st.textContent='Processing...';const b64=await new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result);r.onerror=rej;r.readAsDataURL(f);});document.getElementById('sAu').value=b64;st.textContent='Audio ready! ('+Math.round(f.size/1024)+' KB)';});
 // Video upload
-document.getElementById('sVidFile')?.addEventListener('change', async function(){
-  const f=this.files[0]; if(!f) return;
-  const st=document.getElementById('sVidSt');
-  if(f.size>50*1024*1024){st.innerHTML='⚠️ Over 50MB. Upload to <a href="https://youtube.com" target="_blank">YouTube</a> and paste the link.';return;}
-  st.textContent='⏳ Processing video…';
-  const b64=await new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result);r.onerror=rej;r.readAsDataURL(f);});
-  document.getElementById('sVi').value=b64;
-  st.textContent='✅ Video ready! ('+Math.round(f.size/1024/1024*10)/10+' MB)';
-});
-
-document.querySelectorAll('#sC .chip').forEach(c=>c.addEventListener('click',()=>{
-  document.querySelectorAll('#sC .chip').forEach(x=>x.classList.remove('active'));
-  c.classList.add('active'); sF=c.dataset.f; sLoad();
-}));
-document.getElementById('sQ')?.addEventListener('input',sLoad);
-
+document.getElementById('sVidFile')?.addEventListener('change',async function(){const f=this.files[0];if(!f)return;const st=document.getElementById('sVidSt');if(f.size>50*1024*1024){st.innerHTML='Over 50MB. Upload to YouTube and paste link.';return;}st.textContent='Processing video...';const b64=await new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result);r.onerror=rej;r.readAsDataURL(f);});document.getElementById('sVi').value=b64;st.textContent='Video ready! ('+Math.round(f.size/1024/1024*10)/10+' MB)';});
+document.querySelectorAll('#sC .chip').forEach(c=>c.addEventListener('click',()=>{document.querySelectorAll('#sC .chip').forEach(x=>x.classList.remove('active'));c.classList.add('active');sLoad();}));
+document.getElementById('sQ').addEventListener('input',sLoad);
 async function sLoad(){
-  const data=await cmsGet(SC); const q=document.getElementById('sQ')?.value.toLowerCase()||'';
-  const fil=data.filter(s=>(!sF||s._status===sF)&&(!q||s.title.toLowerCase().includes(q)||(s.speaker||'').toLowerCase().includes(q)));
+  const data=await cmsGet(SC);const q=document.getElementById('sQ').value.toLowerCase();const fv=document.querySelector('#sC .chip.active')?.dataset.f||'';
+  const fil=data.filter(s=>(!fv||s._status===fv)&&(!q||s.title.toLowerCase().includes(q)||(s.speaker||'').toLowerCase().includes(q)));
   document.getElementById('sB').innerHTML=fil.length?fil.map(s=>`<tr>
     <td><div class="td-primary">${s.title}</div><div class="td-secondary">${s.scripture||''}</div></td>
-    <td class="td-muted">${s.speaker||'—'}</td>
-    <td class="td-muted">${s.date||'—'}</td>
+    <td class="td-muted">${s.speaker||'--'}</td><td class="td-muted">${s.date||'--'}</td>
     <td><span class="badge badge-blue">${s.series||'Sunday'}</span></td>
-    <td>${s.video?'<span class="badge badge-red">▶ Video</span> ':''} ${s.audio?'<span class="badge badge-green">🎵 Audio</span>':''}</td>
+    <td>${s.video?'<span class="badge badge-red">Video</span> ':''} ${s.audio?'<span class="badge badge-green">Audio</span>':''}</td>
     <td>${badge(s._status)}</td>
     <td><div class="row-actions">
-      ${s._status==='published'
-        ?`<button class="act act-unpublish" onclick="cmsUnpublish('${SC}','${s.id}').then(()=>{toast('Hidden','warning');sLoad()})">⏸</button>`
-        :`<button class="act act-publish" onclick="cmsPublish('${SC}','${s.id}').then(()=>sLoad())">🌐 Publish</button>`}
-      <button class="act act-edit" onclick="sLoad_edit('${s.id}')">✏️ Edit</button>
-      <button class="act act-archive" onclick="cmsArchive('${SC}','${s.id}').then(()=>{toast('Archived');sLoad()})">📦</button>
-      <button class="act act-delete" onclick="confirmDel(()=>cmsDelete('${SC}','${s.id}').then(()=>{toast('Deleted','error');sLoad()}))">🗑</button>
-    </div></td>
-  </tr>`).join('')
+      ${s._status==='published'?`<button class="act act-unpublish" onclick="sSetStatus('${s.id}','draft')">Unpublish</button>`:`<button class="act act-publish" onclick="sSetStatus('${s.id}','published')">Publish</button>`}
+      <button class="act act-edit" onclick="sEdit('${s.id}')">Edit</button>
+      <button class="act act-archive" onclick="sSetStatus('${s.id}','archived')">Archive</button>
+      <button class="act act-delete" onclick="confirmDel(()=>sDel('${s.id}'))">Delete</button>
+    </div></td></tr>`).join('')
   :'<tr><td colspan="7" style="text-align:center;padding:2.5rem;color:var(--text-muted);">No sermons yet.</td></tr>';
 }
-
-async function sLoad_edit(id){
-  const d=(await cmsGet(SC)).find(x=>x.id===id); if(!d) return;
-  document.getElementById('sId').value=d.id;
-  document.getElementById('sTi').value=d.title||'';
-  document.getElementById('sSp').value=d.speaker||'';
-  document.getElementById('sDt').value=d.date||'';
-  document.getElementById('sSr').value=d.series||'Sunday';
-  document.getElementById('sSc').value=d.scripture||'';
-  document.getElementById('sVi').value=d.video||'';
-  document.getElementById('sAu').value=d.audio||'';
-  document.getElementById('sDe').value=d.desc||'';
-  ['sAudFile','sVidFile'].forEach(f=>{const el=document.getElementById(f);if(el)el.value='';});
-  ['sAudSt','sVidSt'].forEach(f=>{const el=document.getElementById(f);if(el)el.textContent='';});
-  document.getElementById('sMT').textContent='Edit Sermon'; openModal('sM');
-}
-
+async function sSetStatus(id,status){const d=await loadData();const idx=(d[SC]||[]).findIndex(x=>x.id===id);if(idx>=0){d[SC][idx]._status=status;if(status==='published')d[SC][idx]._publishedAt=Date.now();}const ok=await pushToGitHub();toast(ok?(status==='published'?'Sermon published globally! Live within 60 seconds.':'Updated.'):'Saved locally only. Set up GitHub token.',ok?'success':'warning');sLoad();}
+async function sDel(id){const d=await loadData();if(d[SC])d[SC]=d[SC].filter(x=>x.id!==id);await pushToGitHub();toast('Deleted','error');sLoad();}
+async function sEdit(id){const d=(await cmsGet(SC)).find(x=>x.id===id);if(!d)return;document.getElementById('sId').value=d.id;document.getElementById('sTi').value=d.title||'';document.getElementById('sSp').value=d.speaker||'';document.getElementById('sDt').value=d.date||'';document.getElementById('sSr').value=d.series||'Sunday';document.getElementById('sSc').value=d.scripture||'';document.getElementById('sVi').value=d.video||'';document.getElementById('sAu').value=d.audio||'';document.getElementById('sDe').value=d.desc||'';['sAudFile','sVidFile'].forEach(f=>{const el=document.getElementById(f);if(el)el.value='';});['sAudSt','sVidSt'].forEach(f=>{const el=document.getElementById(f);if(el)el.textContent='';});document.getElementById('sMT').textContent='Edit Sermon';openModal('sM');}
 async function sSave(status){
-  const t=document.getElementById('sTi').value.trim(); if(!t){toast('Title required','error');return;}
+  const t=document.getElementById('sTi').value.trim();if(!t){toast('Title required','error');return;}
   const id=document.getElementById('sId').value||null;
   await cmsSave(SC,id,{title:t,speaker:document.getElementById('sSp').value,date:document.getElementById('sDt').value,series:document.getElementById('sSr').value,scripture:document.getElementById('sSc').value,video:document.getElementById('sVi').value,audio:document.getElementById('sAu').value,desc:document.getElementById('sDe').value},status);
-  const _ok=await pushToGitHub();
-  toast(_ok?(status==='published'?'🌐 Sermon published globally!':'✅ Draft saved.'):'⚠️ Saved locally.',_ok?'success':'warning');
-  closeModal('sM'); sLoad();
+  const ok=await pushToGitHub();
+  if(ok&&status==='published')toast('Sermon published globally! Live within 60 seconds.','success');
+  else if(ok)toast('Draft saved to GitHub.','success');
+  else toast('Saved locally only. Open github-setup.html to publish globally.','warning');
+  closeModal('sM');sLoad();
 }
-
-document.querySelector('[data-open="sM"]')?.addEventListener('click',()=>{
-  ['sId','sTi','sSp','sDt','sSc','sVi','sAu','sDe'].forEach(f=>{const el=document.getElementById(f);if(el)el.value='';});
-  document.getElementById('sSr').value='Sunday';
-  document.getElementById('sMT').textContent='Add Sermon';
-  ['sAudFile','sVidFile'].forEach(f=>{const el=document.getElementById(f);if(el)el.value='';});
-  ['sAudSt','sVidSt'].forEach(f=>{const el=document.getElementById(f);if(el)el.textContent='';});
-});
+document.querySelector('[data-open="sM"]')?.addEventListener('click',()=>{['sId','sTi','sSp','sDt','sSc','sVi','sAu','sDe'].forEach(f=>{const el=document.getElementById(f);if(el)el.value='';});document.getElementById('sSr').value='Sunday';document.getElementById('sMT').textContent='Add Sermon';['sAudFile','sVidFile'].forEach(f=>{const el=document.getElementById(f);if(el)el.value='';});['sAudSt','sVidSt'].forEach(f=>{const el=document.getElementById(f);if(el)el.textContent='';});});
 sLoad();
 </script></body></html>
