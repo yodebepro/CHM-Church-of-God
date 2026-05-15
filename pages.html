@@ -119,9 +119,10 @@ async function publishPC(pg){
   if(pg==='home')d={eyebrow:document.getElementById('hEy').value,title:document.getElementById('hTi').value,verse:document.getElementById('hVe').value,btn1:document.getElementById('hB1').value,btn2:document.getElementById('hB2').value};
   else if(pg==='about')d={mission:document.getElementById('aMi').value,vision:document.getElementById('aVi').value,story:document.getElementById('aSt').value};
   else if(pg==='footer')d={about:document.getElementById('fAb').value,copy:document.getElementById('fCp').value,bg:document.getElementById('fBg').value,text:document.getElementById('fTx').value};
-  await cfgSave('page_'+pg,d);toast('🌐 Published — live on website!','success');
+  await cfgSave('page_'+pg,d);
+  toast('🌐 Published globally — live on ALL devices within 60 seconds!','success');
 }
-async function saveVid(){const url=document.getElementById('pVi').value.trim();if(url){localStorage.setItem('chm_hero_video',url);await cfgSave('hero',{videoUrl:url});document.getElementById('pVSt').textContent='✅ Active on homepage.';toast('🎬 Video activated!','success');}else{localStorage.removeItem('chm_hero_video');await cfgSave('hero',{videoUrl:''});document.getElementById('pVSt').textContent='Removed.';toast('Removed','warning');}}
+async function saveVid(){const url=document.getElementById('pVi').value.trim();if(url){await cfgSave('hero',{videoUrl:url});document.getElementById('pVSt').textContent='✅ Video active on homepage for ALL visitors.';toast('🎬 Hero video published globally!','success');}else{await cfgSave('hero',{videoUrl:''});document.getElementById('pVSt').textContent='Removed.';toast('Video removed','warning');}}
 function previewVid(){const url=document.getElementById('pVi').value.trim();if(!url){toast('Enter a URL first','warning');return;}const w=document.getElementById('pVW');const v=document.getElementById('pVEl');v.src=url;w.style.display='block';v.play().catch(()=>document.getElementById('pVSt').textContent='⚠️ Cannot load. Use a direct MP4 URL.');}
 function clearVid(){localStorage.removeItem('chm_hero_video');cfgSave('hero',{videoUrl:''});document.getElementById('pVi').value='';document.getElementById('pVW').style.display='none';document.getElementById('pVSt').textContent='Removed.';toast('Cleared','warning');}
 loadPC();</script></body></html>

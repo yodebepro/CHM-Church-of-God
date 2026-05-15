@@ -77,7 +77,7 @@ async function mnSave(status){
   const name=document.getElementById('mnNm').value.trim();if(!name){toast('Name required','error');return;}
   const id=document.getElementById('mnId').value||null;
   await cmsSave(MNC,id,{name,icon:document.getElementById('mnIc').value,category:document.getElementById('mnCt').value,count:parseInt(document.getElementById('mnCo').value)||0,leader:document.getElementById('mnLe').value,meeting:document.getElementById('mnMe').value,desc:document.getElementById('mnDe').value},status);
-  toast(status==='published'?'🌐 Published!':'Draft saved');closeModal('mnM');mnLoad();
+  const _ok=await pushToGitHub();toast(_ok?(status==='published'?'🌐 Published globally! Live on ALL devices within 60 seconds.':'✅ Draft saved to GitHub.'):'⚠️ Saved locally only — set up GitHub token to go global.',_ok?'success':'warning');closeModal('mnM');mnLoad();
 }
 document.querySelector('[data-open="mnM"]').addEventListener('click',()=>{
   ['mnId','mnNm','mnIc','mnLe','mnMe','mnDe'].forEach(f=>document.getElementById(f).value='');

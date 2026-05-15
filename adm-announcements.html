@@ -95,7 +95,7 @@ async function aSave(status){
   if(!t||!b){toast('Title and body are required','error');return;}
   const id=document.getElementById('aId').value||null;
   await cmsSave(AC,id,{title:t,body:b,category:document.getElementById('aCat').value,date:document.getElementById('aDt').value||new Date().toISOString().slice(0,10)},status);
-  toast(status==='published'?'🌐 Published! Visible on website now.':'Draft saved');closeModal('aM');aLoad();
+  const _ok=await pushToGitHub();toast(_ok?(status==='published'?'🌐 Published globally! Live on ALL devices within 60 seconds.':'✅ Draft saved to GitHub.'):'⚠️ Saved locally only — set up GitHub token to go global.',_ok?'success':'warning');closeModal('aM');aLoad();
 }
 document.querySelector('[data-open="aM"]').addEventListener('click',()=>{
   ['aId','aTi','aCat','aBo','aDt'].forEach(f=>document.getElementById(f).value='');

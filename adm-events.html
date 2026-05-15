@@ -101,7 +101,7 @@ async function eSave(status){
   const name=document.getElementById('eNm').value.trim();if(!name){toast('Event name required','error');return;}
   const id=document.getElementById('eId').value||null;
   await cmsSave(EC,id,{name,date:document.getElementById('eDt').value,time:document.getElementById('eTm').value,location:document.getElementById('eLc').value,category:document.getElementById('eCt').value,type:document.getElementById('eTy').value,desc:document.getElementById('eDe').value},status);
-  toast(status==='published'?'🌐 Published! Live on website.':'Draft saved');closeModal('eM');eLoad();
+  const _ok=await pushToGitHub();toast(_ok?(status==='published'?'🌐 Published globally! Live on ALL devices within 60 seconds.':'✅ Draft saved to GitHub.'):'⚠️ Saved locally only — set up GitHub token to go global.',_ok?'success':'warning');closeModal('eM');eLoad();
 }
 document.querySelector('[data-open="eM"]').addEventListener('click',()=>{
   ['eId','eNm','eDt','eTm','eLc','eCt','eDe'].forEach(f=>document.getElementById(f).value='');

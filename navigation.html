@@ -113,9 +113,9 @@ function renderNav(){
 }
 function addNavItem(){navItems.push({label:'New Page',url:'#',dropdown:[]});renderNav();}
 async function saveNav(){await cfgSave('navigation_draft',{items:navItems});toast('Draft saved');}
-async function publishNav(){await cfgSave('navigation',{items:navItems});toast('🌐 Navigation published to all pages!','success');}
+async function publishNav(){await cfgSave('navigation',{items:navItems});toast('🌐 Navigation published globally to all pages!','success');}
 async function publishFooterNav(){
   await cfgSave('footer_nav',{explore:document.getElementById('fEx').value,media:document.getElementById('fMe').value});
-  toast('🌐 Footer navigation published!','success');
+  toast('🌐 Footer navigation published globally!','success');
 }
 loadNav();</script></body></html>

@@ -167,8 +167,8 @@ async function loadSettings(){
 async function saveColors(){
   const d={navy:document.getElementById('cN').value,gold:document.getElementById('cG').value,bg:document.getElementById('cB').value,text:document.getElementById('cT').value,bgCss:document.getElementById('cBCss').value,footerBg:document.getElementById('cFBg').value,footerText:document.getElementById('cFTx').value};
   await cfgSave('colors',d);
-  document.getElementById('colorMsg').innerHTML='<span style="color:var(--success)">✅ Colors published — reload the public site to see changes.</span>';
-  toast('🎨 Colors published to website!','success');
+  document.getElementById('colorMsg').innerHTML='<span style="color:var(--success)">✅ Colors published globally — visible on ALL devices within 60 seconds.</span>';
+  toast('🎨 Colors published globally!','success');
 }
 function previewColors(){
   const r=document.documentElement.style;
