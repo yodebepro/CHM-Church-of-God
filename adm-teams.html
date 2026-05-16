@@ -1,11 +1,15 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-<title>Church Teams Control | CHM Admin</title>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Teams | CHM Admin</title>
 <link rel="stylesheet" href="admin.css"/>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
 <script src="firebase-config.js"></script>
-</head><body onload="requireAuth()"><div class="admin-wrap">
+</head>
+<body><div class="admin-wrap">
 <aside class="sidebar" id="sidebar">
   <div class="sidebar-brand">
     <img src="logo-dark.png" alt="CHM" class="brand-logo" onerror="this.outerHTML='<div class=&quot;brand-logo-fallback&quot;>✝</div>'"/>
@@ -21,34 +25,22 @@
     <a href="adm-sermons.html" class="sidebar-link"><span class="icon">🎙</span> Sermons</a>
     <a href="adm-gallery.html" class="sidebar-link"><span class="icon">🖼</span> Gallery</a>
     <a href="pages.html" class="sidebar-link"><span class="icon">📄</span> Page Content</a>
+    <a href="adm-departments.html" class="sidebar-link"><span class="icon">&#127970;</span> Departments</a>
     <a href="navigation.html" class="sidebar-link"><span class="icon">🧭</span> Navigation</a>
   </div>
   <div class="sidebar-section"><div class="sidebar-section-label">People</div>
     <a href="adm-leaders.html" class="sidebar-link"><span class="icon">👤</span> Leadership</a>
     <a href="members.html" class="sidebar-link"><span class="icon">👥</span> Members</a>
+    <a href="adm-teams.html" class="sidebar-link"><span class="icon">&#128101;</span> Teams</a>
+    <a href="adm-about.html" class="sidebar-link"><span class="icon">&#8505;</span> About Page</a>
     <a href="adm-ministries.html" class="sidebar-link"><span class="icon">⛪</span> Ministries</a>
-  
-    <a href="adm-home.html" class="sidebar-link"><span class="icon">🏡</span> Home Page</a>
-    <a href="adm-about.html" class="sidebar-link"><span class="icon">ℹ️</span> About Page</a>
-    <a href="adm-teams.html" class="sidebar-link"><span class="icon">🧩</span> Teams</a>
-    <a href="adm-departments.html" class="sidebar-link"><span class="icon">🏛️</span> Departments</a>
-    <a href="adm-sacred.html" class="sidebar-link"><span class="icon">✝️</span> Sacred Ministries</a>
-    <a href="adm-locations.html" class="sidebar-link"><span class="icon">🌍</span> Locations / Campuses</a>
-    <a href="adm-give.html" class="sidebar-link"><span class="icon">💝</span> Give Page</a>
-    <a href="adm-media-settings.html" class="sidebar-link"><span class="icon">📡</span> Live Media Settings</a>
-    <a href="adm-uploads.html" class="sidebar-link"><span class="icon">⬆️</span> Media Uploads</a>
-    <a href="adm-blueprint.html" class="sidebar-link"><span class="icon">📘</span> Blueprint Sections</a>
-</div>
+  </div>
   <div class="sidebar-section"><div class="sidebar-section-label">Inbox</div>
     <a href="prayer-requests.html" class="sidebar-link"><span class="icon">🙏</span> Prayer Requests</a>
     <a href="messages.html" class="sidebar-link"><span class="icon">✉️</span> Messages</a>
     <a href="giving.html" class="sidebar-link"><span class="icon">💰</span> Giving Records</a>
   </div>
   <div class="sidebar-section"><div class="sidebar-section-label">System</div>
-    
-    <a href="adm-navigation.html" class="sidebar-link"><span class="icon">🧭</span> Navigation Menus</a>
-    <a href="adm-footer.html" class="sidebar-link"><span class="icon">⬇️</span> Footer Content</a>
-    <a href="adm-languages.html" class="sidebar-link"><span class="icon">🌐</span> Languages</a>
     <a href="settings.html" class="sidebar-link"><span class="icon">⚙️</span> Settings & Colors</a>
     <a href="index.html" class="sidebar-link" target="_blank"><span class="icon">🌐</span> View Public Site ↗</a>
   </div>
@@ -60,8 +52,158 @@
     </div>
   </div>
 </aside>
-<main class="main-content">
-  <div class="topbar-admin"><button id="hamburger" class="hamburger">☰</button><div class="topbar-title">Church Teams Control</div><button class="btn btn-ghost" data-logout>Logout</button></div>
-  <div class="page-body"><div data-blueprint-crud="adm_teams"></div></div>
-</main>
-</div><script src="admin.js"></script></body></html>
+<div class="main-content">
+  <div class="top-bar">
+    <div class="top-bar-left"><button class="hamburger" id="hamburger"><span></span><span></span><span></span></button>
+    <h1 class="top-bar-title">&#128101; Teams</h1></div>
+    <div class="top-bar-actions">
+      <button class="btn btn-save btn-sm" onclick="loadDefaults()">&#128257; Load 32 Default Teams</button>
+      <button class="btn btn-gold btn-sm" data-open="tM">+ Add Team</button>
+    </div>
+  </div>
+  <div class="page-body">
+    <div style="background:var(--gold-pale);border:1px solid rgba(200,145,58,.3);border-radius:var(--radius);padding:.85rem 1.1rem;margin-bottom:1.25rem;font-size:.84rem;color:var(--navy);"><strong>&#128161;</strong> Click <strong>Load 32 Default Teams</strong> to pre-fill all teams. Edit and publish each one.</div>
+    <div class="filter-bar">
+      <div class="chips" id="tC"><button class="chip active" data-f="">All</button><button class="chip" data-f="published">Published</button><button class="chip" data-f="draft">Draft</button></div>
+      <select class="fs" id="tCF" style="max-width:160px;border-radius:20px;padding:.42rem .85rem;">
+        <option value="">All Categories</option>
+        <option>Prayer &amp; Worship</option><option>Security &amp; Safety</option><option>Hospitality</option>
+        <option>Media &amp; Technology</option><option>Care &amp; Support</option><option>Operations</option>
+      </select>
+      <div class="search-box"><span class="si">&#128269;</span><input type="text" id="tQ" placeholder="Search teams..."/></div>
+    </div>
+    <div id="tGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:1rem;"></div>
+
+    <div class="modal-overlay" id="tM"><div class="modal" style="max-width:660px;">
+      <div class="modal-header"><h2 class="modal-title" id="tMT">Add Team</h2><button class="modal-close" data-close="tM">X</button></div>
+      <div class="modal-body">
+        <input type="hidden" id="tId"/>
+        <div style="border:2px dashed var(--border);border-radius:var(--radius);padding:1rem;background:var(--off-white);margin-bottom:1rem;">
+          <label class="form-label" style="margin-bottom:.55rem;">&#128248; Team Photo (optional)</label>
+          <div style="display:flex;gap:.85rem;align-items:flex-start;flex-wrap:wrap;">
+            <div id="tPhPrev" style="width:70px;height:70px;border-radius:10px;background:linear-gradient(135deg,var(--navy),#1e3a6e);display:flex;align-items:center;justify-content:center;font-size:1.8rem;overflow:hidden;flex-shrink:0;">&#128101;</div>
+            <div style="flex:1;min-width:180px;">
+              <label class="form-label" style="font-size:.74rem;">&#128193; Upload from Computer</label>
+              <input type="file" id="tPhFile" accept="image/*" style="width:100%;font-size:.8rem;margin-bottom:.3rem;"/>
+              <div id="tPhSt" style="font-size:.74rem;color:var(--text-muted);margin-bottom:.4rem;"></div>
+              <label class="form-label" style="font-size:.74rem;">&#128279; OR Paste Image URL</label>
+              <input type="url" class="fi" id="tPo" placeholder="https://... image URL" style="font-size:.82rem;"/>
+            </div>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">Icon / Emoji</label><input type="text" class="fi" id="tIc" placeholder="e.g. &#128101;"/></div>
+          <div class="form-group"><label class="form-label">Team Name <span class="req">*</span></label><input type="text" class="fi" id="tNm"/></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">Category</label>
+            <select class="fs" id="tCt"><option>Prayer &amp; Worship</option><option>Security &amp; Safety</option><option>Hospitality</option><option>Media &amp; Technology</option><option>Care &amp; Support</option><option>Operations</option></select></div>
+          <div class="form-group"><label class="form-label">Sort Order</label><input type="number" class="fi" id="tOr" min="1" value="99"/></div>
+        </div>
+        <div class="form-group"><label class="form-label">Description</label><textarea class="ft" id="tDe" rows="3"></textarea></div>
+        <div class="form-group"><label class="form-label">Team Leader</label><input type="text" class="fi" id="tLe"/></div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline btn-sm" data-close="tM">Cancel</button>
+        <button class="btn btn-save btn-sm" onclick="tSave('draft')">Save Draft</button>
+        <button class="btn btn-publish btn-sm" onclick="tSave('published')">Publish Globally</button>
+      </div>
+    </div></div>
+  </div>
+</div>
+</div>
+<script src="admin.js"></script>
+<script>
+requireAuth();
+const TC='teams';
+const DEFAULT_TEAMS=[
+  {icon:'🙏',name:'Early Morning Prayer Team',desc:'Interceding before dawn for the church and community, setting the spiritual atmosphere for each day.',category:'Prayer & Worship',order:1},
+  {icon:'⚔️',name:'Intercessory Prayer Team',desc:'Standing in the gap through focused, targeted intercession for specific needs, leaders, and nations.',category:'Prayer & Worship',order:2},
+  {icon:'🎵',name:'Worship Team',desc:'Musicians, singers, and worshippers leading the congregation into Spirit-filled worship each service.',category:'Prayer & Worship',order:3},
+  {icon:'🎹',name:'Praise & Dance Team',desc:'Expressing worship through creative dance, flags, and movement as unto the Lord.',category:'Prayer & Worship',order:4},
+  {icon:'🔔',name:'Altar Call Team',desc:'Trained ministers meeting individuals at the altar for prayer, counsel, and spiritual support.',category:'Prayer & Worship',order:5},
+  {icon:'📿',name:'Prayer Chain Team',desc:'A network of prayer partners available around the clock to receive and respond to urgent prayer requests.',category:'Prayer & Worship',order:6},
+  {icon:'🛡️',name:'Church Security Team',desc:'Professionally trained team ensuring the safety and security of all congregation members during services.',category:'Security & Safety',order:7},
+  {icon:'🅿️',name:'Parking & Traffic Team',desc:'Directing traffic and assisting with parking to create a smooth and welcoming arrival experience.',category:'Security & Safety',order:8},
+  {icon:'🚑',name:'First Aid & Medical Team',desc:'Certified first responders ready to provide immediate medical assistance when needed.',category:'Security & Safety',order:9},
+  {icon:'🤝',name:'Welcome & Ushering Team',desc:'Greeting guests and members with warmth, directing seating, and setting a culture of belonging.',category:'Hospitality',order:10},
+  {icon:'🌸',name:'Sanctuary Decoration Team',desc:'Creating a beautiful, inspiring worship environment through floral arrangements and themed décor.',category:'Hospitality',order:11},
+  {icon:'🍽️',name:'Kitchen & Catering Team',desc:'Preparing and serving meals for church events, banquets, and special ministry gatherings.',category:'Hospitality',order:12},
+  {icon:'🎁',name:'New Members Team',desc:'Walking alongside new converts and new members, helping them connect and grow in CHM.',category:'Hospitality',order:13},
+  {icon:'🧹',name:'Cleaning & Maintenance Team',desc:'Keeping our facilities clean, organized, and ready for every service and event.',category:'Hospitality',order:14},
+  {icon:'🌿',name:'Grounds & Landscaping Team',desc:'Maintaining the external appearance of our church property with excellence and care.',category:'Hospitality',order:15},
+  {icon:'📺',name:'Livestream Team',desc:'Producing and broadcasting live services across YouTube, Facebook, and other streaming platforms.',category:'Media & Technology',order:16},
+  {icon:'🎬',name:'Video Production Team',desc:'Filming, editing, and producing high-quality video content for sermons, announcements, and ministry.',category:'Media & Technology',order:17},
+  {icon:'🔊',name:'Sound Engineering Team',desc:'Managing audio systems and ensuring crystal-clear sound for every service and event.',category:'Media & Technology',order:18},
+  {icon:'📸',name:'Photography Team',desc:'Capturing meaningful moments from services, events, and ministry for the church archive and media use.',category:'Media & Technology',order:19},
+  {icon:'💻',name:'IT & Website Team',desc:'Managing technology infrastructure, the church website, and digital communications.',category:'Media & Technology',order:20},
+  {icon:'📱',name:'Social Media Team',desc:'Creating and publishing content that engages and grows CHM\'s online community and witness.',category:'Media & Technology',order:21},
+  {icon:'💙',name:'Pastoral Care Team',desc:'Providing compassionate support through hospital visits, home visits, and crisis counseling.',category:'Care & Support',order:22},
+  {icon:'🧠',name:'Counseling Team',desc:'Certified biblical counselors offering confidential guidance for personal and family challenges.',category:'Care & Support',order:23},
+  {icon:'🍱',name:'Benevolence Team',desc:'Providing practical assistance with food, utilities, and emergency needs for families in crisis.',category:'Care & Support',order:24},
+  {icon:'👵',name:'Senior Care Team',desc:'Visiting, checking in on, and ministering to our elderly members who may be homebound or in care facilities.',category:'Care & Support',order:25},
+  {icon:'🧒',name:'Nursery Team',desc:'Providing safe, loving care for infants and toddlers during services so parents can worship freely.',category:'Care & Support',order:26},
+  {icon:'🤗',name:'Grief Support Team',desc:'Walking alongside those experiencing loss with compassionate care, resources, and community.',category:'Care & Support',order:27},
+  {icon:'📋',name:'Administration Team',desc:'Managing church records, correspondence, and administrative processes with precision and integrity.',category:'Operations',order:28},
+  {icon:'💰',name:'Finance & Stewardship Team',desc:'Overseeing the church budget, accounting, and financial stewardship with transparency and excellence.',category:'Operations',order:29},
+  {icon:'📦',name:'Events Logistics Team',desc:'Coordinating setup, teardown, and logistics for all church services, conferences, and special events.',category:'Operations',order:30},
+  {icon:'🔧',name:'Facilities Team',desc:'Maintaining and improving church facilities to ensure safe, functional, and welcoming environments.',category:'Operations',order:31},
+  {icon:'📊',name:'Strategic Planning Team',desc:'Supporting leadership with research, data, and planning to guide CHM\'s growth and vision.',category:'Operations',order:32},
+  {icon:'📣',name:'Communications Team',desc:'Crafting and distributing church announcements, newsletters, and internal communications.',category:'Operations',order:33}
+];
+
+document.getElementById('tPhFile')?.addEventListener('change',async function(){const f=this.files[0];if(!f)return;const url=await uploadPhoto(f,document.getElementById('tPhSt'));if(url){document.getElementById('tPo').value=url;tUpdatePrev(url);}});
+document.getElementById('tPo')?.addEventListener('input',function(){tUpdatePrev(this.value.trim());});
+function tUpdatePrev(url){const p=document.getElementById('tPhPrev');p.innerHTML=url?`<img src="${url}" style="width:100%;height:100%;object-fit:cover;border-radius:10px;" onerror="this.parentElement.innerHTML='&#128101;'"/>`:'&#128101;';}
+
+document.querySelectorAll('#tC .chip').forEach(c=>c.addEventListener('click',()=>{document.querySelectorAll('#tC .chip').forEach(x=>x.classList.remove('active'));c.classList.add('active');tLoad();}));
+document.getElementById('tCF')?.addEventListener('change',tLoad);
+document.getElementById('tQ')?.addEventListener('input',tLoad);
+
+async function tLoad(){
+  const data=await cmsGet(TC);const cf=document.getElementById('tCF')?.value||'';const q=document.getElementById('tQ')?.value.toLowerCase()||'';const fv=document.querySelector('#tC .chip.active')?.dataset.f||'';
+  const fil=data.filter(t=>(!fv||t._status===fv)&&(!cf||t.category===cf)&&(!q||t.name.toLowerCase().includes(q))).sort((a,b)=>(a.order||99)-(b.order||99));
+  document.getElementById('tGrid').innerHTML=fil.length?fil.map(t=>`
+    <div style="background:#fff;border:1px solid var(--border);border-radius:14px;overflow:hidden;">
+      ${t.photo&&!t.photo.includes('[photo-stored')?`<div style="height:80px;overflow:hidden;"><img src="${t.photo}" style="width:100%;height:100%;object-fit:cover;" onerror="this.parentElement.remove()"/></div>`:''}
+      <div style="padding:.85rem;">
+        <div style="font-size:1.5rem;margin-bottom:.3rem;">${t.icon||'&#128101;'}</div>
+        <div style="font-weight:700;font-size:.85rem;color:var(--navy);margin-bottom:.2rem;">${t.name}</div>
+        <div style="font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--gold);margin-bottom:.3rem;">${t.category||''}</div>
+        <div style="font-size:.74rem;color:var(--text-muted);line-height:1.5;margin-bottom:.5rem;">${(t.desc||'').slice(0,70)}...</div>
+        <div style="margin-bottom:.4rem;">${badge(t._status)}</div>
+        <div style="display:flex;gap:.3rem;flex-wrap:wrap;">
+          ${t._status!=='published'?`<button class="act act-publish" onclick="tSetStatus('${t.id}','published')" style="font-size:.7rem;">Publish</button>`:`<button class="act act-unpublish" onclick="tSetStatus('${t.id}','draft')" style="font-size:.7rem;">Unpublish</button>`}
+          <button class="act act-edit" onclick="tEdit('${t.id}')" style="font-size:.7rem;">Edit</button>
+          <button class="act act-delete" onclick="confirmDel(()=>tDel('${t.id}'))" style="font-size:.7rem;">Del</button>
+        </div>
+      </div>
+    </div>`).join('')
+  :'<div style="grid-column:1/-1;text-align:center;padding:3rem;color:var(--text-muted);">No teams. Click <strong>Load 32 Default Teams</strong> above.</div>';
+}
+async function tSetStatus(id,status){const d=await loadData();const idx=(d[TC]||[]).findIndex(x=>x.id===id);if(idx>=0){d[TC][idx]._status=status;if(status==='published')d[TC][idx]._publishedAt=Date.now();}const ok=await pushToGitHub();toast(ok?(status==='published'?'Team published globally!':'Unpublished.'):'Saved locally.',ok?'success':'warning');tLoad();}
+async function tDel(id){const d=await loadData();if(d[TC])d[TC]=d[TC].filter(x=>x.id!==id);await pushToGitHub();toast('Deleted','error');tLoad();}
+async function tEdit(id){const d=(await cmsGet(TC)).find(x=>x.id===id);if(!d)return;document.getElementById('tId').value=d.id;document.getElementById('tIc').value=d.icon||'';document.getElementById('tNm').value=d.name||'';document.getElementById('tCt').value=d.category||'Operations';document.getElementById('tOr').value=d.order||99;document.getElementById('tDe').value=d.desc||'';document.getElementById('tLe').value=d.leader||'';const ph=d.photo||'';document.getElementById('tPo').value=ph;tUpdatePrev(ph);document.getElementById('tPhFile').value='';document.getElementById('tPhSt').textContent='';document.getElementById('tMT').textContent='Edit Team';openModal('tM');}
+async function tSave(status){
+  const name=document.getElementById('tNm').value.trim();if(!name){toast('Name required','error');return;}
+  const id=document.getElementById('tId').value||null;
+  await cmsSave(TC,id,{icon:document.getElementById('tIc').value,name,category:document.getElementById('tCt').value,order:parseInt(document.getElementById('tOr').value)||99,desc:document.getElementById('tDe').value,leader:document.getElementById('tLe').value,photo:document.getElementById('tPo').value.trim()},status);
+  const ok=await pushToGitHub();
+  if(ok&&status==='published')toast('Team published globally!','success');else if(ok)toast('Draft saved.','success');else toast('Saved locally. Set up GitHub token.','warning');
+  closeModal('tM');tLoad();
+}
+async function loadDefaults(){
+  if(!window.confirm('Load all 32 default teams as drafts?'))return;
+  toast('Loading teams...','info');
+  for(let i=0;i<DEFAULT_TEAMS.length;i++){
+    const t=DEFAULT_TEAMS[i];
+    await cmsSave(TC,null,{icon:t.icon,name:t.name,desc:t.desc,category:t.category,order:t.order,leader:'',photo:''},'draft');
+  }
+  const ok=await pushToGitHub();
+  toast(ok?'All 32 teams loaded! Edit and publish each one.':'Saved locally. Set up GitHub token.',ok?'success':'warning');
+  tLoad();
+}
+document.querySelector('[data-open="tM"]')?.addEventListener('click',()=>{['tId','tIc','tNm','tDe','tLe','tPo'].forEach(f=>{const el=document.getElementById(f);if(el)el.value='';});document.getElementById('tCt').value='Operations';document.getElementById('tOr').value='99';document.getElementById('tMT').textContent='Add Team';document.getElementById('tPhPrev').innerHTML='&#128101;';document.getElementById('tPhFile').value='';document.getElementById('tPhSt').textContent='';});
+tLoad();
+</script>
+</body></html>

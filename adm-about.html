@@ -1,11 +1,16 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-<title>About Page Control | CHM Admin</title>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>About Page Editor | CHM Admin</title>
 <link rel="stylesheet" href="admin.css"/>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
 <script src="firebase-config.js"></script>
-</head><body onload="requireAuth()"><div class="admin-wrap">
+</head>
+<body>
+<div class="admin-wrap">
 <aside class="sidebar" id="sidebar">
   <div class="sidebar-brand">
     <img src="logo-dark.png" alt="CHM" class="brand-logo" onerror="this.outerHTML='<div class=&quot;brand-logo-fallback&quot;>✝</div>'"/>
@@ -21,34 +26,22 @@
     <a href="adm-sermons.html" class="sidebar-link"><span class="icon">🎙</span> Sermons</a>
     <a href="adm-gallery.html" class="sidebar-link"><span class="icon">🖼</span> Gallery</a>
     <a href="pages.html" class="sidebar-link"><span class="icon">📄</span> Page Content</a>
+    <a href="adm-departments.html" class="sidebar-link"><span class="icon">&#127970;</span> Departments</a>
     <a href="navigation.html" class="sidebar-link"><span class="icon">🧭</span> Navigation</a>
   </div>
   <div class="sidebar-section"><div class="sidebar-section-label">People</div>
     <a href="adm-leaders.html" class="sidebar-link"><span class="icon">👤</span> Leadership</a>
     <a href="members.html" class="sidebar-link"><span class="icon">👥</span> Members</a>
+    <a href="adm-teams.html" class="sidebar-link"><span class="icon">&#128101;</span> Teams</a>
+    <a href="adm-about.html" class="sidebar-link"><span class="icon">&#8505;</span> About Page</a>
     <a href="adm-ministries.html" class="sidebar-link"><span class="icon">⛪</span> Ministries</a>
-  
-    <a href="adm-home.html" class="sidebar-link"><span class="icon">🏡</span> Home Page</a>
-    <a href="adm-about.html" class="sidebar-link"><span class="icon">ℹ️</span> About Page</a>
-    <a href="adm-teams.html" class="sidebar-link"><span class="icon">🧩</span> Teams</a>
-    <a href="adm-departments.html" class="sidebar-link"><span class="icon">🏛️</span> Departments</a>
-    <a href="adm-sacred.html" class="sidebar-link"><span class="icon">✝️</span> Sacred Ministries</a>
-    <a href="adm-locations.html" class="sidebar-link"><span class="icon">🌍</span> Locations / Campuses</a>
-    <a href="adm-give.html" class="sidebar-link"><span class="icon">💝</span> Give Page</a>
-    <a href="adm-media-settings.html" class="sidebar-link"><span class="icon">📡</span> Live Media Settings</a>
-    <a href="adm-uploads.html" class="sidebar-link"><span class="icon">⬆️</span> Media Uploads</a>
-    <a href="adm-blueprint.html" class="sidebar-link"><span class="icon">📘</span> Blueprint Sections</a>
-</div>
+  </div>
   <div class="sidebar-section"><div class="sidebar-section-label">Inbox</div>
     <a href="prayer-requests.html" class="sidebar-link"><span class="icon">🙏</span> Prayer Requests</a>
     <a href="messages.html" class="sidebar-link"><span class="icon">✉️</span> Messages</a>
     <a href="giving.html" class="sidebar-link"><span class="icon">💰</span> Giving Records</a>
   </div>
   <div class="sidebar-section"><div class="sidebar-section-label">System</div>
-    
-    <a href="adm-navigation.html" class="sidebar-link"><span class="icon">🧭</span> Navigation Menus</a>
-    <a href="adm-footer.html" class="sidebar-link"><span class="icon">⬇️</span> Footer Content</a>
-    <a href="adm-languages.html" class="sidebar-link"><span class="icon">🌐</span> Languages</a>
     <a href="settings.html" class="sidebar-link"><span class="icon">⚙️</span> Settings & Colors</a>
     <a href="index.html" class="sidebar-link" target="_blank"><span class="icon">🌐</span> View Public Site ↗</a>
   </div>
@@ -60,8 +53,198 @@
     </div>
   </div>
 </aside>
-<main class="main-content">
-  <div class="topbar-admin"><button id="hamburger" class="hamburger">☰</button><div class="topbar-title">About Page Control</div><button class="btn btn-ghost" data-logout>Logout</button></div>
-  <div class="page-body"><div data-blueprint-crud="adm_about"></div></div>
-</main>
-</div><script src="admin.js"></script></body></html>
+<div class="main-content">
+  <div class="top-bar">
+    <div class="top-bar-left"><button class="hamburger" id="hamburger"><span></span><span></span><span></span></button>
+    <h1 class="top-bar-title">&#128712; About Page Editor</h1></div>
+    <div class="top-bar-actions">
+      <button class="btn btn-publish btn-sm" onclick="publishAbout()">&#127760; Publish All Globally</button>
+    </div>
+  </div>
+  <div class="page-body">
+
+    <div class="tab-nav">
+      <button class="tab-btn active" onclick="switchTab(this,'story')">&#128218; Our Story</button>
+      <button class="tab-btn" onclick="switchTab(this,'mvv')">&#127919; Mission / Vision / Values</button>
+      <button class="tab-btn" onclick="switchTab(this,'beliefs')">&#10016; Beliefs</button>
+      <button class="tab-btn" onclick="switchTab(this,'stats')">&#128202; Stats</button>
+      <button class="tab-btn" onclick="switchTab(this,'hero')">&#127776; Page Hero</button>
+    </div>
+
+    <!-- STORY TAB -->
+    <div id="tab-story" class="tab-pane active">
+      <div class="card"><div class="card-header"><div class="card-title">&#128218; Our Story Section</div></div><div class="card-body">
+        <div class="form-group"><label class="form-label">Section Title</label>
+          <input type="text" class="fi" id="aStoryTitle" value="Founded in Faith, Sustained by Grace"/></div>
+        <div class="form-group"><label class="form-label">Story Paragraph 1 <span class="req">*</span></label>
+          <textarea class="ft" id="aStoryP1" rows="4">CHM Church of God was established with a singular vision: to be a house of prayer for all nations, where lives are transformed by the power of God's Word and Spirit. From humble beginnings, God has grown this congregation into a vibrant, multicultural family serving West Orange, New Jersey and extending its reach around the world.</textarea></div>
+        <div class="form-group"><label class="form-label">Story Paragraph 2</label>
+          <textarea class="ft" id="aStoryP2" rows="3">We believe that every person — regardless of background, language, or nationality — is created in the image of God and deserves to hear the Good News of Jesus Christ. This conviction drives everything we do.</textarea></div>
+      </div></div>
+    </div>
+
+    <!-- MISSION/VISION/VALUES TAB -->
+    <div id="tab-mvv" class="tab-pane">
+      <div class="card"><div class="card-header"><div class="card-title">&#127919; Mission, Vision &amp; Values</div></div><div class="card-body">
+        <div class="form-group"><label class="form-label">Our Mission Statement</label>
+          <textarea class="ft" id="aMission" rows="3">To glorify God by making disciples of all nations through prayer, preaching, holiness, and service — transforming communities one life at a time.</textarea></div>
+        <div class="form-group"><label class="form-label">Our Vision Statement</label>
+          <textarea class="ft" id="aVision" rows="3">To be a lighthouse of God's glory — a multicultural, Spirit-filled congregation that reflects the Kingdom of Heaven and impacts the earth.</textarea></div>
+        <div class="form-group"><label class="form-label">Our Values <span style="font-weight:400;color:var(--text-muted);">— one per line</span></label>
+          <textarea class="ft" id="aValues" rows="8">Prayer as a Lifestyle
+Holiness of Heart &amp; Life
+Spirit-Led Worship
+Biblical Authority
+Community &amp; Unity
+Global Missions</textarea>
+          <div class="form-hint">Each line becomes one value bullet on the About page.</div></div>
+      </div></div>
+    </div>
+
+    <!-- BELIEFS TAB -->
+    <div id="tab-beliefs" class="tab-pane">
+      <div class="card"><div class="card-header"><div class="card-title">&#10016; Core Beliefs (01–08+)</div></div><div class="card-body">
+        <div id="beliefsList"></div>
+        <button class="btn btn-outline btn-sm" style="margin-top:.75rem;" onclick="addBelief()">+ Add Belief</button>
+      </div></div>
+    </div>
+
+    <!-- STATS TAB -->
+    <div id="tab-stats" class="tab-pane">
+      <div class="card"><div class="card-header"><div class="card-title">&#128202; Impact Stats</div></div><div class="card-body">
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">Stat 1 — Number / Value</label><input type="text" class="fi" id="aStat1N" value="11"/></div>
+          <div class="form-group"><label class="form-label">Stat 1 — Label</label><input type="text" class="fi" id="aStat1L" value="Languages"/></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">Stat 2 — Number / Value</label><input type="text" class="fi" id="aStat2N" value="63+"/></div>
+          <div class="form-group"><label class="form-label">Stat 2 — Label</label><input type="text" class="fi" id="aStat2L" value="Ministries"/></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">Stat 3 — Number / Value</label><input type="text" class="fi" id="aStat3N" value="Global"/></div>
+          <div class="form-group"><label class="form-label">Stat 3 — Label</label><input type="text" class="fi" id="aStat3L" value="Reach"/></div>
+        </div>
+      </div></div>
+    </div>
+
+    <!-- HERO TAB -->
+    <div id="tab-hero" class="tab-pane">
+      <div class="card"><div class="card-header"><div class="card-title">&#127776; About Page Hero Text</div></div><div class="card-body">
+        <div class="form-group"><label class="form-label">Hero Eyebrow Text</label>
+          <input type="text" class="fi" id="aHeroEye" value="A Spirit-filled community rooted in prayer, holiness, and the transforming power of Jesus Christ."/></div>
+        <div class="form-group"><label class="form-label">Hero Main Title</label>
+          <input type="text" class="fi" id="aHeroTitle" value="About CHM Church of God"/></div>
+      </div></div>
+    </div>
+
+    <div style="margin-top:1.5rem;padding-top:1.25rem;border-top:1px solid var(--border);display:flex;gap:.6rem;flex-wrap:wrap;">
+      <button class="btn btn-save btn-sm" onclick="saveDraftAbout()">&#128190; Save Draft</button>
+      <button class="btn btn-publish btn-sm" onclick="publishAbout()">&#127760; Publish Globally — Update About Page Now</button>
+    </div>
+    <div id="aboutMsg" style="margin-top:.6rem;font-size:.82rem;font-weight:600;"></div>
+
+  </div>
+</div>
+</div>
+<script src="admin.js"></script>
+<script>
+requireAuth();
+
+function switchTab(btn,name){
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.tab-pane').forEach(p=>p.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('tab-'+name).classList.add('active');
+}
+
+let beliefs=[
+  {title:'The Holy Scriptures',text:'The Bible is the inspired, infallible, and authoritative Word of God — our sole rule of faith and practice.'},
+  {title:'The Triune God',text:'We believe in one God, eternally existing in three persons: Father, Son, and Holy Spirit.'},
+  {title:'Salvation by Grace',text:'Salvation is by grace through faith in Jesus Christ alone — His death, burial, and resurrection.'},
+  {title:'The Holy Spirit',text:'Believers are filled with the Holy Spirit, evidenced by speaking in tongues and a life of power and witness.'},
+  {title:'The Church',text:'The Church is the body of Christ, called to worship, fellowship, discipleship, ministry, and evangelism.'},
+  {title:'Divine Healing',text:'God heals the sick in response to faith and prayer, as demonstrated throughout Scripture and still today.'},
+  {title:'Water Baptism',text:'Baptism by immersion is an outward sign of an inward transformation, following faith in Jesus Christ.'},
+  {title:'The Return of Christ',text:'Jesus Christ will return personally, bodily, and visibly to establish His eternal Kingdom.'}
+];
+
+function renderBeliefs(){
+  document.getElementById('beliefsList').innerHTML = beliefs.map((b,i)=>`
+    <div style="display:grid;grid-template-columns:1fr 1fr auto;gap:.6rem;align-items:start;margin-bottom:.6rem;padding:.75rem;background:var(--off-white);border-radius:var(--radius);">
+      <div class="form-group" style="margin:0;"><label class="form-label" style="font-size:.72rem;">Belief #${i+1} — Title</label>
+        <input type="text" class="fi" style="font-size:.82rem;" value="${b.title.replace(/"/g,'&quot;')}" onchange="beliefs[${i}].title=this.value"/></div>
+      <div class="form-group" style="margin:0;"><label class="form-label" style="font-size:.72rem;">Description</label>
+        <textarea class="ft" style="font-size:.82rem;min-height:60px;" onchange="beliefs[${i}].text=this.value">${b.text}</textarea></div>
+      <button class="act act-delete" style="margin-top:1.5rem;" onclick="beliefs.splice(${i},1);renderBeliefs()">&#128465;</button>
+    </div>`).join('');
+}
+
+function addBelief(){
+  beliefs.push({title:'New Belief',text:'Description of this belief...'});
+  renderBeliefs();
+}
+
+function collectData(){
+  // Sync beliefs from DOM
+  document.querySelectorAll('#beliefsList input').forEach((el,i)=>{ if(i%2===0 && beliefs[Math.floor(i/2)]) beliefs[Math.floor(i/2)].title=el.value; });
+  document.querySelectorAll('#beliefsList textarea').forEach((el,i)=>{ if(beliefs[i]) beliefs[i].text=el.value; });
+
+  return {
+    storyTitle: document.getElementById('aStoryTitle').value,
+    storyP1:    document.getElementById('aStoryP1').value,
+    storyP2:    document.getElementById('aStoryP2').value,
+    mission:    document.getElementById('aMission').value,
+    vision:     document.getElementById('aVision').value,
+    values:     document.getElementById('aValues').value.split('\n').map(v=>v.trim()).filter(Boolean),
+    beliefs:    beliefs,
+    stat1n:     document.getElementById('aStat1N').value,
+    stat1l:     document.getElementById('aStat1L').value,
+    stat2n:     document.getElementById('aStat2N').value,
+    stat2l:     document.getElementById('aStat2L').value,
+    stat3n:     document.getElementById('aStat3N').value,
+    stat3l:     document.getElementById('aStat3L').value,
+    heroEye:    document.getElementById('aHeroEye').value,
+    heroTitle:  document.getElementById('aHeroTitle').value,
+  };
+}
+
+async function loadAboutData(){
+  const a = await cfgGet('page_about');
+  if(a.storyTitle) document.getElementById('aStoryTitle').value = a.storyTitle;
+  if(a.storyP1)    document.getElementById('aStoryP1').value    = a.storyP1;
+  if(a.storyP2)    document.getElementById('aStoryP2').value    = a.storyP2;
+  if(a.mission)    document.getElementById('aMission').value    = a.mission;
+  if(a.vision)     document.getElementById('aVision').value     = a.vision;
+  if(a.values)     document.getElementById('aValues').value     = a.values.join('\n');
+  if(a.beliefs&&a.beliefs.length) beliefs = a.beliefs;
+  if(a.stat1n)     document.getElementById('aStat1N').value     = a.stat1n;
+  if(a.stat1l)     document.getElementById('aStat1L').value     = a.stat1l;
+  if(a.stat2n)     document.getElementById('aStat2N').value     = a.stat2n;
+  if(a.stat2l)     document.getElementById('aStat2L').value     = a.stat2l;
+  if(a.stat3n)     document.getElementById('aStat3N').value     = a.stat3n;
+  if(a.stat3l)     document.getElementById('aStat3L').value     = a.stat3l;
+  if(a.heroEye)    document.getElementById('aHeroEye').value    = a.heroEye;
+  if(a.heroTitle)  document.getElementById('aHeroTitle').value  = a.heroTitle;
+  renderBeliefs();
+}
+
+async function saveDraftAbout(){
+  const d = await loadData();
+  if(!d.site_config) d.site_config={};
+  d.site_config.page_about_draft = collectData();
+  await saveLocal();
+  document.getElementById('aboutMsg').innerHTML = '<span style="color:var(--success)">Draft saved locally.</span>';
+}
+
+async function publishAbout(){
+  await cfgSave('page_about', collectData());
+  const ok = await pushToGitHub();
+  const el = document.getElementById('aboutMsg');
+  if(ok){ el.innerHTML='<span style="color:var(--success)">&#127760; About page published globally! Live within 60 seconds.</span>'; toast('About page published globally!','success'); }
+  else  { el.innerHTML='<span style="color:var(--warning)">Saved locally. Set up GitHub token to publish globally.</span>'; toast('Saved locally. Set up GitHub token.','warning'); }
+}
+
+loadAboutData();
+renderBeliefs();
+</script>
+</body></html>

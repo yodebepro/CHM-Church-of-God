@@ -53,6 +53,8 @@
     if (page==='ministries.html')        doMinistries();
     if (page==='about.html')             doAbout();
     if (page==='departments.html')       doDepartments();
+    if (page==='teams.html')             doTeams();
+    if (page==='about.html')             doAboutFull();
   }
 
   function applyTheme() {
@@ -141,6 +143,7 @@
   function doAnnouncements() {
     var items = published('announcements'); if (!items.length) return;
     var el = qs('#cms-announcements-grid'); if (!el) return;
+    each('.cms-static-anns', function(e){ e.style.display='none'; });
     el.innerHTML = items.map(function(a){
       return '<div class="ann-card" style="background:#fff;border-radius:14px;padding:1.4rem;border-left:4px solid var(--gold);box-shadow:0 2px 8px rgba(0,0,0,.07);">'
         +'<div style="font-size:.68rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--gold);margin-bottom:.4rem;">'+esc(a.category||'Announcement')+'</div>'
@@ -155,6 +158,8 @@
   function doEvents() {
     var items = published('events'); if (!items.length) return;
     var el = qs('#cms-events-grid'); if (!el) return;
+    each('.cms-static-events', function(e){ e.style.display='none'; });
+    el.style.display='grid'; el.style.gridTemplateColumns='1fr'; el.style.gap='1.5rem';
     var months=['','Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
     el.innerHTML = items.map(function(e){
       var p=(e.date||'').split('-');
@@ -255,6 +260,26 @@
     }).join('');
   }
 
+
+  /* ── TEAMS ───────────────────────────────────────────────────── */
+  function doTeams() {
+    var items = published('teams'); if (!items.length) return;
+    var grid = qs('#cms-teams-grid'); if (!grid) return;
+    grid.style.cssText = 'display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:1.5rem;';
+    each('.cms-static-teams', function(el){ el.style.display='none'; });
+    items.sort(function(a,b){ return (a.order||99)-(b.order||99); });
+    grid.innerHTML = items.map(function(t){
+      var src=(t.photo&&!t.photo.includes('[photo-stored'))?t.photo:'';
+      return '<div class="min-card" style="background:#fff;border-radius:14px;padding:1.5rem;box-shadow:0 2px 10px rgba(0,0,0,.08);">'
+        +(src?'<div style="overflow:hidden;height:100px;border-radius:10px;margin-bottom:1rem;"><img src="'+esc(src)+'" style="width:100%;height:100%;object-fit:cover;" onerror="this.parentElement.remove()"/></div>':'')
+        +'<div style="font-size:2rem;margin-bottom:.6rem;">'+esc(t.icon||'&#128101;')+'</div>'
+        +'<h3 style="font-size:1rem;font-weight:700;color:var(--navy);margin-bottom:.5rem;">'+esc(t.name||'')+'</h3>'
+        +'<p style="font-size:.85rem;color:#6b7280;line-height:1.6;">'+esc(t.desc||'')+'</p>'
+        +(t.category?'<div style="font-size:.7rem;font-weight:800;text-transform:uppercase;letter-spacing:.1em;color:var(--gold);margin-top:.6rem;">'+esc(t.category)+'</div>':'')
+        +'</div>';
+    }).join('');
+  }
+
   /* ── DEPARTMENTS ─────────────────────────────────────────────── */
   function doDepartments() {
     var items = published('departments'); if (!items.length) return;
@@ -280,6 +305,54 @@
     if (a.mission) setText('#cms-mission', a.mission);
     if (a.vision)  setText('#cms-vision',  a.vision);
     if (a.story)   setText('#cms-story',   a.story);
+  }
+
+  function doAboutFull() {
+    var a = cfg('page_about');
+    // Story
+    if (a.storyTitle) setText('#cms-story-title', a.storyTitle);
+    if (a.storyP1)    setText('#cms-story-p1',    a.storyP1);
+    if (a.storyP2)    setText('#cms-story-p2',    a.storyP2);
+    if (a.mission)    setText('#cms-mission',      a.mission);
+    if (a.vision)     setText('#cms-vision',       a.vision);
+    // Values
+    if (a.values && a.values.length) {
+      var vEl = qs('#cms-values');
+      if (vEl) vEl.innerHTML = a.values.map(function(v){
+        return '<div style="display:flex;align-items:center;gap:.75rem;color:rgba(255,255,255,.8);font-size:.9rem;">'
+          +'<span style="color:var(--gold);">&#10006;</span> '+esc(v)+'</div>';
+      }).join('');
+    }
+    // Beliefs
+    if (a.beliefs && a.beliefs.length) {
+      var bEl = qs('#cms-beliefs-grid');
+      if (bEl) bEl.innerHTML = a.beliefs.map(function(b,i){
+        var num = (i+1 < 10 ? '0' : '') + (i+1);
+        return '<div class="belief-card reveal"><div class="belief-num">'+num+'</div>'
+          +'<div class="belief-title">'+esc(b.title||'')+'</div>'
+          +'<p class="belief-text">'+esc(b.text||'')+'</p></div>';
+      }).join('');
+    }
+    // Stats
+    if (a.stat1n) { var el=qs('#cms-stat-1-n'); if(el) el.textContent=a.stat1n; }
+    if (a.stat1l) { var el=qs('#cms-stat-1-l'); if(el) el.textContent=a.stat1l; }
+    if (a.stat2n) { var el=qs('#cms-stat-2-n'); if(el) el.textContent=a.stat2n; }
+    if (a.stat2l) { var el=qs('#cms-stat-2-l'); if(el) el.textContent=a.stat2l; }
+    if (a.stat3n) { var el=qs('#cms-stat-3-n'); if(el) el.textContent=a.stat3n; }
+    if (a.stat3l) { var el=qs('#cms-stat-3-l'); if(el) el.textContent=a.stat3l; }
+    // About page leadership
+    var leaders = published('leaders');
+    leaders.forEach(function(l){
+      var slot = qs('#about-slot-' + (l.slot||''));
+      if (!slot) return;
+      var name = ((l.first||'')+' '+(l.last||'')).trim();
+      var src = (l.photo&&!l.photo.includes('[photo-stored'))?l.photo:'';
+      slot.innerHTML = (src ? '<img src="'+esc(src)+'" style="width:100%;aspect-ratio:1;object-fit:cover;" onerror="this.outerHTML='<div class=&quot;leader-img-placeholder&quot;>&#128100;</div>'">'
+                            : '<div class="leader-img-placeholder">&#128100;</div>')
+        +'<div class="leader-body"><h4 class="leader-name">'+esc(name)+'</h4>'
+        +'<div class="leader-title">'+esc(l.role||'')+'</div>'
+        +'<p class="leader-bio">'+esc(l.bio||'')+'</p></div>';
+    });
   }
 
 

@@ -9,8 +9,7 @@
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 <script src="firebase-config.js"></script>
 </head>
-<body>
-<div class="admin-wrap">
+<body><div class="admin-wrap">
 <aside class="sidebar" id="sidebar">
   <div class="sidebar-brand">
     <img src="logo-dark.png" alt="CHM" class="brand-logo" onerror="this.outerHTML='<div class=&quot;brand-logo-fallback&quot;>✝</div>'"/>
@@ -32,6 +31,8 @@
   <div class="sidebar-section"><div class="sidebar-section-label">People</div>
     <a href="adm-leaders.html" class="sidebar-link"><span class="icon">👤</span> Leadership</a>
     <a href="members.html" class="sidebar-link"><span class="icon">👥</span> Members</a>
+    <a href="adm-teams.html" class="sidebar-link"><span class="icon">&#128101;</span> Teams</a>
+    <a href="adm-about.html" class="sidebar-link"><span class="icon">&#8505;</span> About Page</a>
     <a href="adm-ministries.html" class="sidebar-link"><span class="icon">⛪</span> Ministries</a>
   </div>
   <div class="sidebar-section"><div class="sidebar-section-label">Inbox</div>
@@ -53,35 +54,64 @@
 </aside>
 <div class="main-content">
   <div class="top-bar">
-    <div class="top-bar-left"><button class="hamburger" id="hamburger"><span></span><span></span><span></span></button><h1 class="top-bar-title">&#9962; Ministries</h1></div>
-    <div class="top-bar-actions"><button class="btn btn-gold btn-sm" data-open="mnM">+ Add Ministry</button></div>
+    <div class="top-bar-left"><button class="hamburger" id="hamburger"><span></span><span></span><span></span></button>
+    <h1 class="top-bar-title">&#9962; Ministries</h1></div>
+    <div class="top-bar-actions">
+      <button class="btn btn-save btn-sm" onclick="loadDefaults()">&#128257; Load 35 Default Ministries</button>
+      <button class="btn btn-gold btn-sm" data-open="mnM">+ Add Ministry</button>
+    </div>
   </div>
   <div class="page-body">
+    <div style="background:var(--gold-pale);border:1px solid rgba(200,145,58,.3);border-radius:var(--radius);padding:.85rem 1.1rem;margin-bottom:1.25rem;font-size:.84rem;color:var(--navy);">
+      <strong>&#128161;</strong> Click <strong>Load 35 Default Ministries</strong> to pre-fill all ministries. Then edit and publish each one individually or publish all at once.
+    </div>
     <div class="filter-bar">
-      <div class="chips" id="mnC"><button class="chip active" data-f="">All</button><button class="chip" data-f="published">Published</button><button class="chip" data-f="draft">Draft</button><button class="chip" data-f="archived">Archived</button></div>
+      <div class="chips" id="mnC"><button class="chip active" data-f="">All</button><button class="chip" data-f="published">Published</button><button class="chip" data-f="draft">Draft</button></div>
+      <select class="fs" id="mnCF" style="max-width:170px;border-radius:20px;padding:.42rem .85rem;">
+        <option value="">All Categories</option>
+        <option>Sacred Ordinances</option><option>Core Spiritual</option><option>Family &amp; Life</option>
+        <option>Outreach &amp; Care</option><option>Healing &amp; Restoration</option><option>Events &amp; Media</option>
+      </select>
       <div class="search-box"><span class="si">&#128269;</span><input type="text" id="mnQ" placeholder="Search ministries..."/></div>
     </div>
-    <div class="card"><div class="table-wrap"><table>
-      <thead><tr><th>Ministry</th><th>Category</th><th>Leader</th><th>Meeting</th><th>Members</th><th>Status</th><th>Actions</th></tr></thead>
-      <tbody id="mnB"></tbody>
-    </table></div></div>
-    <div class="modal-overlay" id="mnM"><div class="modal">
+    <div id="mnGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:1rem;"></div>
+
+    <!-- MODAL -->
+    <div class="modal-overlay" id="mnM"><div class="modal" style="max-width:680px;">
       <div class="modal-header"><h2 class="modal-title" id="mnMT">Add Ministry</h2><button class="modal-close" data-close="mnM">X</button></div>
       <div class="modal-body">
         <input type="hidden" id="mnId"/>
-        <div class="form-row">
-          <div class="form-group"><label class="form-label">Ministry Name <span class="req">*</span></label><input type="text" class="fi" id="mnNm"/></div>
-          <div class="form-group"><label class="form-label">Icon / Emoji</label><input type="text" class="fi" id="mnIc" placeholder="e.g. &#127925; &#128591; &#10016;&#65039;"/></div>
+        <!-- PHOTO -->
+        <div style="border:2px dashed var(--border);border-radius:var(--radius);padding:1rem;background:var(--off-white);margin-bottom:1rem;">
+          <label class="form-label" style="margin-bottom:.55rem;">&#128248; Ministry Photo (optional)</label>
+          <div style="display:flex;gap:.85rem;align-items:flex-start;flex-wrap:wrap;">
+            <div id="mnPhPrev" style="width:70px;height:70px;border-radius:10px;background:linear-gradient(135deg,var(--navy),#1e3a6e);display:flex;align-items:center;justify-content:center;font-size:1.8rem;overflow:hidden;flex-shrink:0;">&#9962;</div>
+            <div style="flex:1;min-width:180px;">
+              <label class="form-label" style="font-size:.74rem;">&#128193; Upload from Computer</label>
+              <input type="file" id="mnPhFile" accept="image/*" style="width:100%;font-size:.8rem;margin-bottom:.3rem;"/>
+              <div id="mnPhSt" style="font-size:.74rem;color:var(--text-muted);margin-bottom:.4rem;"></div>
+              <label class="form-label" style="font-size:.74rem;">&#128279; OR Paste Image URL</label>
+              <input type="url" class="fi" id="mnPo" placeholder="https://... direct image URL" style="font-size:.82rem;"/>
+            </div>
+          </div>
         </div>
         <div class="form-row">
-          <div class="form-group"><label class="form-label">Category</label><select class="fs" id="mnCt"><option>Sacred Arts</option><option>Spiritual Growth</option><option>Family</option><option>Outreach</option><option>Healing</option><option>Media</option><option>Events</option><option>Other</option></select></div>
+          <div class="form-group"><label class="form-label">Icon / Emoji</label><input type="text" class="fi" id="mnIc" placeholder="e.g. &#127925; &#128591;"/></div>
+          <div class="form-group"><label class="form-label">Ministry Name <span class="req">*</span></label><input type="text" class="fi" id="mnNm"/></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">Category</label>
+            <select class="fs" id="mnCt">
+              <option>Sacred Ordinances</option><option>Core Spiritual</option><option>Family &amp; Life</option>
+              <option>Outreach &amp; Care</option><option>Healing &amp; Restoration</option><option>Events &amp; Media</option>
+            </select></div>
           <div class="form-group"><label class="form-label">Member Count</label><input type="number" class="fi" id="mnCo" min="0" value="0"/></div>
         </div>
+        <div class="form-group"><label class="form-label">Description</label><textarea class="ft" id="mnDe" rows="3"></textarea></div>
         <div class="form-row">
           <div class="form-group"><label class="form-label">Leader</label><input type="text" class="fi" id="mnLe"/></div>
-          <div class="form-group"><label class="form-label">Meeting Day / Time</label><input type="text" class="fi" id="mnMe" placeholder="Sundays 8:00 AM"/></div>
+          <div class="form-group"><label class="form-label">Meeting Schedule</label><input type="text" class="fi" id="mnMe" placeholder="Sundays 8:00 AM"/></div>
         </div>
-        <div class="form-group"><label class="form-label">Description</label><textarea class="ft" id="mnDe" rows="3"></textarea></div>
       </div>
       <div class="modal-footer">
         <button class="btn btn-outline btn-sm" data-close="mnM">Cancel</button>
@@ -93,40 +123,146 @@
 </div>
 </div>
 <script src="admin.js"></script>
-<script>requireAuth();
+<script>
+requireAuth();
 const MNC='ministries';
-document.querySelectorAll('#mnC .chip').forEach(c=>c.addEventListener('click',()=>{document.querySelectorAll('#mnC .chip').forEach(x=>x.classList.remove('active'));c.classList.add('active');mnLoad();}));
-document.getElementById('mnQ').addEventListener('input',mnLoad);
-async function mnLoad(){
-  const data=await cmsGet(MNC);const q=document.getElementById('mnQ').value.toLowerCase();const fv=document.querySelector('#mnC .chip.active')?.dataset.f||'';
-  const fil=data.filter(m=>(!fv||m._status===fv)&&(!q||m.name.toLowerCase().includes(q)));
-  document.getElementById('mnB').innerHTML=fil.length?fil.map(m=>`<tr>
-    <td><div class="td-primary">${m.icon||'&#9962;'} ${m.name}</div><div class="td-secondary">${(m.desc||'').slice(0,45)}...</div></td>
-    <td><span class="badge badge-pinned">${m.category||'--'}</span></td>
-    <td class="td-muted">${m.leader||'--'}</td><td class="td-muted">${m.meeting||'--'}</td>
-    <td><span class="badge badge-blue">${m.count||0} members</span></td>
-    <td>${badge(m._status)}</td>
-    <td><div class="row-actions">
-      ${m._status==='published'?`<button class="act act-unpublish" onclick="mnSetStatus('${m.id}','draft')">Unpublish</button>`:`<button class="act act-publish" onclick="mnSetStatus('${m.id}','published')">Publish</button>`}
-      <button class="act act-edit" onclick="mnEdit('${m.id}')">Edit</button>
-      <button class="act act-archive" onclick="mnSetStatus('${m.id}','archived')">Archive</button>
-      <button class="act act-delete" onclick="confirmDel(()=>mnDel('${m.id}'))">Delete</button>
-    </div></td></tr>`).join('')
-  :'<tr><td colspan="7" style="text-align:center;padding:2.5rem;color:var(--text-muted);">No ministries yet.</td></tr>';
+
+const DEFAULT_MINISTRIES=[
+  // Sacred Ordinances
+  {icon:'🍷',name:'Holy Communion',desc:'We observe the Lord\'s Supper regularly, remembering Christ\'s sacrifice and proclaiming His death until He comes again.',category:'Sacred Ordinances',order:1},
+  {icon:'🫶',name:'Foot Washing',desc:'Following Jesus\' example, we practice foot washing as a sacred act of humility and servanthood.',category:'Sacred Ordinances',order:2},
+  {icon:'💧',name:'Water Baptism',desc:'Believers are baptized by full immersion as a public declaration of faith and new life in Christ.',category:'Sacred Ordinances',order:3},
+  {icon:'✨',name:'Anointing Oil',desc:'Anointing with oil accompanies prayers for healing and consecration as instructed in James 5.',category:'Sacred Ordinances',order:4},
+  {icon:'🤲',name:'Laying on of Hands',desc:'We practice laying on hands for healing, commissioning, and the impartation of spiritual gifts.',category:'Sacred Ordinances',order:5},
+  {icon:'💍',name:'Marriage Blessing',desc:'Celebrating and consecrating marriages through pastoral blessing, prayer, and biblical counsel.',category:'Sacred Ordinances',order:6},
+  // Core Spiritual
+  {icon:'🙏',name:'Prayer Ministry',desc:'Covering the church and community in intercession through daily prayer chains, prayer rooms, and corporate gatherings.',category:'Core Spiritual',order:7},
+  {icon:'⚔️',name:'Intercessory Prayer',desc:'A dedicated team of intercessors standing in the gap for individuals, leaders, and nations.',category:'Core Spiritual',order:8},
+  {icon:'🎵',name:'Worship Ministry',desc:'Anointed musicians, singers, and worshippers leading the congregation into God\'s presence each service.',category:'Core Spiritual',order:9},
+  {icon:'📖',name:'Bible Study',desc:'In-depth study of God\'s Word for all ages — Wednesday evenings and small group settings throughout the week.',category:'Core Spiritual',order:10},
+  {icon:'🔮',name:'Prophetic Ministry',desc:'Activating and stewarding the prophetic gifts within the body for edification, exhortation, and comfort.',category:'Core Spiritual',order:11},
+  {icon:'🛡️',name:'Spiritual Warfare',desc:'Equipping believers to stand firm and fight victoriously using the full armor of God.',category:'Core Spiritual',order:12},
+  // Family & Life
+  {icon:'💑',name:'Marriage Ministry',desc:'Strengthening marriages through couples\' retreats, counseling, mentorship, and biblical teaching on covenant love.',category:'Family & Life',order:13},
+  {icon:'💎',name:'Singles Ministry',desc:'Empowering unmarried adults to thrive in purpose, community, and godly relationships.',category:'Family & Life',order:14},
+  {icon:'🔥',name:'Youth Ministry',desc:'Raising a bold generation of young believers through discipleship, leadership, and Holy Spirit encounters.',category:'Family & Life',order:15},
+  {icon:'🧒',name:"Children's Ministry",desc:'Nurturing children ages 3-12 in the love of God through creative, Bible-based teaching and fun activities.',category:'Family & Life',order:16},
+  {icon:'👴',name:'Senior Ministry',desc:'Honoring and engaging our senior members through fellowship, care visits, and tailored programming.',category:'Family & Life',order:17},
+  {icon:'🌿',name:'Adult Ministry',desc:'Growing adults in faith, purpose, and community through life groups, seminars, and service opportunities.',category:'Family & Life',order:18},
+  // Outreach & Care
+  {icon:'📢',name:'Evangelization',desc:'Taking the Gospel to the streets, campuses, workplaces, and beyond through intentional outreach.',category:'Outreach & Care',order:19},
+  {icon:'🌍',name:'Missions',desc:'Supporting missionaries and conducting mission trips to share Christ across nations and cultures.',category:'Outreach & Care',order:20},
+  {icon:'❤️',name:'Good Samaritan',desc:'Meeting practical needs in our community through food distribution, clothing drives, and emergency relief.',category:'Outreach & Care',order:21},
+  {icon:'🏥',name:'Clinical/Medical',desc:'Health fairs, medical screenings, and healthcare education for underserved members of our community.',category:'Outreach & Care',order:22},
+  {icon:'⛓️',name:'Prison Ministry',desc:'Bringing hope, the Word, and the love of Christ to incarcerated individuals and their families.',category:'Outreach & Care',order:23},
+  {icon:'🏨',name:'Hospital Ministry',desc:'Visiting the sick, praying for healing, and providing spiritual support in local hospitals and care facilities.',category:'Outreach & Care',order:24},
+  // Healing & Restoration
+  {icon:'🕊️',name:'Deliverance Ministry',desc:'Walking alongside individuals in spiritual deliverance and freedom from bondage through prayer and the Word.',category:'Healing & Restoration',order:25},
+  {icon:'💚',name:'Inner Healing',desc:'Facilitating emotional healing from trauma, grief, and brokenness through pastoral care and Spirit-led ministry.',category:'Healing & Restoration',order:26},
+  {icon:'🔄',name:'Recovery Ministry',desc:'Supporting those recovering from addiction, loss, and life crises through a grace-filled, Christ-centered process.',category:'Healing & Restoration',order:27},
+  // Events & Media
+  {icon:'🏟️',name:'Conferences',desc:'Annual and seasonal conferences designed to equip, refresh, and ignite believers for Kingdom impact.',category:'Events & Media',order:28},
+  {icon:'⛺',name:'Retreats',desc:'Spiritual retreats for individuals, couples, youth, and leaders — times of focused encounter with God.',category:'Events & Media',order:29},
+  {icon:'🌟',name:'Crusades',desc:'Large-scale evangelistic crusades bringing salvation, healing, and revival to regions and cities.',category:'Events & Media',order:30},
+  {icon:'📺',name:'Livestream Ministry',desc:'Broadcasting services and events live to our global online congregation across multiple platforms.',category:'Events & Media',order:31},
+  {icon:'🎬',name:'Media Ministry',desc:'Producing anointed video, audio, and digital content that extends CHM\'s message far beyond our walls.',category:'Events & Media',order:32},
+  {icon:'🔊',name:'Sound Ministry',desc:'Skilled audio engineers and technicians ensuring excellence in sound for every service and event.',category:'Events & Media',order:33}
+];
+
+// Photo upload
+document.getElementById('mnPhFile')?.addEventListener('change',async function(){
+  const f=this.files[0];if(!f)return;
+  const url=await uploadPhoto(f,document.getElementById('mnPhSt'));
+  if(url){document.getElementById('mnPo').value=url;mnUpdatePrev(url);}
+});
+document.getElementById('mnPo')?.addEventListener('input',function(){mnUpdatePrev(this.value.trim());});
+function mnUpdatePrev(url){
+  const p=document.getElementById('mnPhPrev');
+  p.innerHTML=url?`<img src="${url}" style="width:100%;height:100%;object-fit:cover;border-radius:10px;" onerror="this.parentElement.innerHTML='&#9962;'"/>`:'&#9962;';
 }
-async function mnSetStatus(id,status){const d=await loadData();const idx=(d[MNC]||[]).findIndex(x=>x.id===id);if(idx>=0){d[MNC][idx]._status=status;if(status==='published')d[MNC][idx]._publishedAt=Date.now();}const ok=await pushToGitHub();toast(ok?(status==='published'?'Ministry published globally!':'Updated.'):'Saved locally only. Set up GitHub token.',ok?'success':'warning');mnLoad();}
+
+document.querySelectorAll('#mnC .chip').forEach(c=>c.addEventListener('click',()=>{document.querySelectorAll('#mnC .chip').forEach(x=>x.classList.remove('active'));c.classList.add('active');mnLoad();}));
+document.getElementById('mnCF')?.addEventListener('change',mnLoad);
+document.getElementById('mnQ')?.addEventListener('input',mnLoad);
+
+async function mnLoad(){
+  const data=await cmsGet(MNC);
+  const cf=document.getElementById('mnCF')?.value||'';
+  const q=document.getElementById('mnQ')?.value.toLowerCase()||'';
+  const fv=document.querySelector('#mnC .chip.active')?.dataset.f||'';
+  const fil=data.filter(m=>(!fv||m._status===fv)&&(!cf||m.category===cf)&&(!q||m.name.toLowerCase().includes(q)))
+    .sort((a,b)=>(a.order||99)-(b.order||99));
+  document.getElementById('mnGrid').innerHTML=fil.length?fil.map(m=>`
+    <div style="background:#fff;border:1px solid var(--border);border-radius:14px;overflow:hidden;">
+      ${m.photo&&!m.photo.includes('[photo-stored')?`<div style="height:80px;overflow:hidden;"><img src="${m.photo}" style="width:100%;height:100%;object-fit:cover;" onerror="this.parentElement.remove()"/></div>`:''}
+      <div style="padding:.85rem;">
+        <div style="font-size:1.5rem;margin-bottom:.3rem;">${m.icon||'&#9962;'}</div>
+        <div style="font-weight:700;font-size:.85rem;color:var(--navy);margin-bottom:.2rem;">${m.name}</div>
+        <div style="font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--gold);margin-bottom:.3rem;">${m.category||''}</div>
+        <div style="font-size:.74rem;color:var(--text-muted);line-height:1.5;margin-bottom:.5rem;">${(m.desc||'').slice(0,70)}...</div>
+        <div style="margin-bottom:.4rem;">${badge(m._status)}</div>
+        <div style="display:flex;gap:.3rem;flex-wrap:wrap;">
+          ${m._status!=='published'?`<button class="act act-publish" onclick="mnSetStatus('${m.id}','published')" style="font-size:.7rem;">Publish</button>`:`<button class="act act-unpublish" onclick="mnSetStatus('${m.id}','draft')" style="font-size:.7rem;">Unpublish</button>`}
+          <button class="act act-edit" onclick="mnEdit('${m.id}')" style="font-size:.7rem;">Edit</button>
+          <button class="act act-delete" onclick="confirmDel(()=>mnDel('${m.id}'))" style="font-size:.7rem;">Del</button>
+        </div>
+      </div>
+    </div>`).join('')
+  :'<div style="grid-column:1/-1;text-align:center;padding:3rem;color:var(--text-muted);">No ministries. Click <strong>Load 35 Default Ministries</strong> above.</div>';
+}
+
+async function mnSetStatus(id,status){
+  const d=await loadData();const idx=(d[MNC]||[]).findIndex(x=>x.id===id);
+  if(idx>=0){d[MNC][idx]._status=status;if(status==='published')d[MNC][idx]._publishedAt=Date.now();}
+  const ok=await pushToGitHub();
+  toast(ok?(status==='published'?'Ministry published globally!':'Unpublished.'):'Saved locally. Set up GitHub token.',ok?'success':'warning');
+  mnLoad();
+}
 async function mnDel(id){const d=await loadData();if(d[MNC])d[MNC]=d[MNC].filter(x=>x.id!==id);await pushToGitHub();toast('Deleted','error');mnLoad();}
-async function mnEdit(id){const d=(await cmsGet(MNC)).find(x=>x.id===id);if(!d)return;document.getElementById('mnId').value=d.id;document.getElementById('mnNm').value=d.name||'';document.getElementById('mnIc').value=d.icon||'';document.getElementById('mnCt').value=d.category||'Sacred Arts';document.getElementById('mnCo').value=d.count||0;document.getElementById('mnLe').value=d.leader||'';document.getElementById('mnMe').value=d.meeting||'';document.getElementById('mnDe').value=d.desc||'';document.getElementById('mnMT').textContent='Edit Ministry';openModal('mnM');}
+async function mnEdit(id){
+  const d=(await cmsGet(MNC)).find(x=>x.id===id);if(!d)return;
+  document.getElementById('mnId').value=d.id;
+  document.getElementById('mnIc').value=d.icon||'';
+  document.getElementById('mnNm').value=d.name||'';
+  document.getElementById('mnCt').value=d.category||'Core Spiritual';
+  document.getElementById('mnCo').value=d.count||0;
+  document.getElementById('mnDe').value=d.desc||'';
+  document.getElementById('mnLe').value=d.leader||'';
+  document.getElementById('mnMe').value=d.meeting||'';
+  const ph=d.photo||'';document.getElementById('mnPo').value=ph;mnUpdatePrev(ph);
+  document.getElementById('mnPhFile').value='';document.getElementById('mnPhSt').textContent='';
+  document.getElementById('mnMT').textContent='Edit Ministry';openModal('mnM');
+}
 async function mnSave(status){
   const name=document.getElementById('mnNm').value.trim();if(!name){toast('Name required','error');return;}
   const id=document.getElementById('mnId').value||null;
-  await cmsSave(MNC,id,{name,icon:document.getElementById('mnIc').value,category:document.getElementById('mnCt').value,count:parseInt(document.getElementById('mnCo').value)||0,leader:document.getElementById('mnLe').value,meeting:document.getElementById('mnMe').value,desc:document.getElementById('mnDe').value},status);
+  await cmsSave(MNC,id,{icon:document.getElementById('mnIc').value,name,category:document.getElementById('mnCt').value,count:parseInt(document.getElementById('mnCo').value)||0,desc:document.getElementById('mnDe').value,leader:document.getElementById('mnLe').value,meeting:document.getElementById('mnMe').value,photo:document.getElementById('mnPo').value.trim(),order:99},status);
   const ok=await pushToGitHub();
   if(ok&&status==='published')toast('Ministry published globally! Live within 60 seconds.','success');
-  else if(ok)toast('Draft saved to GitHub.','success');
-  else toast('Saved locally only. Open github-setup.html to publish globally.','warning');
+  else if(ok)toast('Draft saved.','success');
+  else toast('Saved locally. Set up GitHub token to publish globally.','warning');
   closeModal('mnM');mnLoad();
 }
-document.querySelector('[data-open="mnM"]')?.addEventListener('click',()=>{['mnId','mnNm','mnIc','mnLe','mnMe','mnDe'].forEach(f=>{const el=document.getElementById(f);if(el)el.value='';});document.getElementById('mnCt').value='Sacred Arts';document.getElementById('mnCo').value='0';document.getElementById('mnMT').textContent='Add Ministry';});
+async function loadDefaults(){
+  if(!window.confirm('Load all 33 default ministries as drafts? You can then edit and publish each one.'))return;
+  toast('Loading ministries...','info');
+  for(let i=0;i<DEFAULT_MINISTRIES.length;i++){
+    const m=DEFAULT_MINISTRIES[i];
+    await cmsSave(MNC,null,{icon:m.icon,name:m.name,desc:m.desc,category:m.category,order:m.order,count:0,leader:'',meeting:'',photo:''},'draft');
+  }
+  const ok=await pushToGitHub();
+  toast(ok?'All 33 ministries loaded! Edit and publish each one.':'Ministries saved locally. Set up GitHub token to go global.',ok?'success':'warning');
+  mnLoad();
+}
+document.querySelector('[data-open="mnM"]')?.addEventListener('click',()=>{
+  ['mnId','mnIc','mnNm','mnDe','mnLe','mnMe','mnPo'].forEach(f=>{const el=document.getElementById(f);if(el)el.value='';});
+  document.getElementById('mnCt').value='Core Spiritual';
+  document.getElementById('mnCo').value='0';
+  document.getElementById('mnMT').textContent='Add Ministry';
+  document.getElementById('mnPhPrev').innerHTML='&#9962;';
+  document.getElementById('mnPhFile').value='';
+  document.getElementById('mnPhSt').textContent='';
+});
 mnLoad();
-</script></body></html>
+</script>
+</body></html>
