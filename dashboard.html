@@ -132,10 +132,9 @@ async function saveHV(){
   const fileSt=document.getElementById('hvFileSt');
   if(fileInput&&fileInput.files[0]){
     const f=fileInput.files[0];
-    if(f.size>50*1024*1024){fileSt.textContent='⚠️ Over 50MB. Upload to YouTube and paste the URL.';return;}
-    fileSt.textContent='⏳ Processing video…';
-    const b64=await new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result);r.onerror=rej;r.readAsDataURL(f);});
-    hvIn.value=b64; fileSt.textContent='✅ Video ready ('+Math.round(f.size/1024/1024*10)/10+'MB)';
+    const urlCloud=await uploadFileToCloud(f,fileSt);
+    if(!urlCloud) return;
+    hvIn.value=urlCloud;
   }
   const url=hvIn.value.trim();
   if(url){await cfgSave('hero',{videoUrl:url});document.getElementById('hvSt').innerHTML='<span style="color:#4ade80">🌐 Hero video live on ALL devices!</span>';toast('🎬 Hero video published globally!','success');}

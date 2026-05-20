@@ -1,0 +1,15 @@
+{
+  "name": "chm-full-cms-google-cloud-storage",
+  "version": "1.0.0",
+  "description": "CHM CMS with Google Cloud Storage media uploads",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "@google-cloud/storage": "latest",
+    "dotenv": "latest",
+    "express": "latest",
+    "multer": "latest"
+  }
+}

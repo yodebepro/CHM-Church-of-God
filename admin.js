@@ -203,46 +203,43 @@ async function cfgGet(section) {
   return (d.site_config||{})[section] || {};
 }
 
+
+// ── GOOGLE CLOUD MEDIA UPLOAD ──────────────────────────────────
+// This calls your private backend endpoint. The Google JSON key must stay on the backend,
+// never inside HTML, JavaScript, GitHub, or public files.
+async function uploadFileToCloud(file, statusEl) {
+  if (!file) return null;
+  if (statusEl) statusEl.textContent = 'Uploading to Google Cloud...';
+
+  const fd = new FormData();
+  fd.append('file', file);
+
+  try {
+    const res = await fetch('/api/upload', { method: 'POST', body: fd });
+    const data = await res.json().catch(() => ({}));
+
+    if (!res.ok || !data.url) {
+      throw new Error(data.error || ('Upload failed: ' + res.status));
+    }
+
+    if (statusEl) {
+      statusEl.innerHTML = 'Uploaded to Google Cloud! URL: <small>' + data.url.slice(0, 70) + '...</small>';
+    }
+    return data.url;
+  } catch (err) {
+    if (statusEl) {
+      statusEl.innerHTML =
+        'Google Cloud upload failed. Make sure the Node backend is running and configured. ' +
+        '<br/><small>' + (err.message || err) + '</small>';
+    }
+    return null;
+  }
+}
+
 // ── PHOTO UPLOAD ───────────────────────────────────────────────
 async function uploadPhoto(file, statusEl) {
-  if (!file) return null;
-  statusEl.textContent = 'Processing photo...';
-
-  const b64full = await new Promise((res,rej) => {
-    const r = new FileReader();
-    r.onload = () => res(r.result);
-    r.onerror = rej;
-    r.readAsDataURL(file);
-  });
-
-  // Try ImgBB first (best — gives permanent URL, no size issues)
-  const imgbbKey = localStorage.getItem('chm_imgbb_key');
-  if (imgbbKey) {
-    try {
-      const fd = new FormData();
-      fd.append('image', b64full.split(',')[1]);
-      fd.append('key', imgbbKey);
-      const r = await fetch('https://api.imgbb.com/1/upload', { method:'POST', body:fd });
-      const d = await r.json();
-      if (d.success) {
-        statusEl.innerHTML = 'Photo uploaded to ImgBB! URL: <small>' + d.data.url.slice(0,40) + '...</small>';
-        return d.data.url;
-      }
-    } catch(e) {}
-  }
-
-  // For images under 500KB: store as base64 in localStorage (persists locally)
-  if (file.size < 500*1024) {
-    try {
-      statusEl.innerHTML = 'Photo stored locally (' + Math.round(file.size/1024) + ' KB). Visible on this device. '
-        + 'For global sharing: get a free key at <a href="https://imgbb.com/api" target="_blank" style="color:var(--gold)">imgbb.com/api</a> and save it in Settings.';
-      return b64full;
-    } catch(e) {}
-  }
-
-  statusEl.innerHTML = 'Photo too large (' + Math.round(file.size/1024) + ' KB).<br/>'
-    + '<strong>Get a free ImgBB key:</strong> <a href="https://imgbb.com/api" target="_blank" style="color:var(--gold)">imgbb.com/api</a> → save in Settings → photos go global!';
-  return null;
+  // Upload the actual image file to Google Cloud Storage, then return its public URL.
+  return await uploadFileToCloud(file, statusEl);
 }
 
 // ── UI HELPERS ─────────────────────────────────────────────────

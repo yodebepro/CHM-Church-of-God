@@ -125,9 +125,9 @@
 <script>requireAuth();
 const SC='sermons';
 // Audio upload
-document.getElementById('sAudFile')?.addEventListener('change',async function(){const f=this.files[0];if(!f)return;const st=document.getElementById('sAudSt');if(f.size>10*1024*1024){st.innerHTML='Over 10MB. Upload to SoundCloud and paste link.';return;}st.textContent='Processing...';const b64=await new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result);r.onerror=rej;r.readAsDataURL(f);});document.getElementById('sAu').value=b64;st.textContent='Audio ready! ('+Math.round(f.size/1024)+' KB)';});
+document.getElementById('sAudFile')?.addEventListener('change',async function(){const f=this.files[0];if(!f)return;const st=document.getElementById('sAudSt');const url=await uploadFileToCloud(f,st);if(url){document.getElementById('sAu').value=url;st.textContent='Audio uploaded to Google Cloud!';}});document.getElementById('sAu').value=b64;st.textContent='Audio ready! ('+Math.round(f.size/1024)+' KB)';});
 // Video upload
-document.getElementById('sVidFile')?.addEventListener('change',async function(){const f=this.files[0];if(!f)return;const st=document.getElementById('sVidSt');if(f.size>50*1024*1024){st.innerHTML='Over 50MB. Upload to YouTube and paste link.';return;}st.textContent='Processing video...';const b64=await new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result);r.onerror=rej;r.readAsDataURL(f);});document.getElementById('sVi').value=b64;st.textContent='Video ready! ('+Math.round(f.size/1024/1024*10)/10+' MB)';});
+document.getElementById('sVidFile')?.addEventListener('change',async function(){const f=this.files[0];if(!f)return;const st=document.getElementById('sVidSt');const url=await uploadFileToCloud(f,st);if(url){document.getElementById('sVi').value=url;st.textContent='Video uploaded to Google Cloud!';}});document.getElementById('sVi').value=b64;st.textContent='Video ready! ('+Math.round(f.size/1024/1024*10)/10+' MB)';});
 document.querySelectorAll('#sC .chip').forEach(c=>c.addEventListener('click',()=>{document.querySelectorAll('#sC .chip').forEach(x=>x.classList.remove('active'));c.classList.add('active');sLoad();}));
 document.getElementById('sQ').addEventListener('input',sLoad);
 async function sLoad(){

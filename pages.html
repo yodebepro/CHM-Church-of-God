@@ -143,11 +143,9 @@ async function saveVid(){
   const fileSt=document.getElementById('pVidFileSt');
   if(fileInput&&fileInput.files[0]){
     const f=fileInput.files[0];
-    if(f.size>50*1024*1024){st.innerHTML='<span style="color:var(--danger)">⚠️ Video over 50MB. Upload to <a href="https://youtube.com" target="_blank">YouTube</a> and paste the URL instead.</span>';return;}
-    fileSt.textContent='⏳ Processing video…';
-    const b64=await new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result);r.onerror=rej;r.readAsDataURL(f);});
-    document.getElementById('pVi').value=b64;
-    fileSt.textContent='✅ Video ready ('+Math.round(f.size/1024/1024*10)/10+' MB)';
+    const urlCloud=await uploadFileToCloud(f,fileSt);
+    if(!urlCloud) return;
+    document.getElementById('pVi').value=urlCloud;
   }
   const url=document.getElementById('pVi').value.trim();
   if(url){
