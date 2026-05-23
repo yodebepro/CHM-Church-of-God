@@ -7,6 +7,7 @@
 <link rel="stylesheet" href="admin.css"/>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
 <script src="firebase-config.js"></script>
 </head>
 <body>
@@ -140,4 +141,6 @@ async function gSave(status){
 }
 document.querySelector('[data-open="gM"]')?.addEventListener('click',()=>{['gId','gTi','gUr','gDt','gDe'].forEach(f=>{const el=document.getElementById(f);if(el)el.value='';});document.getElementById('gCt').value='Worship';document.getElementById('gMT').textContent='Add Photo';document.getElementById('gPhPrev').innerHTML='&#128444;';document.getElementById('gPhFile').value='';document.getElementById('gPhSt').textContent='';});
 gLoad();
-</script></body></html>
+</script>
+<script src="contact-connect.js"></script>
+</body></html>

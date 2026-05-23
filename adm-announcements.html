@@ -7,6 +7,7 @@
 <link rel="stylesheet" href="admin.css"/>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
 <script src="firebase-config.js"></script>
 </head>
 <body>
@@ -139,6 +140,12 @@
 <script src="admin.js"></script>
 <script>
 requireAuth();
+
+document.getElementById('aImgFile')?.addEventListener('change', async function() {
+  const f = this.files[0]; if (!f) return;
+  const url = await uploadPhoto(f, document.getElementById('aImgSt'));
+  if (url) document.getElementById('aImg').value = url;
+});
 const AC = 'announcements';
 
 document.querySelectorAll('#aC .chip').forEach(c => c.addEventListener('click', () => {
@@ -211,7 +218,8 @@ async function aSave(status) {
   await cmsSave(AC, id, {
     title: t, body: b,
     category: document.getElementById('aCat').value,
-    date: document.getElementById('aDt').value || new Date().toISOString().slice(0,10)
+    date: document.getElementById('aDt').value || new Date().toISOString().slice(0,10),
+    image: (document.getElementById('aImg')?.value||'').trim()
   }, status);
 
   // Push to GitHub -- same pattern as Leadership
@@ -224,10 +232,12 @@ async function aSave(status) {
 }
 
 document.querySelector('[data-open="aM"]')?.addEventListener('click', () => {
-  ['aId','aTi','aCat','aBo','aDt'].forEach(f => { const el=document.getElementById(f); if(el) el.value=''; });
+  ['aId','aTi','aCat','aBo','aDt','aImg'].forEach(f => { const el=document.getElementById(f); if(el) el.value=''; });
   document.getElementById('aSt').value = 'draft';
   document.getElementById('aMT').textContent = 'New Announcement';
 });
 aLoad();
 </script>
+
+<script src="contact-connect.js"></script>
 </body></html>

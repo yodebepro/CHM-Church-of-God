@@ -101,7 +101,7 @@ p{margin-bottom:1rem}p:last-child{margin-bottom:0}
 
 /* HOME HERO */
 .hero-video-bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0;opacity:.45;pointer-events:none}
-background:linear-gradient(150deg,var(--navy) 0%,var(--navy-mid) 50%,#112050 100%);display:flex;align-items:center;position:relative;overflow:hidden;padding-top:var(--header-h)}
+.hero{background:linear-gradient(150deg,var(--navy) 0%,var(--navy-mid) 50%,#112050 100%);display:flex;align-items:center;position:relative;overflow:hidden;min-height:60vh;padding-top:var(--header-h)}
 .hero-rays{position:absolute;inset:0;overflow:hidden;pointer-events:none}
 .ray{position:absolute;top:-10%;left:50%;width:2px;background:linear-gradient(to bottom,rgba(200,145,58,.25),transparent);transform-origin:top center}
 .ray:nth-child(1){height:120%;transform:rotate(-35deg)}
@@ -656,7 +656,7 @@ const FOOTER_HTML = `
       <div class="footer-contact">
         <div class="footer-contact-item"><span class="footer-contact-icon">📍</span><span>330 Pleasant Valley Way<br>West Orange, NJ 07052</span></div>
         <div class="footer-contact-item"><span class="footer-contact-icon">📞</span><span>973-855-2396</span></div>
-        <div class="footer-contact-item"><span class="footer-contact-icon">✉️</span><span>yodebepro@gmail.com</span></div>
+        <div class="footer-contact-item"><span class="footer-contact-icon">✉️</span><span></span></div>
       </div>
       <div style="margin-top:1.25rem;display:flex;flex-direction:column;gap:.5rem">
         <a href="give.html" class="btn btn-primary btn-sm">Give Online</a>
@@ -1109,8 +1109,8 @@ function fallbackPR(name, email, request, cat, urgent) {
   // Fallback: mailto link
   const subject = encodeURIComponent((urgent?'[URGENT] ':'') + 'Prayer Request from ' + name);
   const body = encodeURIComponent('Name: ' + name + '\nEmail: ' + email + '\nCategory: ' + cat + '\nRequest:\n' + request);
-  window.open('mailto:yodebepro@gmail.com?subject=' + subject + '&body=' + body);
-  showPRMsg('🙏 Your prayer request is opening in your email app. If it did not open, please email us at yodebepro@gmail.com', '#fef9c3', '#854d0e');
+  window.open('mailto:?subject=' + subject + '&body=' + body);
+  showPRMsg('🙏 Your prayer request is opening in your email app. If it did not open, please email us at ', '#fef9c3', '#854d0e');
 }
 
 function showPRMsg(msg, bg, color) {
@@ -1133,4 +1133,7 @@ function clearPRForm() {
   });
 }
 </script>
+
+<script src="contact-connect.js"></script>
+<script src="cms-public.js"></script>
 </body></html>

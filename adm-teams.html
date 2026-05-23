@@ -7,6 +7,7 @@
 <link rel="stylesheet" href="admin.css"/>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
 <script src="firebase-config.js"></script>
 </head>
 <body><div class="admin-wrap">
@@ -206,4 +207,6 @@ async function loadDefaults(){
 document.querySelector('[data-open="tM"]')?.addEventListener('click',()=>{['tId','tIc','tNm','tDe','tLe','tPo'].forEach(f=>{const el=document.getElementById(f);if(el)el.value='';});document.getElementById('tCt').value='Operations';document.getElementById('tOr').value='99';document.getElementById('tMT').textContent='Add Team';document.getElementById('tPhPrev').innerHTML='&#128101;';document.getElementById('tPhFile').value='';document.getElementById('tPhSt').textContent='';});
 tLoad();
 </script>
+
+<script src="contact-connect.js"></script>
 </body></html>

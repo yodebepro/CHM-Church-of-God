@@ -101,7 +101,7 @@ p{margin-bottom:1rem}p:last-child{margin-bottom:0}
 
 /* HOME HERO */
 .hero-video-bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0;opacity:.45;pointer-events:none}
-background:linear-gradient(150deg,var(--navy) 0%,var(--navy-mid) 50%,#112050 100%);display:flex;align-items:center;position:relative;overflow:hidden;padding-top:var(--header-h)}
+.hero{background:linear-gradient(150deg,var(--navy) 0%,var(--navy-mid) 50%,#112050 100%);display:flex;align-items:center;position:relative;overflow:hidden;min-height:60vh;padding-top:var(--header-h)}
 .hero-rays{position:absolute;inset:0;overflow:hidden;pointer-events:none}
 .ray{position:absolute;top:-10%;left:50%;width:2px;background:linear-gradient(to bottom,rgba(200,145,58,.25),transparent);transform-origin:top center}
 .ray:nth-child(1){height:120%;transform:rotate(-35deg)}
@@ -402,7 +402,8 @@ background:linear-gradient(150deg,var(--navy) 0%,var(--navy-mid) 50%,#112050 100
       <h2 class="section-title">Seeking God's Face</h2>
       <div class="gold-line"></div>
     </div>
-    <div class="grid-3" style="margin-bottom:3.5rem">
+    <div id="cms-teams-grid" style="display:none;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:1.5rem;margin-top:2rem;"></div>
+    <div class="cms-static-teams">
       <div class="team-card reveal" data-category="prayer"><div class="team-icon">🙏</div><div class="team-body"><h4>Early Morning Prayer Team</h4><p>Interceding before dawn for the church and community, setting the spiritual atmosphere for each day.</p></div></div>
       <div class="team-card reveal reveal-delay-1" data-category="prayer"><div class="team-icon">⚔️</div><div class="team-body"><h4>Intercessory Prayer Team</h4><p>Standing in the gap through focused, targeted intercession for specific needs, leaders, and nations.</p></div></div>
       <div class="team-card reveal reveal-delay-2" data-category="prayer"><div class="team-icon">🎵</div><div class="team-body"><h4>Worship Team</h4><p>Musicians, singers, and worshippers leading the congregation into Spirit-filled worship each service.</p></div></div>
@@ -480,6 +481,7 @@ background:linear-gradient(150deg,var(--navy) 0%,var(--navy-mid) 50%,#112050 100
   </div>
 </section>
 
+</div>
 <div id="chm-footer"></div><div id="chm-chat"></div>
 <script>
 /* CHM CHURCH OF GOD — Main JS */
@@ -592,7 +594,7 @@ const FOOTER_HTML = `
       <div class="footer-contact">
         <div class="footer-contact-item"><span class="footer-contact-icon">📍</span><span>330 Pleasant Valley Way<br>West Orange, NJ 07052</span></div>
         <div class="footer-contact-item"><span class="footer-contact-icon">📞</span><span>973-855-2396</span></div>
-        <div class="footer-contact-item"><span class="footer-contact-icon">✉️</span><span>yodebepro@gmail.com</span></div>
+        <div class="footer-contact-item"><span class="footer-contact-icon">✉️</span><span></span></div>
       </div>
       <div style="margin-top:1.25rem;display:flex;flex-direction:column;gap:.5rem">
         <a href="give.html" class="btn btn-primary btn-sm">Give Online</a>
@@ -958,4 +960,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
 </script>
 <script src="cms-public.js"></script>
+
+<script src="contact-connect.js"></script>
 </body></html>

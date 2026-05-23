@@ -7,6 +7,7 @@
 <link rel="stylesheet" href="admin.css"/>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
 <script src="firebase-config.js"></script>
 </head>
 <body>
@@ -163,4 +164,6 @@ async function sSave(status){
 }
 document.querySelector('[data-open="sM"]')?.addEventListener('click',()=>{['sId','sIc','sTi','sSp','sDt','sSc','sVi','sAu','sDe'].forEach(f=>{const el=document.getElementById(f);if(el)el.value='';});document.getElementById('sSr').value='Sunday';document.getElementById('sMT').textContent='Add Sermon';['sAudFile','sVidFile'].forEach(f=>{const el=document.getElementById(f);if(el)el.value='';});['sAudSt','sVidSt'].forEach(f=>{const el=document.getElementById(f);if(el)el.textContent='';});});
 sLoad();
-</script></body></html>
+</script>
+<script src="contact-connect.js"></script>
+</body></html>

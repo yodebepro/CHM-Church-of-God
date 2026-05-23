@@ -1,5 +1,6 @@
 <!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/><title>Settings & Site Control | CHM Admin</title><link rel="stylesheet" href="admin.css"/><script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
 <script src="firebase-config.js"></script></head><body><div class="admin-wrap">
 <aside class="sidebar" id="sidebar">
   <div class="sidebar-brand">
@@ -100,7 +101,7 @@
     <div class="form-group"><label class="form-label">Church Name</label><input type="text" class="fi" id="sNm" value="CHM Church of God"/></div>
     <div class="form-group"><label class="form-label">Tagline / Slogan</label><input type="text" class="fi" id="sTg" value="Prayer · Holiness · Restoration · Transformation"/></div>
     <div class="form-group"><label class="form-label">Full Address</label><input type="text" class="fi" id="sAd" value="330 Pleasant Valley Way, West Orange, NJ 07052"/></div>
-    <div class="form-row"><div class="form-group"><label class="form-label">Phone Number</label><input type="tel" class="fi" id="sPh" value="973-855-2396"/></div><div class="form-group"><label class="form-label">Email Address</label><input type="email" class="fi" id="sEm" value="yodebepro@gmail.com"/></div></div>
+    <div class="form-row"><div class="form-group"><label class="form-label">Phone Number</label><input type="tel" class="fi" id="sPh" value="973-855-2396"/></div><div class="form-group"><label class="form-label">Email Address</label><input type="email" class="fi" id="sEm" value=""/></div></div>
     <div class="form-group"><label class="form-label">About / Footer Blurb</label><textarea class="ft" id="sAb" rows="3" placeholder="A vibrant, Spirit-filled community…"></textarea></div>
     <button class="btn btn-publish" onclick="saveInfo()">🌐 Save & Publish Church Info</button>
   </div></div>
@@ -204,4 +205,6 @@ async function exportData(){
   const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(bk,null,2)],{type:'application/json'}));
   a.download=`CHM_Backup_${new Date().toISOString().slice(0,10)}.json`;a.click();toast('Data exported!');
 }
-loadSettings();</script></body></html>
+loadSettings();</script>
+<script src="contact-connect.js"></script>
+</body></html>

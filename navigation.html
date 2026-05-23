@@ -1,5 +1,6 @@
 <!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/><title>Navigation Editor | CHM Admin</title><link rel="stylesheet" href="admin.css"/><script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
 <script src="firebase-config.js"></script></head><body><div class="admin-wrap">
 <aside class="sidebar" id="sidebar">
   <div class="sidebar-brand">
@@ -121,4 +122,6 @@ async function publishFooterNav(){
   await cfgSave('footer_nav',{explore:document.getElementById('fEx').value,media:document.getElementById('fMe').value});
   toast('🌐 Footer navigation published globally!','success');
 }
-loadNav();</script></body></html>
+loadNav();</script>
+<script src="contact-connect.js"></script>
+</body></html>

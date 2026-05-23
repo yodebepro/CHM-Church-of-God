@@ -4,6 +4,7 @@
 <link rel="stylesheet" href="admin.css"/>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
 <script src="firebase-config.js"></script>
 </head>
 <body>
@@ -147,4 +148,6 @@ function prevHV(){
 }
 function clearHV(){localStorage.removeItem('chm_hero_video');cfgSave('hero',{videoUrl:''});hvIn.value='';document.getElementById('hvPW').style.display='none';document.getElementById('hvSt').textContent='Removed.';toast('Cleared','warning');}
 </script>
+
+<script src="contact-connect.js"></script>
 </body></html>
