@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>EmailJS Setup | CHM Admin</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Arial,sans-serif;background:#0a1f44;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:1.5rem;}
+.card{background:#fff;border-radius:20px;padding:2.5rem;width:100%;max-width:580px;box-shadow:0 8px 40px rgba(0,0,0,.4);}
+h1{font-size:1.3rem;color:#0a1f44;margin-bottom:.4rem;}
+.sub{color:#6b7280;font-size:.85rem;margin-bottom:1.75rem;line-height:1.6;}
+label{display:block;font-size:.82rem;font-weight:700;color:#0a1f44;margin-bottom:.4rem;margin-top:1rem;}
+input{width:100%;padding:.78rem 1rem;border:2px solid #e4e7ec;border-radius:10px;font-size:.9rem;outline:none;font-family:inherit;}
+input:focus{border-color:#c8913a;}
+.step{background:#f4f5f7;border-radius:10px;padding:1rem;margin-bottom:.75rem;font-size:.83rem;line-height:1.7;color:#374151;}
+.step strong{color:#0a1f44;}
+a{color:#c8913a;}
+.btn{width:100%;padding:.85rem;border-radius:50px;border:none;cursor:pointer;font-size:.85rem;font-weight:700;letter-spacing:.05em;text-transform:uppercase;margin-top:.75rem;font-family:inherit;}
+.save{background:#0a1f44;color:#c8913a;}
+.test{background:#f4f5f7;color:#0a1f44;border:2px solid #e4e7ec;margin-top:.5rem;}
+.status{padding:.85rem 1rem;border-radius:10px;font-size:.85rem;font-weight:600;margin-top:.75rem;display:none;line-height:1.5;}
+.ok{background:#dcfce7;color:#15803d;display:block;}
+.err{background:#fee2e2;color:#b91c1c;display:block;}
+.warn{background:#fef9c3;color:#854d0e;display:block;}
+.hint{font-size:.74rem;color:#6b7280;margin-top:.3rem;line-height:1.5;}
+</style>
+</head>
+<body>
+<div class="card">
+  <div style="text-align:center;font-size:2rem;margin-bottom:.5rem;">📧</div>
+  <h1 style="text-align:center;">EmailJS Direct Send Setup</h1>
+  <p class="sub" style="text-align:center;">One-time setup so forms send directly to your inbox without opening any email app. Free up to 200 emails/month.</p>
+
+  <div class="step">
+    <strong>Step 1 — Create free account:</strong><br/>
+    Go to <a href="https://www.emailjs.com" target="_blank">emailjs.com</a> → Sign Up Free<br/>
+    Use your email: <strong>yodebepro@gmail.com</strong>
+  </div>
+  <div class="step">
+    <strong>Step 2 — Add Email Service:</strong><br/>
+    Dashboard → Email Services → Add New Service<br/>
+    Choose <strong>Gmail</strong> → Connect your Gmail account → Copy the <strong>Service ID</strong>
+  </div>
+  <div class="step">
+    <strong>Step 3 — Create Email Template:</strong><br/>
+    Email Templates → Create New Template<br/>
+    Set <strong>To email</strong>: yodebepro@gmail.com<br/>
+    Template content (copy exactly):<br/>
+    <small style="font-family:monospace;display:block;background:#e5e7eb;padding:.5rem;border-radius:6px;margin-top:.4rem;">
+    From: {{from_name}} ({{from_email}})<br/>
+    Phone: {{phone}}<br/>
+    Subject: {{subject}}<br/>
+    <br/>{{message}}
+    </small>
+    Save → Copy the <strong>Template ID</strong>
+  </div>
+  <div class="step">
+    <strong>Step 4 — Get Public Key:</strong><br/>
+    Account → API Keys → Copy your <strong>Public Key</strong>
+  </div>
+  <div class="step">
+    <strong>Step 5 — Paste all three below and click Save:</strong>
+  </div>
+
+  <label>EmailJS Service ID</label>
+  <input type="text" id="ejService" placeholder="service_xxxxxxx"/>
+  <div class="hint">From Dashboard → Email Services</div>
+
+  <label>EmailJS Template ID</label>
+  <input type="text" id="ejTemplate" placeholder="template_xxxxxxx"/>
+  <div class="hint">From Dashboard → Email Templates</div>
+
+  <label>EmailJS Public Key</label>
+  <input type="text" id="ejKey" placeholder="your_public_key_here"/>
+  <div class="hint">From Account → API Keys</div>
+
+  <label>Church Email (where you receive messages)</label>
+  <input type="email" id="ejEmail" value="yodebepro@gmail.com"/>
+
+  <button class="btn save" onclick="saveConfig()">💾 Save EmailJS Config</button>
+  <button class="btn test" onclick="testSend()">📧 Send Test Email</button>
+
+  <div class="status" id="status"></div>
+
+  <p style="text-align:center;font-size:.75rem;color:#9ca3af;margin-top:1.5rem;">
+    After saving, all contact forms, prayer requests, and connect buttons<br/>on your website will send directly to your inbox instantly.
+  </p>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+<script>
+function saveConfig() {
+  const svc  = document.getElementById('ejService').value.trim();
+  const tmpl = document.getElementById('ejTemplate').value.trim();
+  const key  = document.getElementById('ejKey').value.trim();
+  const mail = document.getElementById('ejEmail').value.trim();
+  if (!svc || !tmpl || !key) { show('Please fill in all three EmailJS fields.', 'err'); return; }
+  localStorage.setItem('chm_ejs_service',  svc);
+  localStorage.setItem('chm_ejs_template', tmpl);
+  localStorage.setItem('chm_ejs_key',      key);
+  localStorage.setItem('chm_ejs_email',    mail);
+  emailjs.init(key);
+  show('✅ EmailJS config saved! All forms will now send directly to ' + mail + ' — no email app needed.', 'ok');
+}
+
+async function testSend() {
+  const svc  = localStorage.getItem('chm_ejs_service');
+  const tmpl = localStorage.getItem('chm_ejs_template');
+  const key  = localStorage.getItem('chm_ejs_key');
+  const mail = localStorage.getItem('chm_ejs_email') || 'yodebepro@gmail.com';
+  if (!svc || !tmpl || !key) { show('Save your config first.', 'warn'); return; }
+  show('⏳ Sending test email...', 'warn');
+  try {
+    emailjs.init(key);
+    await emailjs.send(svc, tmpl, {
+      from_name:  'CHM Website Test',
+      from_email: mail,
+      phone:      '973-855-2396',
+      subject:    'Test — EmailJS Working ✅',
+      message:    'This is a test from your CHM Church of God website. If you received this, all contact forms are now working and will send directly to your inbox!'
+    });
+    show('✅ Test email sent! Check your inbox at ' + mail + '. If received, all forms are working.', 'ok');
+  } catch(e) {
+    show('❌ Error: ' + e.text + '. Check your Service ID, Template ID, and Public Key.', 'err');
+  }
+}
+
+function show(msg, type) {
+  const el = document.getElementById('status');
+  el.textContent = msg; el.className = 'status ' + type;
+}
+
+// Load saved values
+window.onload = function() {
+  const svc  = localStorage.getItem('chm_ejs_service');
+  const tmpl = localStorage.getItem('chm_ejs_template');
+  const key  = localStorage.getItem('chm_ejs_key');
+  const mail = localStorage.getItem('chm_ejs_email');
+  if (svc)  document.getElementById('ejService').value  = svc;
+  if (tmpl) document.getElementById('ejTemplate').value = tmpl;
+  if (key)  document.getElementById('ejKey').value      = key;
+  if (mail) document.getElementById('ejEmail').value    = mail;
+  if (svc && tmpl && key) show('✅ EmailJS already configured on this device. All forms are sending directly to inbox.', 'ok');
+};
+</script>
+</body>
+</html>
