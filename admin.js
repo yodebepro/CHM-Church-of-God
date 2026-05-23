@@ -242,59 +242,6 @@ async function uploadPhoto(file, statusEl) {
   return await uploadFileToCloud(file, statusEl);
 }
 
-
-/* Upload audio — Firebase first, base64 fallback */
-async function uploadAudio(file, statusEl) {
-  if (!file) return null;
-  statusEl.innerHTML = 'Processing audio...';
-  // Try Firebase Storage
-  if (typeof _storage !== 'undefined' && _storage) {
-    try {
-      statusEl.innerHTML = 'Uploading to Firebase Storage...';
-      const path = 'audio/' + Date.now() + '_' + file.name.replace(/[^a-zA-Z0-9._-]/g,'_');
-      const ref = _storage.ref(path);
-      const snap = await ref.put(file);
-      const url = await snap.ref.getDownloadURL();
-      statusEl.innerHTML = 'Audio uploaded to Firebase!';
-      return url;
-    } catch(e) { statusEl.innerHTML = 'Firebase error: ' + e.message; }
-  }
-  // Fallback: base64 for small files
-  if (file.size > 10*1024*1024) {
-    statusEl.innerHTML = 'File over 10 MB. Add Firebase Storage in Settings for large files, or upload to '
-      + '<a href="https://soundcloud.com" target="_blank" style="color:var(--gold)">SoundCloud</a> and paste the link.';
-    return null;
-  }
-  const b64 = await new Promise((res,rej)=>{ const r=new FileReader(); r.onload=()=>res(r.result); r.onerror=rej; r.readAsDataURL(file); });
-  statusEl.innerHTML = 'Audio stored locally (' + Math.round(file.size/1024) + ' KB). Add Firebase to go global.';
-  return b64;
-}
-
-/* Upload video — Firebase first, YouTube link recommended for large files */
-async function uploadVideo(file, statusEl) {
-  if (!file) return null;
-  statusEl.innerHTML = 'Processing video...';
-  if (typeof _storage !== 'undefined' && _storage) {
-    try {
-      statusEl.innerHTML = 'Uploading to Firebase Storage...';
-      const path = 'videos/' + Date.now() + '_' + file.name.replace(/[^a-zA-Z0-9._-]/g,'_');
-      const ref = _storage.ref(path);
-      const snap = await ref.put(file);
-      const url = await snap.ref.getDownloadURL();
-      statusEl.innerHTML = 'Video uploaded to Firebase!';
-      return url;
-    } catch(e) { statusEl.innerHTML = 'Firebase error: ' + e.message; }
-  }
-  if (file.size > 50*1024*1024) {
-    statusEl.innerHTML = 'Video over 50 MB. Add Firebase Storage in Settings, or upload to '
-      + '<a href="https://youtube.com" target="_blank" style="color:var(--gold)">YouTube</a> and paste the link.';
-    return null;
-  }
-  const b64 = await new Promise((res,rej)=>{ const r=new FileReader(); r.onload=()=>res(r.result); r.onerror=rej; r.readAsDataURL(file); });
-  statusEl.innerHTML = 'Video stored locally (' + Math.round(file.size/1024/1024*10)/10 + ' MB). Add Firebase to go global.';
-  return b64;
-}
-
 // ── UI HELPERS ─────────────────────────────────────────────────
 function badge(s) {
   const styles={published:'badge-published',draft:'badge-draft',archived:'badge-archived',pinned:'badge-pinned',active:'badge-green',new:'badge-draft',read:'badge-archived',prayed:'badge-green',unread:'badge-draft'};

@@ -1,58 +1,63 @@
-/* CHM CHURCH OF GOD — Direct Contact & Connect Handler
-   All buttons send directly to inbox — no email app opens.
-   Powered by EmailJS */
 
-(function() {
-  'use strict';
+/* CHM CONTACT DIRECT CONNECT FIX */
+(function(){
+  const CHM_EMAIL = "theworldprayerline@outlook.com";
 
-  var CHM_PHONE = '973-855-2396';
-  var CHM_EMAIL = 'yodebepro@gmail.com';
+  function attachContactActions(){
 
-  /* Intercept Connect / Contact button clicks site-wide */
-  function interceptConnectButtons() {
-    /* Selectors that should trigger contact modal instead of navigating */
-    var triggers = [
-      'a[href="connect.html"]',
-      'a[href="contact.html"]',
+    const selectors = [
+      'a[href="#contact"]',
+      'a[href*="contact"]',
+      '.contact-btn',
+      '.btn-contact',
       '.connect-btn',
       '.connect-button',
-      'a[data-contact]',
       'button[data-contact]',
-      '.header-cta'
+      'a[data-contact]'
     ];
 
-    triggers.forEach(function(sel) {
-      document.querySelectorAll(sel).forEach(function(el) {
-        /* Don't intercept — just make sure they go to contact.html */
-        if (el.getAttribute('href') === 'connect.html') {
-          el.setAttribute('href', 'contact.html');
-        }
+    selectors.forEach(sel=>{
+      document.querySelectorAll(sel).forEach(el=>{
+        el.addEventListener('click', function(){
+          const subject = encodeURIComponent("CHM Church Contact");
+          const body = encodeURIComponent("Hello CHM Church of God,\n\n");
+          window.location.href = `mailto:${CHM_EMAIL}?subject=${subject}&body=${body}`;
+        });
       });
     });
-  }
 
-  /* Footer email links — make them open contact page not mailto: */
-  function fixFooterEmailLinks() {
-    document.querySelectorAll('a[href^="mailto:"]').forEach(function(el) {
-      var email = el.getAttribute('href');
-      if (!email || email === 'mailto:') {
-        /* Empty mailto — replace with contact page */
-        el.setAttribute('href', 'contact.html');
-        el.removeAttribute('target');
+    document.querySelectorAll('form').forEach(form=>{
+      const txt = (form.innerText || '').toLowerCase();
+      const action = (form.getAttribute('action') || '').toLowerCase();
+
+      if(
+        txt.includes('contact') ||
+        txt.includes('prayer') ||
+        txt.includes('message') ||
+        action.includes('contact')
+      ){
+        form.addEventListener('submit', function(e){
+          e.preventDefault();
+
+          const fd = new FormData(form);
+          let body = "";
+
+          for(const [k,v] of fd.entries()){
+            body += `${k}: ${v}\n`;
+          }
+
+          const subject = encodeURIComponent("CHM Website Message");
+          const emailBody = encodeURIComponent(body);
+
+          window.location.href = `mailto:${CHM_EMAIL}?subject=${subject}&body=${emailBody}`;
+
+          try{
+            form.reset();
+          }catch(err){}
+        });
       }
-      /* Non-empty mailto links are fine — leave them */
     });
   }
 
-  /* Init on DOM ready */
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', function() {
-      interceptConnectButtons();
-      fixFooterEmailLinks();
-    });
-  } else {
-    interceptConnectButtons();
-    fixFooterEmailLinks();
-  }
-
+  document.addEventListener('DOMContentLoaded', attachContactActions);
 })();
