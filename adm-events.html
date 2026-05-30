@@ -7,6 +7,7 @@
 <link rel="stylesheet" href="admin.css"/>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
 <script src="firebase-config.js"></script>
 </head>
 <body>
@@ -132,7 +133,5 @@ async function eSave(status){
 document.querySelector('[data-open="eM"]')?.addEventListener('click',()=>{['eId','eNm','eDt','eTm','eLc','eCt','eDe'].forEach(f=>{const el=document.getElementById(f);if(el)el.value='';});document.getElementById('eTy').value='upcoming';document.getElementById('eMT').textContent='New Event';});
 eLoad();
 </script>
-
-
-<script src="contact-direct-send.js"></script>
+<script src="contact-connect.js"></script>
 </body></html>

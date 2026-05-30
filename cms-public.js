@@ -8,6 +8,30 @@
   var BRANCH = 'main';
   var siteData = null;
 
+  /* localStorage key where admin stores data */
+  var LS_KEY = 'chm_sitedata';
+
+  /* Get real photo URL — if GitHub placeholder, fall back to localStorage copy */
+  function realPhoto(item, field) {
+    var val = item[field] || '';
+    if (!val || !val.includes('stored-locally')) return val;
+    // Try to get the real base64 from localStorage
+    try {
+      var local = localStorage.getItem(LS_KEY);
+      if (!local) return val;
+      var localData = JSON.parse(local);
+      var col = null;
+      var cols = ['leaders','announcements','events','sermons','gallery','ministries','teams','departments'];
+      for (var i=0; i<cols.length; i++) {
+        if (localData[cols[i]]) {
+          var found = localData[cols[i]].find(function(x){ return x.id===item.id; });
+          if (found && found[field] && !found[field].includes('stored-locally')) return found[field];
+        }
+      }
+    } catch(e) {}
+    return val; // return placeholder — photo won't show on other devices until ImgBB used
+  }
+
   async function load() {
     var ts = '?_=' + Date.now();
     var urls = [
@@ -28,7 +52,7 @@
     }
     // Fallback: localStorage
     try {
-      var bk = localStorage.getItem('chm_sd_bk') || localStorage.getItem('chm_sitedata');
+      var bk = localStorage.getItem('chm_sitedata') || localStorage.getItem('chm_sd_bk');
       if (bk) { siteData = JSON.parse(bk); applyAll(); }
     } catch(e) {}
   }
@@ -51,10 +75,9 @@
     if (page==='sermons.html')           doSermons();
     if (page==='gallery.html')           doGallery();
     if (page==='ministries.html')        doMinistries();
-    if (page==='about.html')             doAbout();
+    if (page==='about.html')             doAboutFull();
     if (page==='departments.html')       doDepartments();
     if (page==='teams.html')             doTeams();
-    if (page==='about.html')             doAboutFull();
   }
 
   function applyTheme() {
@@ -145,7 +168,11 @@
     var el = qs('#cms-announcements-grid'); if (!el) return;
     each('.cms-static-anns', function(e){ e.style.display='none'; });
     el.innerHTML = items.map(function(a){
+      var imgHtml = (a.image && !a.image.includes('[photo-stored'))
+        ? '<div style="overflow:hidden;border-radius:10px;margin-bottom:.85rem;"><img src="'+esc(a.image)+'" style="width:100%;max-height:200px;object-fit:cover;" onerror="this.parentElement.remove()"/></div>'
+        : '';
       return '<div class="ann-card" style="background:#fff;border-radius:14px;padding:1.4rem;border-left:4px solid var(--gold);box-shadow:0 2px 8px rgba(0,0,0,.07);">'
+        +imgHtml
         +'<div style="font-size:.68rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--gold);margin-bottom:.4rem;">'+esc(a.category||'Announcement')+'</div>'
         +'<h4 style="font-size:1.05rem;font-weight:700;color:var(--navy);margin-bottom:.5rem;">'+esc(a.title||'')+'</h4>'
         +'<p style="font-size:.87rem;color:#374151;line-height:1.7;">'+esc(a.body||'')+'</p>'

@@ -7,6 +7,7 @@
 <link rel="stylesheet" href="admin.css"/>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
 <script src="firebase-config.js"></script>
 </head>
 <body>
@@ -142,7 +143,5 @@ async function mSave(){
 document.querySelector('[data-open="mM"]')?.addEventListener('click',()=>{['mId','mFi','mLa','mEm','mPh','mJn','mMi','mBd','mNo'].forEach(f=>{const el=document.getElementById(f);if(el)el.value='';});document.getElementById('mSt').value='active';document.getElementById('mMT').textContent='Add Member';});
 mLoad();
 </script>
-
-
-<script src="contact-direct-send.js"></script>
+<script src="contact-connect.js"></script>
 </body></html>
