@@ -1,1 +1,1 @@
-/* Replaced by contact-direct-send.js — direct FormSubmit AJAX to yodebepro@gmail.com */
+/* Disabled. Contact now sends directly through contact-direct-send.js and contact.html submitContact(). */
