@@ -34,7 +34,10 @@
   }
 
   function published(col) {
-    return (siteData && siteData[col] || []).filter(function(x){ return x._status==='published'; });
+    return (siteData && siteData[col] || []).filter(function(x){
+      var s = (x._status || x.status || 'draft').toLowerCase();
+      return s === 'published' && x.archived !== true;
+    });
   }
   function cfg(key) {
     return (siteData && siteData.site_config && siteData.site_config[key]) || {};

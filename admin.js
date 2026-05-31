@@ -57,11 +57,13 @@ async function loadData() {
 function empty() {
   return {
     _version:1, _updated:'',
-    leaders:[], announcements:[], events:[], sermons:[],
-    gallery:[], ministries:[], prayer_requests:[], messages:[],
-    giving:[], members:[],
+    leaders:[], leadership:[], announcements:[], events:[], sermons:[],
+    gallery:[], media_library:[], ministries:[], sacred_ministries:[],
+    departments:[], teams:[], page_content:[], navigation_items:[],
+    footer_items:[], locations:[], prayer_requests:[], prayerRequests:[],
+    messages:[], giving:[], givingReports:[], members:[],
     site_config:{ colors:{}, church_info:{}, service_times:{}, hero:{},
-      page_home:{}, page_about:{}, page_footer:{},
+      page_home:{}, page_about:{}, page_footer:{}, page_give:{},
       navigation:{}, footer_nav:{}, social:{}, watch_live:{} }
   };
 }
@@ -369,3 +371,207 @@ document.addEventListener('click', async function(e){
     }, 600);
   }
 }, true);
+
+
+
+/* ════════════════════════════════════════════════════════════════
+   CHM ONE-CLICK GLOBAL PUBLISHING ENGINE
+   Uses the GitHub token stored in github-setup.html to:
+   1) upload images/videos/audio/docs to /uploads in the GitHub repo
+   2) save URLs into site-data.json
+   3) publish site-data.json in the same one-click workflow
+   Result: public website sees updates globally after GitHub Pages refreshes.
+════════════════════════════════════════════════════════════════ */
+async function chmReadFileAsBase64(file) {
+  return await new Promise((resolve, reject) => {
+    const r = new FileReader();
+    r.onload = () => {
+      const result = String(r.result || '');
+      resolve(result.includes(',') ? result.split(',')[1] : result);
+    };
+    r.onerror = reject;
+    r.readAsDataURL(file);
+  });
+}
+
+function chmSafeFileName(name) {
+  return String(name || 'upload.bin')
+    .replace(/[^a-zA-Z0-9._-]/g, '-')
+    .replace(/-+/g, '-')
+    .slice(0, 100);
+}
+
+function chmRawUrl(path) {
+  return `https://raw.githubusercontent.com/${GH.owner}/${GH.repo}/${GH.branch}/${path}`;
+}
+
+async function chmPutGitHubFile(path, base64Content, message) {
+  if (!GH.token) throw new Error('Missing GitHub token. Open github-setup.html once and save your token.');
+  let sha = '';
+  const getR = await fetch(`https://api.github.com/repos/${GH.owner}/${GH.repo}/contents/${encodeURIComponent(path).replace(/%2F/g,'/')}`, {
+    headers: { 'Authorization': `token ${GH.token}`, 'Accept':'application/vnd.github.v3+json' }
+  });
+  if (getR.ok) {
+    const j = await getR.json();
+    sha = j.sha || '';
+  }
+
+  const putR = await fetch(`https://api.github.com/repos/${GH.owner}/${GH.repo}/contents/${encodeURIComponent(path).replace(/%2F/g,'/')}`, {
+    method: 'PUT',
+    headers: {
+      'Authorization': `token ${GH.token}`,
+      'Content-Type': 'application/json',
+      'Accept':'application/vnd.github.v3+json'
+    },
+    body: JSON.stringify({
+      message: message || ('CHM CMS upload: ' + path),
+      content: base64Content,
+      sha: sha || undefined,
+      branch: GH.branch
+    })
+  });
+
+  if (!putR.ok) {
+    const err = await putR.json().catch(()=>({}));
+    throw new Error(err.message || ('GitHub upload failed: ' + putR.status));
+  }
+  return await putR.json();
+}
+
+/* Override upload: GitHub global first, local fallback only if token is absent */
+uploadFileToCloud = async function(file, statusEl) {
+  if (!file) return null;
+
+  if (statusEl) statusEl.textContent = 'Uploading globally...';
+
+  // TRUE GLOBAL PUBLISH: upload file into the GitHub repo /uploads folder.
+  if (GH.token) {
+    try {
+      const extSafe = chmSafeFileName(file.name);
+      const folder = (file.type || '').startsWith('video/') ? 'videos'
+                  : (file.type || '').startsWith('audio/') ? 'audio'
+                  : (file.type || '').startsWith('image/') ? 'images'
+                  : 'files';
+      const path = `uploads/${folder}/${Date.now()}-${extSafe}`;
+      const base64 = await chmReadFileAsBase64(file);
+      await chmPutGitHubFile(path, base64, 'CHM CMS media upload: ' + extSafe);
+      const url = chmRawUrl(path);
+      if (statusEl) statusEl.innerHTML = '✅ Uploaded globally. URL saved.';
+      return url;
+    } catch (e) {
+      if (statusEl) statusEl.innerHTML = '⚠️ Global upload failed: ' + e.message + '<br>Saving local preview instead.';
+    }
+  }
+
+  // Fallback: persists in this browser only. Admin will still warn that token is needed for global.
+  return await new Promise((resolve) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      if (statusEl) statusEl.innerHTML = 'Saved locally. Add GitHub token for global media publishing.';
+      resolve(reader.result);
+    };
+    reader.onerror = () => {
+      if (statusEl) statusEl.innerHTML = 'Upload failed.';
+      resolve(null);
+    };
+    reader.readAsDataURL(file);
+  });
+};
+
+uploadPhoto = async function(file, statusEl) {
+  return await uploadFileToCloud(file, statusEl);
+};
+
+/* Keep site-data JSON clean. Media is stored in /uploads as URLs when token is set. */
+stripBase64ForGitHub = function(obj) {
+  if (GH.token) {
+    // If token is set, data URLs should not normally exist. Keep small strings but protect GitHub from huge accidental video base64.
+    try {
+      const text = JSON.stringify(obj);
+      const stripped = text.replace(/"data:(video|audio)\/[^"]+"/g, '""');
+      return JSON.parse(stripped);
+    } catch(e) { return obj; }
+  }
+  return obj;
+};
+
+/* Make publish one-click: data is saved, media URL already inserted, site-data pushed immediately */
+const chmOriginalCmsSave = cmsSave;
+cmsSave = async function(col, id, fields, status='draft') {
+  const d = await loadData();
+  if (!d[col]) d[col] = [];
+  const now = Date.now();
+  const finalStatus = status || fields._status || fields.status || 'draft';
+  const media = fields.mediaUrl || fields.imageUrl || fields.photoUrl || fields.thumbnailUrl || fields.url || '';
+
+  const doc = {
+    ...fields,
+    id: id || genId(),
+    _status: finalStatus,
+    status: finalStatus,
+    archived: finalStatus === 'archived',
+    mediaUrl: media,
+    imageUrl: fields.imageUrl || media,
+    photoUrl: fields.photoUrl || media,
+    thumbnailUrl: fields.thumbnailUrl || media,
+    _updatedAt: now,
+    updatedAt: now
+  };
+  if (!id) { doc._createdAt = now; doc.createdAt = now; }
+
+  const idx = d[col].findIndex(x => x.id === doc.id);
+  if (idx >= 0) d[col][idx] = doc; else d[col].unshift(doc);
+
+  await saveLocal();
+
+  try {
+    const feed = JSON.parse(localStorage.getItem('chm_public_feed') || '{}');
+    if (!feed[col]) feed[col] = [];
+    const fidx = feed[col].findIndex(x => x.id === doc.id);
+    if (fidx >= 0) feed[col][fidx] = doc; else feed[col].unshift(doc);
+    localStorage.setItem('chm_public_feed', JSON.stringify(feed));
+  } catch(e) {}
+
+  return doc;
+};
+
+cmsPublish = async function(col, id) {
+  const d = await loadData();
+  const idx = (d[col] || []).findIndex(x => x.id === id);
+  if (idx >= 0) {
+    const now = Date.now();
+    const item = d[col][idx];
+    const media = item.mediaUrl || item.imageUrl || item.photoUrl || item.thumbnailUrl || item.url || '';
+    d[col][idx] = {
+      ...item,
+      _status: 'published',
+      status: 'published',
+      archived: false,
+      mediaUrl: media,
+      imageUrl: item.imageUrl || media,
+      photoUrl: item.photoUrl || media,
+      thumbnailUrl: item.thumbnailUrl || media,
+      _publishedAt: now,
+      publishedAt: now,
+      _updatedAt: now,
+      updatedAt: now
+    };
+    await saveLocal();
+  }
+
+  const ok = await pushToGitHub();
+  if (ok) {
+    toast('✅ Published globally in one click. It will appear on all devices after GitHub Pages refreshes.', 'success');
+  } else {
+    toast('Saved locally, but not global yet. Open github-setup.html once and save a GitHub token.', 'warning');
+  }
+};
+
+cfgSave = async function(section, fields) {
+  const d = await loadData();
+  if (!d.site_config) d.site_config = {};
+  d.site_config[section] = { ...fields, _updatedAt:Date.now(), updatedAt:Date.now() };
+  await saveLocal();
+  const ok = await pushToGitHub();
+  toast(ok ? 'Settings published globally.' : 'Settings saved locally. Add GitHub token for global publishing.', ok ? 'success' : 'warning');
+};

@@ -24,5 +24,15 @@
   "messages": [],
   "giving": [],
   "members": [],
-  "teams": []
+  "teams": [],
+  "leadership": [],
+  "media_library": [],
+  "sacred_ministries": [],
+  "page_content": [],
+  "navigation_items": [],
+  "footer_items": [],
+  "locations": [],
+  "prayerRequests": [],
+  "givingReports": [],
+  "_global_publish_engine": "github-uploads-and-site-data"
 }
