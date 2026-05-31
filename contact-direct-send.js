@@ -4,7 +4,7 @@
    Uses FormSubmit AJAX endpoint. First use may require inbox confirmation from FormSubmit.
 */
 (function(){
-  const CHM_ENDPOINT = "https://formsubmit.co/ajax/theworldprayerline@outlook.com";
+  const CHM_ENDPOINT = "https://formsubmit.co/ajax/yodebepro@gmail.com";
 
   function isContactElement(el){
     const text = (el.innerText || el.value || el.getAttribute('aria-label') || '').toLowerCase();

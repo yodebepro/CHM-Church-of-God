@@ -101,7 +101,7 @@ p{margin-bottom:1rem}p:last-child{margin-bottom:0}
 
 /* HOME HERO */
 .hero-video-bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0;opacity:.45;pointer-events:none}
-.hero{background:linear-gradient(150deg,var(--navy) 0%,var(--navy-mid) 50%,#112050 100%);display:flex;align-items:center;position:relative;overflow:hidden;min-height:60vh;padding-top:var(--header-h)}
+background:linear-gradient(150deg,var(--navy) 0%,var(--navy-mid) 50%,#112050 100%);display:flex;align-items:center;position:relative;overflow:hidden;padding-top:var(--header-h)}
 .hero-rays{position:absolute;inset:0;overflow:hidden;pointer-events:none}
 .ray{position:absolute;top:-10%;left:50%;width:2px;background:linear-gradient(to bottom,rgba(200,145,58,.25),transparent);transform-origin:top center}
 .ray:nth-child(1){height:120%;transform:rotate(-35deg)}
@@ -474,16 +474,16 @@ p{margin-bottom:1rem}p:last-child{margin-bottom:0}
           <div class="form-row">
             <div class="form-group">
               <label class="form-label">First Name *</label>
-              <input type="text" id="prName" class="form-input" placeholder="Your first name" required/>
+              <input type="text" class="form-input" placeholder="Your first name" required/>
             </div>
             <div class="form-group">
               <label class="form-label">Last Name</label>
-              <input type="text" id="prLast" class="form-input" placeholder="Optional"/>
+              <input type="text" class="form-input" placeholder="Optional"/>
             </div>
           </div>
           <div class="form-group">
             <label class="form-label">Email Address</label>
-            <input type="email" id="prEmail" class="form-input" placeholder="So we can follow up with you"/>
+            <input type="email" class="form-input" placeholder="So we can follow up with you"/>
           </div>
           <div class="form-group">
             <label class="form-label">Phone Number</label>
@@ -1025,63 +1025,92 @@ document.addEventListener('DOMContentLoaded', () => {
 <script>
 /* Prayer Request Submission → writes to site-data.json on GitHub */
 async function submitPrayerRequest() {
-  const name    = document.getElementById('prName')?.value.trim()   || 'Anonymous';
-  const email   = document.getElementById('prEmail')?.value.trim()  || '';
-  const phone   = document.getElementById('prPhone')?.value.trim()  || '';
-  const cat     = document.getElementById('prCat')?.value           || 'General Prayer';
-  const request = document.getElementById('prText')?.value.trim()   || '';
-  const urgent  = document.getElementById('urgent')?.checked        || false;
-  const anon    = document.getElementById('anonymous')?.checked     || false;
+  const name    = document.getElementById('prName')?.value.trim()  || 'Anonymous';
+  const email   = document.getElementById('prEmail')?.value.trim() || '';
+  const phone   = document.getElementById('prPhone')?.value.trim() || '';
+  const cat     = document.getElementById('prCat')?.value          || 'General Prayer';
+  const request = document.getElementById('prText')?.value.trim()  || '';
+  const urgent  = document.getElementById('urgent')?.checked       || false;
+  const anon    = document.getElementById('anonymous')?.checked    || false;
 
-  if (!request) {
-    showPRMsg('Please write your prayer request before submitting.', '#fee2e2', '#b91c1c');
-    return;
-  }
+  if (!request) { showPRMsg('Please write your prayer request before submitting.', '#fee2e2', '#b91c1c'); return; }
 
   const btn = document.getElementById('prSubmitBtn');
-  btn.disabled = true; btn.textContent = '🙏 Submitting…';
+  btn.disabled = true;
+  btn.textContent = '⏳ Submitting…';
 
-  const displayName = anon ? 'Anonymous' : name;
-  const urgentTag   = urgent ? '[URGENT] ' : '';
+  const GH = {
+    owner:  'yodebepro',
+    repo:   'CHM-Church-of-God',
+    branch: 'main'
+  };
 
   try {
-    const formData = new FormData();
-    formData.append('name',    displayName);
-    formData.append('email',   email || 'prayer@chmchurch.org');
-    formData.append('phone',   phone);
-    formData.append('subject', urgentTag + 'Prayer Request — ' + cat + ' (CHM Website)');
-    formData.append('message',
-      urgentTag + 'PRAYER REQUEST\n'
-      + '========================\n'
-      + 'Name: '     + displayName + '\n'
-      + 'Category: ' + cat + '\n'
-      + (email ? 'Email: ' + email + '\n' : '')
-      + (phone ? 'Phone: ' + phone + '\n' : '')
-      + (urgent ? '⚠️ URGENT REQUEST\n' : '')
-      + '\nRequest:\n' + request
+    // Load current site-data.json
+    const res = await fetch(
+      `https://raw.githubusercontent.com/${GH.owner}/${GH.repo}/${GH.branch}/site-data.json?_=` + Date.now(),
+      { cache: 'no-store' }
     );
-    formData.append('_captcha',  'false');
-    formData.append('_template', 'table');
-    formData.append('_subject',  urgentTag + 'Prayer Request from ' + displayName);
 
-    const res = await fetch('https://formsubmit.co/yodebepro@gmail.com', {
-      method:  'POST',
-      body:    formData,
-      headers: { 'Accept': 'application/json' }
-    });
+    let data = res.ok ? await res.json() : { prayer_requests: [] };
+    if (!data.prayer_requests) data.prayer_requests = [];
 
-    btn.disabled = false; btn.textContent = '🙏 Submit Prayer Request';
+    // Add new prayer request
+    const newReq = {
+      id: Date.now().toString(36) + Math.random().toString(36).slice(2,5),
+      name: anon ? 'Anonymous' : name,
+      email, phone,
+      category: cat,
+      request,
+      urgent,
+      anonymous: anon,
+      date: new Date().toLocaleDateString('en-US', {year:'numeric',month:'long',day:'numeric'}),
+      _status: 'new',
+      _createdAt: Date.now()
+    };
+    data.prayer_requests.unshift(newReq);
+    data._updated = new Date().toISOString();
 
-    if (res.ok) {
-      showPRMsg('🙏 Your prayer request has been submitted! Our prayer team will be praying for you.', '#dcfce7', '#15803d');
-      clearPRForm();
+    // Write back via GitHub API (using public token for submissions only)
+    // NOTE: For public submissions, we use a limited-scope token stored in site-data config
+    const token = (data.site_config?.submission_token) || '';
+
+    if (token) {
+      // Get SHA
+      const getR = await fetch(
+        `https://api.github.com/repos/${GH.owner}/${GH.repo}/contents/site-data.json`,
+        { headers: { 'Authorization': `token ${token}`, 'Accept': 'application/vnd.github.v3+json' } }
+      );
+      const sha = getR.ok ? (await getR.json()).sha : '';
+      const content = btoa(unescape(encodeURIComponent(JSON.stringify(data, null, 2))));
+      const putR = await fetch(
+        `https://api.github.com/repos/${GH.owner}/${GH.repo}/contents/site-data.json`,
+        { method:'PUT', headers:{ 'Authorization':`token ${token}`,'Content-Type':'application/json','Accept':'application/vnd.github.v3+json' },
+          body: JSON.stringify({ message:'Prayer request submitted', content, sha, branch: GH.branch }) }
+      );
+      if (putR.ok) {
+        showPRMsg('🙏 Your prayer request has been submitted! Our prayer team will be praying for you.', '#dcfce7', '#15803d');
+        clearPRForm();
+      } else {
+        fallbackPR(name, email, request, cat, urgent);
+      }
     } else {
-      showPRMsg('⚠️ Could not submit right now. Please call us at 973-855-2396 or email yodebepro@gmail.com.', '#fef9c3', '#854d0e');
+      // No submission token - use email fallback
+      fallbackPR(name, email, request, cat, urgent);
     }
   } catch(e) {
-    btn.disabled = false; btn.textContent = '🙏 Submit Prayer Request';
-    showPRMsg('⚠️ Network error. Please call us at 973-855-2396.', '#fef9c3', '#854d0e');
+    fallbackPR(name, email, request, cat, urgent);
   }
+  btn.disabled = false;
+  btn.textContent = '🙏 Submit Prayer Request';
+}
+
+function fallbackPR(name, email, request, cat, urgent) {
+  // Fallback: mailto link
+  const subject = encodeURIComponent((urgent?'[URGENT] ':'') + 'Prayer Request from ' + name);
+  const body = encodeURIComponent('Name: ' + name + '\nEmail: ' + email + '\nCategory: ' + cat + '\nRequest:\n' + request);
+  window.open('mailto:?subject=' + subject + '&body=' + body);
+  showPRMsg('🙏 Your prayer request is opening in your email app. If it did not open, please email us at ', '#fef9c3', '#854d0e');
 }
 
 function showPRMsg(msg, bg, color) {
@@ -1105,6 +1134,7 @@ function clearPRForm() {
 }
 </script>
 
-<script src="contact-connect.js"></script>
-<script src="cms-public.js"></script>
+
+
+<script src="contact-direct-send.js"></script>
 </body></html>

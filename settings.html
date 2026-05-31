@@ -1,6 +1,5 @@
 <!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/><title>Settings & Site Control | CHM Admin</title><link rel="stylesheet" href="admin.css"/><script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
 <script src="firebase-config.js"></script></head><body><div class="admin-wrap">
 <aside class="sidebar" id="sidebar">
   <div class="sidebar-brand">
@@ -205,27 +204,8 @@ async function exportData(){
   const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(bk,null,2)],{type:'application/json'}));
   a.download=`CHM_Backup_${new Date().toISOString().slice(0,10)}.json`;a.click();toast('Data exported!');
 }
-
-function saveImgBBKey() {
-  var k = document.getElementById('imgbbKey')?.value.trim();
-  var el = document.getElementById('imgbbStatus');
-  if (k) {
-    localStorage.setItem('chm_imgbb_key', k);
-    if (el) el.innerHTML = '<span style="color:var(--success)">&#10003; ImgBB key saved! Photos will now upload globally.</span>';
-    toast('ImgBB key saved — photos now upload globally!', 'success');
-  } else {
-    localStorage.removeItem('chm_imgbb_key');
-    if (el) el.innerHTML = '<span style="color:var(--warning)">ImgBB key cleared.</span>';
-    toast('ImgBB key cleared', 'warning');
-  }
-}
-var _savedImgBB = localStorage.getItem('chm_imgbb_key');
-if (_savedImgBB && document.getElementById('imgbbKey')) {
-  document.getElementById('imgbbKey').value = _savedImgBB;
-  var _el = document.getElementById('imgbbStatus');
-  if (_el) _el.innerHTML = '<span style="color:var(--success)">&#10003; ImgBB key active — photos upload globally.</span>';
-}
-
 loadSettings();</script>
-<script src="contact-connect.js"></script>
+
+
+<script src="contact-direct-send.js"></script>
 </body></html>
