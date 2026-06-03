@@ -34,5 +34,7 @@
   "locations": [],
   "prayerRequests": [],
   "givingReports": [],
-  "_global_publish_engine": "github-uploads-and-site-data"
+  "_global_publish_engine": "github-uploads-and-site-data",
+  "hero": [],
+  "_true_cms": "enabled"
 }
