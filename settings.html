@@ -206,6 +206,26 @@ async function exportData(){
   const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(bk,null,2)],{type:'application/json'}));
   a.download=`CHM_Backup_${new Date().toISOString().slice(0,10)}.json`;a.click();toast('Data exported!');
 }
+
+function saveImgBBKey() {
+  var k = document.getElementById('imgbbKey')?.value.trim();
+  var el = document.getElementById('imgbbStatus');
+  if (k) {
+    localStorage.setItem('chm_imgbb_key', k);
+    if(el) el.innerHTML = '<span style="color:var(--success)">&#10003; ImgBB key saved! Photos now upload globally with one click.</span>';
+    toast('ImgBB key saved — photos upload globally!', 'success');
+  } else {
+    localStorage.removeItem('chm_imgbb_key');
+    if(el) el.innerHTML = '<span style="color:var(--warning)">Key cleared.</span>';
+  }
+}
+var _ib = localStorage.getItem('chm_imgbb_key');
+if (_ib && document.getElementById('imgbbKey')) {
+  document.getElementById('imgbbKey').value = _ib;
+  var _ibEl = document.getElementById('imgbbStatus');
+  if(_ibEl) _ibEl.innerHTML = '<span style="color:var(--success)">&#10003; ImgBB key active — photos upload globally.</span>';
+}
+
 loadSettings();</script>
 
 

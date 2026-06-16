@@ -11,6 +11,19 @@
 
   /* ── FETCH site-data.json ──────────────────────────────────── */
   async function load() {
+    // INSTANT: Show content from localStorage immediately while GitHub loads
+    try {
+      var localRaw = localStorage.getItem('chm_sitedata') || localStorage.getItem('chm_sd_bk');
+      if (localRaw) {
+        var localData = JSON.parse(localRaw);
+        if (localData && Object.keys(localData).length > 2) {
+          siteData = localData;
+          applyAll(); // Show local content immediately
+        }
+      }
+    } catch(e) {}
+
+    // Then load from GitHub for fresher/global data
     var ts = '?_=' + Date.now();
     var urls = [
       'https://raw.githubusercontent.com/' + OWNER + '/' + REPO + '/' + BRANCH + '/site-data.json' + ts,
@@ -22,7 +35,23 @@
         var res = await fetch(urls[i], { cache: 'no-store', headers: { 'Pragma': 'no-cache' } });
         if (res.ok) {
           var text = await res.text();
-          siteData = JSON.parse(text);
+          var freshData = JSON.parse(text);
+          // Merge localStorage photos into GitHub data
+          try {
+            var ld2 = JSON.parse(localStorage.getItem('chm_sitedata') || '{}');
+            ['leaders','gallery','ministries','teams','departments','announcements','events','sermons','locations'].forEach(function(col) {
+              if (!freshData[col] || !ld2[col]) return;
+              freshData[col] = freshData[col].map(function(item) {
+                var li = ld2[col].find(function(x){ return x.id===item.id; });
+                if (!li) return item;
+                ['photo','image','audio','video','url','mediaUrl','imageUrl'].forEach(function(f) {
+                  if ((!item[f] || item[f].includes('[')) && li[f] && !li[f].includes('[')) item[f] = li[f];
+                });
+                return item;
+              });
+            });
+          } catch(e2) {}
+          siteData = freshData;
           try { localStorage.setItem('chm_sd_bk', text); } catch (e) {}
           applyAll();
           return;
@@ -53,8 +82,28 @@
       .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
   }
   function photo(item) {
-    var p = item.photo || item.image || item.imageUrl || item.mediaUrl || item.url || '';
-    return (p && !p.includes('[photo-stored') && !p.includes('[stored-locally')) ? p : '';
+    var p = item.photo || item.image || item.imageUrl || item.photoUrl || item.mediaUrl || item.thumbnailUrl || item.url || '';
+    // Accept https:// URLs and base64 data: URLs
+    // Reject only explicit placeholder markers
+    if (!p) return '';
+    if (p.includes('[media-in-local-storage]') || p.includes('[stored-locally]') || p.includes('[photo-stored')) {
+      // Try to find in localStorage
+      try {
+        var ld = JSON.parse(localStorage.getItem('chm_sitedata') || '{}');
+        var cols = ['leaders','gallery','ministries','teams','departments','announcements','events','sermons','locations'];
+        for (var i=0; i<cols.length; i++) {
+          var arr = ld[cols[i]] || [];
+          for (var j=0; j<arr.length; j++) {
+            if (arr[j].id === item.id) {
+              var lp = arr[j].photo || arr[j].image || arr[j].imageUrl || arr[j].url || '';
+              if (lp && !lp.includes('[')) return lp;
+            }
+          }
+        }
+      } catch(e) {}
+      return '';
+    }
+    return p; // Returns both https:// URLs and data:image/... base64
   }
 
   /* ── ROUTE ─────────────────────────────────────────────────── */
