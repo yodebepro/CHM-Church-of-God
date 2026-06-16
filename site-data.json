@@ -36,5 +36,6 @@
   "givingReports": [],
   "_global_publish_engine": "github-uploads-and-site-data",
   "hero": [],
-  "_true_cms": "enabled"
+  "_true_cms": "enabled",
+  "_admin_public_mapping_fix": "enabled"
 }

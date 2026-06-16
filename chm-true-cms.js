@@ -32,3 +32,12 @@ window.cfgSave=async(section,fields)=>{const d=ensure(await load()); if(!d.site_
 window.cfgGet=async(section)=>((await load()).site_config||{})[section]||{};
 window.CHMTrueCMS={loadSiteData:load,saveLocal,pushSiteData:push,uploadMedia:upload,saveItem,publishItem,publishNew,setStatus:status,getGH:gh};
 })();
+
+
+(function(){
+if(window.CHMCollectionAliasSyncLoaded)return;window.CHMCollectionAliasSyncLoaded=true;
+const aliasMap={leadership:'leaders',leaders:'leadership',prayerRequests:'prayer_requests',prayer_requests:'prayerRequests',giving:'givingReports',givingReports:'giving',media_library:'gallery'};
+async function syncAlias(collection,item){try{if(!window.CHMTrueCMS||!window.CHMTrueCMS.loadSiteData)return;const alias=aliasMap[collection];if(!alias)return;const data=await window.CHMTrueCMS.loadSiteData();if(!Array.isArray(data[alias]))data[alias]=[];const idx=data[alias].findIndex(x=>x.id===item.id);const clone={...item,collection:alias};if(idx>=0)data[alias][idx]=clone;else data[alias].unshift(clone);await window.CHMTrueCMS.saveLocal(data)}catch(e){}}
+const oldSave=window.cmsSave;if(typeof oldSave==='function'){window.cmsSave=async function(col,id,fields,status){const item=await oldSave(col,id,fields,status);await syncAlias(col,item||{...fields,id});return item}}
+if(window.CHMTrueCMS&&window.CHMTrueCMS.saveItem){const oldSaveItem=window.CHMTrueCMS.saveItem;window.CHMTrueCMS.saveItem=async function(col,item,status){const saved=await oldSaveItem(col,item,status);await syncAlias(col,saved||item);return saved}}
+})();
