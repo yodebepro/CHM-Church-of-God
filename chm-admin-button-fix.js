@@ -3,8 +3,10 @@
   if(window.CHMAdminButtonFixLoaded) return;
   window.CHMAdminButtonFixLoaded = true;
 
-  function qs(s,r=document){return r.querySelector(s)}
-  function qsa(s,r=document){return Array.from(r.querySelectorAll(s))}
+  /* Null-safe querySelector — never throws even if root is null/undefined */
+  function qs(s, r){ r = r || document; return r ? r.querySelector(s) : null; }
+  function qsa(s, r){ r = r || document; return r ? Array.from(r.querySelectorAll(s)) : []; }
+
   function setStatus(msg,type='info'){
     let el=qs('[data-cms-status]')||qs('.cms-global-status')||qs('.gh-status')||qs('.firebase-status');
     if(!el){
@@ -46,6 +48,7 @@
   }
 
   function formFields(form){
+    if(!form) return {id:'',title:'',category:'',summary:'',body:'',mediaUrl:''};
     const fd=Object.fromEntries(new FormData(form).entries());
     return {
       id: fd.id||fd._id||'',
@@ -58,7 +61,7 @@
   }
 
   function fileFromForm(form){
-    return qs('input[type="file"]',form)?.files?.[0] || qs('#mediaFile')?.files?.[0] || null;
+    return (form && qs('input[type="file"]',form)?.files?.[0]) || qs('#mediaFile')?.files?.[0] || null;
   }
 
   async function ensure(){
@@ -82,6 +85,7 @@
   }
 
   async function doSave(form){
+    if(!form){ setStatus('No form was found on this page.','error'); return; }
     if(!(await ensure())) return;
     const col=collectionFromPage(form);
     let fields=formFields(form);
@@ -95,6 +99,7 @@
   }
 
   async function doPublish(form){
+    if(!form){ setStatus('No form was found on this page.','error'); return; }
     if(!(await ensure())) return;
     const col=collectionFromPage(form);
     let fields=formFields(form);
@@ -136,8 +141,23 @@
     try{await doSave(form)}catch(e){setStatus('Save failed: '+(e.message||e),'error');alert('Save failed: '+(e.message||e))}
   };
 
+  /* CRITICAL FIX: only attach generic handlers to buttons that do NOT already
+     have a working onclick attribute. Pages like adm-leaders.html, adm-events.html,
+     adm-departments.html etc. already wire their own Publish/Save buttons
+     (lSave('published'), eSave('published'), dSave('published') ...).
+     Overwriting those with the generic form-based logic caused:
+     "Cannot read properties of null (reading 'querySelector')"
+     because those pages have no <form id="globalForm"> for this script to find. */
   function repair(){
+    // Skip entirely on pages that already have a working custom CMS (admin.js cmsSave pattern)
+    const hasCustomSaveFns = ['lSave','dSave','mnSave','tSave','aSave','eSave','sSave','gSave']
+      .some(fn => typeof window[fn] === 'function');
+
     qsa('button').forEach(btn=>{
+      // Never touch a button that already has its own onclick wired in the HTML
+      if (btn.getAttribute('onclick')) return;
+      if (hasCustomSaveFns) return; // this page has its own working save/publish system
+
       const txt=(btn.textContent||btn.value||'').toLowerCase().trim();
       if(txt.includes('publish globally') || txt==='publish' || txt.includes('publish / post')){
         btn.type='button';
@@ -157,11 +177,15 @@
       }
     });
 
+    if (hasCustomSaveFns) return; // pages with their own system don't need #bpPublish either
+
     const pub=qs('#bpPublish'), save=qs('#bpSaveDraft');
-    if(pub){pub.type='button'; pub.onclick=(e)=>{e.preventDefault(); doPublish(pub.closest('form')||qs('#bpForm')).catch(err=>alert('Publish failed: '+(err.message||err)))}}
-    if(save){save.type='button'; save.onclick=(e)=>{e.preventDefault(); doSave(save.closest('form')||qs('#bpForm')).catch(err=>alert('Save failed: '+(err.message||err)))}}
+    if(pub && !pub.getAttribute('onclick')){ pub.type='button'; pub.onclick=(e)=>{e.preventDefault(); doPublish(pub.closest('form')||qs('#bpForm')).catch(err=>alert('Publish failed: '+(err.message||err)))} }
+    if(save && !save.getAttribute('onclick')){ save.type='button'; save.onclick=(e)=>{e.preventDefault(); doSave(save.closest('form')||qs('#bpForm')).catch(err=>alert('Save failed: '+(err.message||err)))} }
   }
 
   document.addEventListener('DOMContentLoaded',()=>{repair(); setTimeout(repair,500); setTimeout(repair,1500);});
+  /* Re-run repair after clicks, but only matters for blueprint-style pages now
+     since custom-save pages are skipped entirely above */
   document.addEventListener('click',()=>setTimeout(repair,100),true);
 })();
