@@ -238,16 +238,22 @@
   function doAnnouncements() {
     var items = published('announcements'); if (!items.length) return;
     var el = document.getElementById('cms-announcements-grid'); if (!el) return;
-    each('.cms-static-anns', function(e){ e.style.display='none'; });
-    el.style.cssText = 'display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:1.5rem;';
+    // Use ann-card class to match the existing announcements page card design exactly
+    el.className = 'grid-2';
+    el.style.cssText = 'margin-bottom:1.5rem;';
+    // Hide static cards only when we have published replacements
+    var staticGrid = document.getElementById('cms-static-ann');
+    if (staticGrid) staticGrid.style.display = 'none';
     el.innerHTML = items.map(function(a) {
       var ph = photo(a);
-      return '<div style="background:#fff;border-radius:14px;padding:1.4rem;border-left:4px solid var(--gold);box-shadow:0 2px 8px rgba(0,0,0,.07);">'
+      var isPinned = a.pinned || a.category === 'Important' || a.category === 'Giving Campaign';
+      return '<div class="ann-card '+(isPinned?'pinned':'')+' reveal">'
+        +(isPinned?'<div class="ann-pin">&#128204;</div>':'')
         +(ph?'<div style="overflow:hidden;border-radius:10px;margin-bottom:.85rem;height:160px;"><img src="'+esc(ph)+'" style="width:100%;height:100%;object-fit:cover;" onerror="this.parentElement.remove()"/></div>':'')
-        +'<div style="font-size:.68rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--gold);margin-bottom:.4rem;">'+esc(a.category||'Announcement')+'</div>'
-        +'<h4 style="font-size:1.05rem;font-weight:700;color:var(--navy);margin-bottom:.5rem;">'+esc(a.title||'')+'</h4>'
-        +'<p style="font-size:.87rem;color:#374151;line-height:1.7;">'+esc(a.body||a.summary||'')+'</p>'
-        +(a.date?'<div style="font-size:.74rem;color:#9ca3af;margin-top:.65rem;">'+esc(a.date)+'</div>':'')
+        +'<div class="ann-cat">'+esc(a.category||'Announcement')+'</div>'
+        +'<h3 class="ann-title">'+esc(a.title||'')+'</h3>'
+        +'<p class="ann-body">'+esc(a.body||a.summary||'')+'</p>'
+        +(a.date?'<div class="ann-date">'+esc(a.date)+'</div>':'')
         +'</div>';
     }).join('');
   }
@@ -256,25 +262,28 @@
   function doEvents() {
     var items = published('events'); if (!items.length) return;
     var el = document.getElementById('cms-events-grid'); if (!el) return;
-    each('.cms-static-events', function(e){ e.style.display='none'; });
-    el.style.cssText = 'display:grid;gap:1.5rem;';
+    // Use event-card class to match the existing events page card design exactly
+    el.style.cssText = 'display:flex;flex-direction:column;gap:1rem;margin-bottom:1rem;';
     var months = ['','Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
     el.innerHTML = items.map(function(ev) {
       var p = (ev.date||'').split('-');
-      var ph = photo(ev);
-      return '<div style="background:#fff;border-radius:14px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.07);">'
-        +(ph?'<div style="height:140px;overflow:hidden;"><img src="'+esc(ph)+'" style="width:100%;height:100%;object-fit:cover;" onerror="this.parentElement.remove()"/></div>':'')
-        +'<div style="padding:1.4rem;display:flex;gap:1.1rem;align-items:flex-start;">'
-        +'<div style="text-align:center;min-width:50px;background:var(--navy);color:#fff;border-radius:10px;padding:.55rem .4rem;flex-shrink:0;">'
-        +'<div style="font-size:.62rem;font-weight:800;text-transform:uppercase;color:var(--gold);">'+(p[1]?months[+p[1]]:'')+'</div>'
-        +'<div style="font-size:1.45rem;font-weight:900;line-height:1;">'+(p[2]||'--')+'</div>'
-        +'<div style="font-size:.6rem;color:rgba(255,255,255,.5);">'+(p[0]||'')+'</div></div>'
-        +'<div><div style="font-size:.68rem;font-weight:800;text-transform:uppercase;color:var(--gold);margin-bottom:.3rem;">'+esc(ev.category||'Event')+'</div>'
-        +'<h4 style="font-size:1rem;font-weight:700;color:var(--navy);margin-bottom:.35rem;">'+esc(ev.name||ev.title||'')+'</h4>'
-        +(ev.time?'<div style="font-size:.8rem;color:#6b7280;">&#128336; '+esc(ev.time)+'</div>':'')
-        +(ev.location?'<div style="font-size:.8rem;color:#6b7280;">&#128205; '+esc(ev.location)+'</div>':'')
-        +(ev.desc||ev.body?'<p style="font-size:.82rem;color:#6b7280;margin-top:.35rem;">'+esc(ev.desc||ev.body||'')+'</p>':'')
-        +'</div></div></div>';
+      var mon = p[1] ? months[+p[1]] : '';
+      var day = p[2] || '--';
+      var yr  = p[0] || '';
+      var ph  = photo(ev);
+      var cat = (ev.category||'Event').toLowerCase();
+      return '<div class="event-card reveal" data-category="'+esc(cat)+'">'
+        +'<div class="event-date-col"><div class="event-month">'+esc(mon)+'</div><div class="event-day">'+esc(day)+'</div><div class="event-year">'+esc(yr)+'</div></div>'
+        +'<div class="event-body">'
+        +(ph?'<div style="overflow:hidden;border-radius:10px;margin-bottom:.75rem;height:140px;"><img src="'+esc(ph)+'" style="width:100%;height:100%;object-fit:cover;" onerror="this.parentElement.remove()"/></div>':'')
+        +'<div class="event-cat">'+esc(ev.category||'Event')+'</div>'
+        +'<h3 class="event-title">'+esc(ev.name||ev.title||'')+'</h3>'
+        +'<div class="event-meta">'
+        +(ev.location?'<span>&#128205; '+esc(ev.location)+'</span>':'')
+        +(ev.time?'<span>&#9200; '+esc(ev.time)+'</span>':'')
+        +'</div>'
+        +(ev.desc||ev.body?'<p class="event-desc" style="font-size:.84rem;color:#6b7280;margin-top:.5rem;line-height:1.6;">'+esc(ev.desc||ev.body||'')+'</p>':'')
+        +'</div></div>';
     }).join('');
   }
 
@@ -311,28 +320,41 @@
         +'</div></div>';
     }
 
-    // All sermons grid
-    var grid = qs('#sermonGrid') || document.getElementById('cms-sermons-grid');
-    if (!grid) return;
-    grid.style.cssText = 'display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1.5rem;';
-    grid.innerHTML = items.map(function(s) {
+    // Sermon grid — inject CMS cards at TOP of existing sermonGrid
+    // Use existing sermon-card class to match page design perfectly
+    var grid = document.getElementById('sermonGrid');
+    var cmsTarget = document.getElementById('cms-sermons-injected') || document.getElementById('cms-sermons-grid');
+    if (!cmsTarget && grid) { cmsTarget = document.createElement('div'); grid.insertBefore(cmsTarget, grid.firstChild); }
+    if (!cmsTarget) return;
+    cmsTarget.innerHTML = items.map(function(s) {
+      // Use existing sermon-card CSS class to match page design perfectly
       var isYT = (s.video||'').includes('youtube')||(s.video||'').includes('youtu.be');
       var watchHref = isYT ? s.video : 'watch-live.html';
       var ph = photo(s);
-      return '<div style="background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,.08);">'
+      var cat = (s.series||s.category||'preaching').toLowerCase().replace(/[^a-z]/g,'-');
+      return '<div class="sermon-card reveal" data-category="'+esc(cat)+'">'
+        +'<div class="sermon-thumb">'
         +(ph
-          ?'<div style="height:160px;overflow:hidden;"><img src="'+esc(ph)+'" style="width:100%;height:100%;object-fit:cover;"/></div>'
-          :'<div style="height:80px;display:flex;align-items:center;justify-content:center;font-size:2.5rem;background:#f4f5f7;">'+esc(s.icon||'&#128293;')+'</div>')
-        +'<div style="padding:1.5rem;">'
-        +'<div style="font-size:.68rem;font-weight:800;text-transform:uppercase;letter-spacing:.1em;color:var(--gold);margin-bottom:.35rem;">'+esc(s.series||'Sermon')+(s.date?' &middot; '+esc(s.date):'')+'</div>'
-        +'<h4 style="font-size:1.1rem;font-weight:700;color:var(--navy);margin-bottom:.3rem;">'+esc(s.title||'')+'</h4>'
-        +(s.speaker?'<div style="font-size:.82rem;color:#6b7280;margin-bottom:.4rem;">&#127897; '+esc(s.speaker)+'</div>':'')
-        +(s.scripture?'<div style="font-size:.8rem;color:var(--gold);margin-bottom:.7rem;">&#128214; '+esc(s.scripture)+'</div>':'')
-        +(s.desc||s.body?'<p style="font-size:.83rem;color:#6b7280;line-height:1.6;margin-bottom:.8rem;">'+esc(s.desc||s.body||'')+'</p>':'')
-        +'<div style="display:flex;gap:.5rem;flex-wrap:wrap;">'
-        +(s.video?'<a href="'+esc(watchHref)+'" target="_blank" style="padding:.42rem .95rem;background:var(--navy);color:var(--gold);border-radius:50px;font-size:.78rem;font-weight:700;text-decoration:none;">&#9654; Watch</a>':'')
-        +(s.audio?'<a href="'+esc(s.audio)+'" target="_blank" style="padding:.42rem .95rem;background:#f4f5f7;color:var(--navy);border-radius:50px;font-size:.78rem;font-weight:700;text-decoration:none;">&#127925; Listen</a>':'')
-        +'</div></div></div>';
+          ?'<img src="'+esc(ph)+'" style="width:100%;height:100%;object-fit:cover;position:absolute;inset:0;" onerror="this.remove()"/>'
+          :'')
+        +'<div class="sermon-thumb-icon" style="position:relative;z-index:1;font-size:2.5rem;display:flex;align-items:center;justify-content:center;height:100%;">'+esc(s.icon||'&#128293;')+'</div>'
+        +(s.video?'<div class="sermon-play-overlay" style="z-index:2;"><a href="'+esc(watchHref)+'" target="_blank" class="sermon-play-btn" style="text-decoration:none;color:inherit;">&#9654;</a></div>':'')
+        +(s.video?'<span class="sermon-type-badge badge-video">&#9654; Video</span>':(s.audio?'<span class="sermon-type-badge badge-audio">&#127925; Audio</span>':''))
+        +'</div>'
+        +'<div class="sermon-body">'
+        +'<div class="sermon-series">'+esc(s.series||'')+'</div>'
+        +'<h3 class="sermon-title">'+esc(s.title||'')+'</h3>'
+        +(s.desc||s.body?'<p class="sermon-excerpt">'+esc((s.desc||s.body||'').slice(0,120))+'</p>':'')
+        +'<div class="sermon-meta">'
+        +(s.speaker?'<span>&#128100; '+esc(s.speaker)+'</span>':'')
+        +(s.date?'<span>&#128197; '+esc(s.date)+'</span>':'')
+        +(s.scripture?'<span>&#128214; '+esc(s.scripture)+'</span>':'')
+        +'</div>'
+        +'<div class="sermon-actions" style="display:flex;gap:.5rem;margin-top:.75rem;flex-wrap:wrap;">'
+        +(s.video?'<a href="'+esc(watchHref)+'" target="_blank" class="btn btn-gold" style="font-size:.78rem;padding:.42rem .95rem;">&#9654; Watch</a>':'')
+        +(s.audio?'<a href="'+esc(s.audio)+'" target="_blank" class="btn btn-outline" style="font-size:.78rem;padding:.42rem .95rem;">&#127925; Listen</a>':'')
+        +'</div>'
+        +'</div></div>';
     }).join('');
   }
 
@@ -352,17 +374,19 @@
   function doMinistries() {
     var items = published('ministries'); if (!items.length) return;
     var el = document.getElementById('cms-ministries-grid'); if (!el) return;
-    each('.cms-static-mins', function(e){ e.style.display='none'; });
-    el.style.cssText = 'display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:1.5rem;';
+    // Use ministry-card class to match the existing ministry page card design exactly
+    el.className = 'ministry-grid reveal';
+    el.style.cssText = 'display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1.5rem;margin-bottom:2rem;';
     el.innerHTML = items.map(function(m) {
       var ph = photo(m);
-      return '<div style="background:#fff;border-radius:14px;padding:1.5rem;box-shadow:0 2px 10px rgba(0,0,0,.08);text-align:center;">'
-        +(ph?'<div style="overflow:hidden;height:120px;border-radius:10px;margin-bottom:.85rem;"><img src="'+esc(ph)+'" style="width:100%;height:100%;object-fit:cover;" onerror="this.parentElement.remove()"/></div>':'')
-        +'<div style="font-size:2rem;margin-bottom:.6rem;">'+esc(m.icon||'&#9962;')+'</div>'
-        +'<h3 style="font-size:1rem;font-weight:700;color:var(--navy);margin-bottom:.5rem;">'+esc(m.name||m.title||'')+'</h3>'
-        +'<p style="font-size:.85rem;color:#6b7280;line-height:1.6;">'+esc(m.desc||m.body||'')+'</p>'
+      var cat = (m.category||m.cat||'core').toLowerCase().replace(/[^a-z]/g,'-');
+      return '<div class="ministry-card reveal" data-category="'+esc(cat)+'">'
+        +(ph?'<div style="overflow:hidden;height:140px;border-radius:10px 10px 0 0;margin:-1.5rem -1.5rem 1rem;"><img src="'+esc(ph)+'" style="width:100%;height:100%;object-fit:cover;" onerror="this.parentElement.remove()"/></div>':'')
+        +'<div class="min-icon">'+esc(m.icon||'&#9962;')+'</div>'
+        +'<h3 class="min-title">'+esc(m.name||m.title||'')+'</h3>'
+        +'<p class="min-desc">'+esc(m.desc||m.body||'')+'</p>'
         +(m.leader?'<p style="font-size:.78rem;font-weight:700;color:var(--gold);margin-top:.75rem;">&#128100; '+esc(m.leader)+'</p>':'')
-        +(m.meeting?'<p style="font-size:.78rem;color:#9ca3af;">&#128336; '+esc(m.meeting)+'</p>':'')
+        +(m.meeting?'<p style="font-size:.78rem;color:#9ca3af;margin-top:.3rem;">&#128336; '+esc(m.meeting)+'</p>':'')
         +'</div>';
     }).join('');
   }
