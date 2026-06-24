@@ -241,9 +241,15 @@
     // Use ann-card class to match the existing announcements page card design exactly
     el.className = 'grid-2';
     el.style.cssText = 'margin-bottom:1.5rem;';
-    // Hide static cards only when we have published replacements
+    // Hide static cards when CMS content is available
     var staticGrid = document.getElementById('cms-static-ann');
-    if (staticGrid) staticGrid.style.display = 'none';
+    if (staticGrid) { staticGrid.style.display = 'none'; }
+    // Also hide any ann-card elements not inside our CMS container
+    if (el.parentElement) {
+      Array.prototype.forEach.call(el.parentElement.children, function(child) {
+        if (child !== el && child.id !== 'cms-announcements-grid') child.style.display = 'none';
+      });
+    }
     el.innerHTML = items.map(function(a) {
       var ph = photo(a);
       var isPinned = a.pinned || a.category === 'Important' || a.category === 'Giving Campaign';
@@ -262,7 +268,16 @@
   function doEvents() {
     var items = published('events'); if (!items.length) return;
     var el = document.getElementById('cms-events-grid'); if (!el) return;
-    // Use event-card class to match the existing events page card design exactly
+    // Hide static event-card siblings when CMS items exist
+    if (el.parentElement) {
+      Array.prototype.forEach.call(el.parentElement.children, function(child) {
+        if (child !== el) {
+          if (child.classList && (child.classList.contains('event-card') || child.style)) {
+            child.style.display = 'none';
+          }
+        }
+      });
+    }
     el.style.cssText = 'display:flex;flex-direction:column;gap:1rem;margin-bottom:1rem;';
     var months = ['','Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
     el.innerHTML = items.map(function(ev) {
@@ -320,12 +335,14 @@
         +'</div></div>';
     }
 
-    // Sermon grid — inject CMS cards at TOP of existing sermonGrid
-    // Use existing sermon-card class to match page design perfectly
+    // Sermon grid — inject CMS cards, hide all static sermon-card children
     var grid = document.getElementById('sermonGrid');
-    var cmsTarget = document.getElementById('cms-sermons-injected') || document.getElementById('cms-sermons-grid');
-    if (!cmsTarget && grid) { cmsTarget = document.createElement('div'); grid.insertBefore(cmsTarget, grid.firstChild); }
-    if (!cmsTarget) return;
+    var cmsTarget = document.getElementById('cms-sermons-injected');
+    if (!grid || !cmsTarget) return;
+    // Hide static cards so only CMS content shows
+    Array.prototype.forEach.call(grid.children, function(child) {
+      if (child.id !== 'cms-sermons-injected') child.style.display = 'none';
+    });
     cmsTarget.innerHTML = items.map(function(s) {
       // Use existing sermon-card CSS class to match page design perfectly
       var isYT = (s.video||'').includes('youtube')||(s.video||'').includes('youtu.be');
@@ -374,9 +391,16 @@
   function doMinistries() {
     var items = published('ministries'); if (!items.length) return;
     var el = document.getElementById('cms-ministries-grid'); if (!el) return;
-    // Use ministry-card class to match the existing ministry page card design exactly
-    el.className = 'ministry-grid reveal';
-    el.style.cssText = 'display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1.5rem;margin-bottom:2rem;';
+    // Hide ALL static ministry sections (section-headers + grid-3 divs with ministry cards)
+    each('.section-header', function(h) {
+      if (!h.contains(el)) h.style.display = 'none';
+    });
+    each('.grid-3', function(g) {
+      if (g.querySelector && g.querySelector('.ministry-card')) g.style.display = 'none';
+    });
+    // Render CMS ministries in a matching grid
+    el.className = 'grid-3 reveal';
+    el.style.cssText = 'margin-bottom:2rem;';
     el.innerHTML = items.map(function(m) {
       var ph = photo(m);
       var cat = (m.category||m.cat||'core').toLowerCase().replace(/[^a-z]/g,'-');
