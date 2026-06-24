@@ -378,13 +378,24 @@
   /* ── GALLERY ───────────────────────────────────────────────── */
   function doGallery() {
     var items = published('gallery'); if (!items.length) return;
-    var el = document.getElementById('cms-gallery-grid'); if (!el) return;
-    el.innerHTML = items.map(function(g, i) {
+    // Inject directly into the real masonry grid – replaces static emoji placeholders
+    var grid = document.getElementById('galleryGrid'); if (!grid) return;
+    grid.innerHTML = items.map(function(g) {
       var src = photo(g); if (!src) return '';
-      return '<div class="gallery-item '+(i===0||i===3?'wide':'')+'">'
-        +'<img src="'+esc(src)+'" alt="'+esc(g.title||g.name||'')+'" loading="lazy" onerror="this.parentElement.style.display=\'none\'"/>'
-        +'<div class="gallery-overlay"><span class="gallery-caption">'+esc(g.title||g.name||'')+'</span></div></div>';
-    }).join('');
+      var cat   = (g.category||g.cat||'worship').toLowerCase();
+      var title = esc(g.title||g.name||'');
+      var desc  = esc((g.desc||g.body||'').slice(0,80));
+      return '<div class="masonry-item reveal" data-cat="'+cat+'">'
+        +'<div class="masonry-img" style="position:relative;overflow:hidden;">'
+        +'<img src="'+esc(src)+'" alt="'+title+'" loading="lazy" '
+        +'style="width:100%;height:100%;object-fit:cover;display:block;'
+        +'position:absolute;top:0;left:0;" '
+        +'onerror="this.closest('.masonry-item').style.display='none'"/>'
+        +'<div class="masonry-overlay">'
+        +'<span class="masonry-caption">'+title+'</span>'
+        +(desc?'<p style="font-size:.74rem;color:rgba(255,255,255,.8);margin:.2rem 0 0;">'+desc+'</p>':'')
+        +'</div></div></div>';
+    }).filter(Boolean).join('');
   }
 
   /* ── MINISTRIES ────────────────────────────────────────────── */
