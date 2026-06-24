@@ -113,14 +113,17 @@
   }
 
   /* Build photo <img> inside navy placeholder — photo fills box, navy shows if load fails */
-  function photoHtml(item, style) {
+  function photoHtml(item) {
     var src = photo(item);
     if (!src) return '<div class="leader-img-placeholder">&#128100;</div>';
-    // Keep the navy gradient div; img overlays absolutely so if it fails, silhouette shows
-    return '<div class="leader-img-placeholder" style="position:relative;">'
+    // Silhouette icon ALWAYS present inside the navy div.
+    // Photo is absolutely positioned on top — covers it when loaded.
+    // If photo fails → display:none hides img, navy + silhouette stays visible.
+    return '<div class="leader-img-placeholder" style="position:relative;">&#128100;'
       +'<img src="'+esc(src)+'" '
-      +'style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;" '
-      +'onerror="this.remove()">'
+      +'style="position:absolute;top:0;left:0;right:0;bottom:0;width:100%;height:100%;'
+      +'object-fit:cover;display:block;z-index:1;" '
+      +'onerror="this.style.display='none'">'
       +'</div>';
   }
 
@@ -242,12 +245,15 @@
       filled[key] = true;
     });
 
-    // 2. Leaders whose slot ID is not on this page → overflow grid (same card style)
+    // 2. Always clear cms-leaders-grid first (prevents stale data from prior render)
+    var grid = document.getElementById('cms-leaders-grid');
+    if (grid) { grid.innerHTML = ''; grid.removeAttribute('style'); }
+
+    // Leaders whose slot ID is not on this page → overflow grid
     var extras = leaders.filter(function(l) {
       return !filled[(l.slot || '').trim().toLowerCase()];
     });
-    if (!extras.length) return;
-    var grid = document.getElementById('cms-leaders-grid');
+    if (!extras.length) return; // All slots filled — done (grid already cleared above)
     if (!grid) return;
     grid.style.cssText = 'display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:2rem;margin-bottom:2rem;';
     grid.innerHTML = extras.map(function(l) {
