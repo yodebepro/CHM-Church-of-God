@@ -112,13 +112,16 @@
     return p; // Accepts both https:// and data:image/... base64
   }
 
-  /* Build photo <img> or placeholder */
+  /* Build photo <img> inside navy placeholder — photo fills box, navy shows if load fails */
   function photoHtml(item, style) {
     var src = photo(item);
-    style = style || 'width:100%;aspect-ratio:1;object-fit:cover;display:block;';
     if (!src) return '<div class="leader-img-placeholder">&#128100;</div>';
-    return '<img src="'+esc(src)+'" style="'+style+'" '
-      +'onerror="this.parentElement.innerHTML=\'<div class=&quot;leader-img-placeholder&quot;>&#128100;</div>\'">';
+    // Keep the navy gradient div; img overlays absolutely so if it fails, silhouette shows
+    return '<div class="leader-img-placeholder" style="position:relative;">'
+      +'<img src="'+esc(src)+'" '
+      +'style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;" '
+      +'onerror="this.remove()">'
+      +'</div>';
   }
 
   /* ── ROUTE ─────────────────────────────────────────────────── */
@@ -197,44 +200,62 @@
 
   /* ── LEADERS ───────────────────────────────────────────────── */
   function doLeaders() {
-    var leaders = published('leaders');
-    if (!leaders.length) return;
+    // Merge both collections, deduplicate by slot (1 entry per slot)
+    var raw = (published('leaders') || []).concat(published('leadership') || []);
+    if (!raw.length) return;
 
-    // Inject each leader into their named slot card
+    // Dedupe: keep first entry with a real photo per slot; if none has photo, keep first
+    var slotMap = {};
+    raw.forEach(function(l) {
+      var key = (l.slot || '').trim().toLowerCase();
+      if (!key) return;
+      if (!slotMap[key]) { slotMap[key] = l; return; }
+      // Replace if the new entry has a photo and the existing doesn't
+      var hasPhoto = photo(l);
+      if (hasPhoto && !photo(slotMap[key])) slotMap[key] = l;
+    });
+    var leaders = Object.values ? Object.values(slotMap) : Object.keys(slotMap).map(function(k){return slotMap[k];});
+
+    /* Helper: full name from any available field */
+    function ldrName(l) {
+      return ((l.first||l.name||'') + ' ' + (l.last||'')).trim() || l.role || 'Leader';
+    }
+
+    /* Build inner HTML for a leader card — photo overlays navy frame */
+    function cardInner(l) {
+      return photoHtml(l)
+        + '<div class="leader-body">'
+        + '<h4 class="leader-name">' + esc(ldrName(l)) + '</h4>'
+        + '<div class="leader-title">' + esc(l.role || l.title || '') + '</div>'
+        + (l.bio ? '<p class="leader-bio">' + esc(l.bio) + '</p>' : '')
+        + '</div>';
+    }
+
+    // 1. Fill named slot cards that exist on this page
+    var filled = {};
     leaders.forEach(function(l) {
-      var card = document.getElementById('slot-'+(l.slot||''));
+      var key = (l.slot || '').trim().toLowerCase();
+      if (!key) return;
+      var card = document.getElementById('slot-' + key);
       if (!card) return;
-      var name = ((l.first||'')+' '+(l.last||'')).trim();
-      card.innerHTML =
-        '<div style="overflow:hidden;">'+ photoHtml(l, 'width:100%;aspect-ratio:1;object-fit:cover;display:block;') +'</div>'
-        +'<div class="leader-body">'
-        +'<h4 class="leader-name">'+esc(name)+'</h4>'
-        +'<div class="leader-title">'+esc(l.role||l.title||'')+'</div>'
-        +(l.dept?'<div style="font-size:.75rem;color:var(--text-muted);margin-bottom:.3rem;">'+esc(l.dept)+'</div>':'')
-        +(l.bio?'<p class="leader-bio">'+esc(l.bio)+'</p>':'')
-        +(l.email?'<p style="font-size:.75rem;color:var(--gold);margin-top:.4rem;">&#9993; '+esc(l.email)+'</p>':'')
-        +'</div>';
+      card.innerHTML = cardInner(l);
+      filled[key] = true;
     });
 
-    // Any leader without a matching slot → overflow grid
+    // 2. Leaders whose slot ID is not on this page → overflow grid (same card style)
     var extras = leaders.filter(function(l) {
-      return !l.slot || !document.getElementById('slot-'+l.slot);
+      return !filled[(l.slot || '').trim().toLowerCase()];
     });
     if (!extras.length) return;
     var grid = document.getElementById('cms-leaders-grid');
     if (!grid) return;
     grid.style.cssText = 'display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:2rem;margin-bottom:2rem;';
     grid.innerHTML = extras.map(function(l) {
-      var name = ((l.first||'')+' '+(l.last||'')).trim();
-      return '<div class="leader-card">'
-        +'<div style="overflow:hidden;">'+ photoHtml(l) +'</div>'
-        +'<div class="leader-body"><h4 class="leader-name">'+esc(name)+'</h4>'
-        +'<div class="leader-title">'+esc(l.role||'')+'</div>'
-        +(l.bio?'<p class="leader-bio">'+esc(l.bio)+'</p>':'')+'</div></div>';
+      return '<div class="leader-card">' + cardInner(l) + '</div>';
     }).join('');
   }
 
-  /* ── ANNOUNCEMENTS ─────────────────────────────────────────── */
+    /* ── ANNOUNCEMENTS ─────────────────────────────────────────── */
   function doAnnouncements() {
     var items = published('announcements'); if (!items.length) return;
     var el = document.getElementById('cms-announcements-grid'); if (!el) return;
