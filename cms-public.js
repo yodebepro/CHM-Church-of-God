@@ -112,18 +112,18 @@
     return p; // Accepts both https:// and data:image/... base64
   }
 
-  /* Build photo <img> inside navy placeholder — photo fills box, navy shows if load fails */
+  /* Build photo <img> or placeholder */
+  /* Photo overlays the navy placeholder frame.
+     Silhouette (&#128100;) is ALWAYS inside the div so it shows
+     when the photo fails to load. */
   function photoHtml(item) {
     var src = photo(item);
     if (!src) return '<div class="leader-img-placeholder">&#128100;</div>';
-    // Silhouette icon ALWAYS present inside the navy div.
-    // Photo is absolutely positioned on top — covers it when loaded.
-    // If photo fails → display:none hides img, navy + silhouette stays visible.
     return '<div class="leader-img-placeholder" style="position:relative;">&#128100;'
       +'<img src="'+esc(src)+'" '
       +'style="position:absolute;top:0;left:0;right:0;bottom:0;width:100%;height:100%;'
       +'object-fit:cover;display:block;z-index:1;" '
-      +'onerror="this.style.display='none'">'
+      +'onerror="this.style.display=\'none\'">'
       +'</div>';
   }
 
@@ -203,65 +203,52 @@
 
   /* ── LEADERS ───────────────────────────────────────────────── */
   function doLeaders() {
-    // Merge both collections, deduplicate by slot (1 entry per slot)
-    var raw = (published('leaders') || []).concat(published('leadership') || []);
-    if (!raw.length) return;
+    var leaders = published('leaders');   // leaders only — NOT leadership
+    if (!leaders.length) return;
 
-    // Dedupe: keep first entry with a real photo per slot; if none has photo, keep first
-    var slotMap = {};
-    raw.forEach(function(l) {
-      var key = (l.slot || '').trim().toLowerCase();
-      if (!key) return;
-      if (!slotMap[key]) { slotMap[key] = l; return; }
-      // Replace if the new entry has a photo and the existing doesn't
-      var hasPhoto = photo(l);
-      if (hasPhoto && !photo(slotMap[key])) slotMap[key] = l;
-    });
-    var leaders = Object.values ? Object.values(slotMap) : Object.keys(slotMap).map(function(k){return slotMap[k];});
+    // Always clear overflow grid first — prevents stale data from prior render
+    var grid = document.getElementById('cms-leaders-grid');
+    if (grid) { grid.innerHTML = ''; grid.removeAttribute('style'); }
 
-    /* Helper: full name from any available field */
+    /* Build leader card inner HTML */
     function ldrName(l) {
-      return ((l.first||l.name||'') + ' ' + (l.last||'')).trim() || l.role || 'Leader';
+      return ((l.first||l.name||'')+' '+(l.last||'')).trim() || l.role || 'Leader';
     }
-
-    /* Build inner HTML for a leader card — photo overlays navy frame */
     function cardInner(l) {
       return photoHtml(l)
-        + '<div class="leader-body">'
-        + '<h4 class="leader-name">' + esc(ldrName(l)) + '</h4>'
-        + '<div class="leader-title">' + esc(l.role || l.title || '') + '</div>'
-        + (l.bio ? '<p class="leader-bio">' + esc(l.bio) + '</p>' : '')
-        + '</div>';
+        +'<div class="leader-body">'
+        +'<h4 class="leader-name">'+esc(ldrName(l))+'</h4>'
+        +'<div class="leader-title">'+esc(l.role||l.title||'')+'</div>'
+        +(l.dept?'<div style="font-size:.75rem;color:var(--text-muted);margin-bottom:.3rem;">'+esc(l.dept)+'</div>':'')
+        +(l.bio?'<p class="leader-bio">'+esc(l.bio)+'</p>':'')
+        +'</div>';
     }
 
-    // 1. Fill named slot cards that exist on this page
+    // 1. Fill every named slot card that exists on this page
     var filled = {};
     leaders.forEach(function(l) {
-      var key = (l.slot || '').trim().toLowerCase();
+      var key = (l.slot||'').trim().toLowerCase();
       if (!key) return;
-      var card = document.getElementById('slot-' + key);
+      var card = document.getElementById('slot-'+key);
       if (!card) return;
       card.innerHTML = cardInner(l);
       filled[key] = true;
     });
 
-    // 2. Always clear cms-leaders-grid first (prevents stale data from prior render)
-    var grid = document.getElementById('cms-leaders-grid');
-    if (grid) { grid.innerHTML = ''; grid.removeAttribute('style'); }
-
-    // Leaders whose slot ID is not on this page → overflow grid
+    // 2. Leaders with no matching slot → overflow grid (same navy-card style)
     var extras = leaders.filter(function(l) {
-      return !filled[(l.slot || '').trim().toLowerCase()];
+      return !filled[(l.slot||'').trim().toLowerCase()];
     });
-    if (!extras.length) return; // All slots filled — done (grid already cleared above)
+    if (!extras.length) return;   // All slots filled — done (grid already cleared)
     if (!grid) return;
+
     grid.style.cssText = 'display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:2rem;margin-bottom:2rem;';
     grid.innerHTML = extras.map(function(l) {
-      return '<div class="leader-card">' + cardInner(l) + '</div>';
+      return '<div class="leader-card">'+cardInner(l)+'</div>';
     }).join('');
   }
 
-    /* ── ANNOUNCEMENTS ─────────────────────────────────────────── */
+  /* ── ANNOUNCEMENTS ─────────────────────────────────────────── */
   function doAnnouncements() {
     var items = published('announcements'); if (!items.length) return;
     var el = document.getElementById('cms-announcements-grid'); if (!el) return;
@@ -270,11 +257,10 @@
     el.style.cssText = 'margin-bottom:1.5rem;';
     // Hide static cards when CMS content is available
     var staticGrid = document.getElementById('cms-static-ann');
-    if (staticGrid) { staticGrid.style.display = 'none'; }
-    // Also hide any ann-card elements not inside our CMS container
+    if (staticGrid) staticGrid.style.display = 'none';
     if (el.parentElement) {
       Array.prototype.forEach.call(el.parentElement.children, function(child) {
-        if (child !== el && child.id !== 'cms-announcements-grid') child.style.display = 'none';
+        if (child !== el) child.style.display = 'none';
       });
     }
     el.innerHTML = items.map(function(a) {
@@ -295,14 +281,10 @@
   function doEvents() {
     var items = published('events'); if (!items.length) return;
     var el = document.getElementById('cms-events-grid'); if (!el) return;
-    // Hide static event-card siblings when CMS items exist
+    // Hide static event-card siblings so only CMS events show
     if (el.parentElement) {
       Array.prototype.forEach.call(el.parentElement.children, function(child) {
-        if (child !== el) {
-          if (child.classList && (child.classList.contains('event-card') || child.style)) {
-            child.style.display = 'none';
-          }
-        }
+        if (child !== el) child.style.display = 'none';
       });
     }
     el.style.cssText = 'display:flex;flex-direction:column;gap:1rem;margin-bottom:1rem;';
@@ -362,11 +344,10 @@
         +'</div></div>';
     }
 
-    // Sermon grid — inject CMS cards, hide all static sermon-card children
+    // Inject CMS cards into cms-sermons-injected; hide static sermon-card children
     var grid = document.getElementById('sermonGrid');
     var cmsTarget = document.getElementById('cms-sermons-injected');
     if (!grid || !cmsTarget) return;
-    // Hide static cards so only CMS content shows
     Array.prototype.forEach.call(grid.children, function(child) {
       if (child.id !== 'cms-sermons-injected') child.style.display = 'none';
     });
@@ -405,38 +386,40 @@
   /* ── GALLERY ───────────────────────────────────────────────── */
   function doGallery() {
     var items = published('gallery'); if (!items.length) return;
-    // Inject directly into the real masonry grid – replaces static emoji placeholders
+    // Inject directly into the masonry grid — replaces static emoji placeholders
     var grid = document.getElementById('galleryGrid'); if (!grid) return;
     grid.innerHTML = items.map(function(g) {
       var src = photo(g); if (!src) return '';
       var cat   = (g.category||g.cat||'worship').toLowerCase();
       var title = esc(g.title||g.name||'');
       var desc  = esc((g.desc||g.body||'').slice(0,80));
-      return '<div class="masonry-item reveal" data-cat="'+cat+'">'
+      return '<div class="masonry-item reveal" data-cat="'+esc(cat)+'">'
         +'<div class="masonry-img" style="position:relative;overflow:hidden;">'
         +'<img src="'+esc(src)+'" alt="'+title+'" loading="lazy" '
         +'style="width:100%;height:100%;object-fit:cover;display:block;'
         +'position:absolute;top:0;left:0;" '
-        +'onerror="this.closest('.masonry-item').style.display='none'"/>'
+        +'onerror="this.closest('.masonry-item').style.display=\'none\'"/>'
         +'<div class="masonry-overlay">'
         +'<span class="masonry-caption">'+title+'</span>'
         +(desc?'<p style="font-size:.74rem;color:rgba(255,255,255,.8);margin:.2rem 0 0;">'+desc+'</p>':'')
         +'</div></div></div>';
     }).filter(Boolean).join('');
+    // Also hide the now-empty cms-gallery-grid div
+    var cmsGrid = document.getElementById('cms-gallery-grid');
+    if (cmsGrid) cmsGrid.style.display = 'none';
   }
 
   /* ── MINISTRIES ────────────────────────────────────────────── */
   function doMinistries() {
     var items = published('ministries'); if (!items.length) return;
     var el = document.getElementById('cms-ministries-grid'); if (!el) return;
-    // Hide ALL static ministry sections (section-headers + grid-3 divs with ministry cards)
+    // Hide all static ministry sections; CMS content shows instead
     each('.section-header', function(h) {
       if (!h.contains(el)) h.style.display = 'none';
     });
     each('.grid-3', function(g) {
       if (g.querySelector && g.querySelector('.ministry-card')) g.style.display = 'none';
     });
-    // Render CMS ministries in a matching grid
     el.className = 'grid-3 reveal';
     el.style.cssText = 'margin-bottom:2rem;';
     el.innerHTML = items.map(function(m) {
