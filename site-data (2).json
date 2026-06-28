@@ -1,9 +1,9 @@
 {
   "_version": 1,
   "_app": "CHM Church of God",
-  "_dept": "Announcements",
-  "_col": "announcements",
-  "_exportedAt": "2026-06-28T22:18:59.517Z",
+  "_dept": "Sermons",
+  "_col": "sermons",
+  "_exportedAt": "2026-06-28T22:19:16.624Z",
   "_note": "Upload as site-data.json to GitHub repo root to publish globally",
   "_updated": "2026-06-28T22:08:38.574Z",
   "leaders": [
