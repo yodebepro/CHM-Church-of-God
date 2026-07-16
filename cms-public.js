@@ -1,3 +1,49 @@
+
+/* ─────────────────────────────────────────────────────────────────
+   CHM RENDERER GUARD
+   Neutralises chm-public-renderer.js output (flat "feature-card"
+   list, "[data-cms-live]" sections, ".chm-cms-card" articles)
+   that appear outside the proper blue slot frames.
+   Also removes any email addresses that leaked into public cards.
+   ───────────────────────────────────────────────────────────────── */
+(function () {
+  var KILL = '[data-cms-live], .chm-cms-live-home, .chm-cms-card';
+
+  function clean() {
+    document.querySelectorAll(KILL).forEach(function (el) {
+      if (el.parentNode) el.parentNode.removeChild(el);
+    });
+    /* Also remove any stray email links/text from leader cards */
+    document.querySelectorAll('.leader-card p, .leader-card a').forEach(function (el) {
+      if (/@/.test(el.textContent) && !el.closest('.leader-body h4')) {
+        el.style.display = 'none';
+      }
+    });
+  }
+
+  /* Run immediately, then again after scripts finish */
+  ['DOMContentLoaded', 'load'].forEach(function (ev) {
+    document.addEventListener(ev, function () {
+      clean();
+      setTimeout(clean, 300);
+      setTimeout(clean, 1500);
+    });
+  });
+
+  /* Watch for dynamically injected elements */
+  if (window.MutationObserver) {
+    var obs = new MutationObserver(function (muts) {
+      for (var i = 0; i < muts.length; i++) {
+        if (muts[i].addedNodes.length) { clean(); break; }
+      }
+    });
+    document.addEventListener('DOMContentLoaded', function () {
+      obs.observe(document.body, { childList: true, subtree: true });
+      setTimeout(function () { obs.disconnect(); }, 8000);
+    });
+  }
+})();
+
 /* CHM CHURCH OF GOD — CMS Public Renderer v6
    Reads published content from site-data.json and injects it into every public page.
    Strategy: show localStorage content INSTANTLY, then refresh from GitHub in background. */
@@ -102,6 +148,20 @@
   }
 
   /* Extract best photo URL — accepts https:// AND base64 data: URLs */
+
+  /* find-or-create helper: locates target el, or inserts one before footer */
+  function findOrCreate(id, tag, cls) {
+    var el = document.getElementById(id);
+    if (el) return el;
+    el = document.createElement(tag||'div');
+    el.id = id;
+    if (cls) el.className = cls;
+    var footer = document.querySelector('#chm-footer, footer, .site-footer');
+    if (footer && footer.parentNode) footer.parentNode.insertBefore(el, footer);
+    else document.body.appendChild(el);
+    return el;
+  }
+
   function photo(item) {
     var p = item.photo || item.image || item.imageUrl || item.photoUrl
           || item.mediaUrl || item.thumbnailUrl || item.url || '';
@@ -210,14 +270,10 @@
 
   /* ── LEADERS ───────────────────────────────────────────────── */
   function doLeaders() {
-    var leaders = published('leaders');   // leaders only — NOT leadership
+    var leaders = published('leaders');
     if (!leaders.length) return;
 
-    // Always clear overflow grid first — prevents stale data from prior render
-    var grid = document.getElementById('cms-leaders-grid');
-    if (grid) { grid.innerHTML = ''; grid.removeAttribute('style'); }
-
-    /* Build leader card inner HTML */
+    /* ── helpers ──────────────────────────────────────────────── */
     function ldrName(l) {
       return ((l.first||l.name||'')+' '+(l.last||'')).trim() || l.role || 'Leader';
     }
@@ -230,8 +286,18 @@
         +(l.bio?'<p class="leader-bio">'+esc(l.bio)+'</p>':'')
         +'</div>';
     }
+    function makeCard(l) {
+      var div = document.createElement('div');
+      div.className = 'leader-card';
+      div.innerHTML = cardInner(l);
+      return div;
+    }
 
-    // 1. Fill every named slot card that exists on this page
+    /* ── clear overflow grid (prevents stale renders) ─────────── */
+    var overflowGrid = document.getElementById('cms-leaders-grid');
+    if (overflowGrid) { overflowGrid.innerHTML=''; overflowGrid.removeAttribute('style'); }
+
+    /* ── MODE A: page has named slot cards ────────────────────── */
     var filled = {};
     leaders.forEach(function(l) {
       var key = (l.slot||'').trim().toLowerCase();
@@ -242,23 +308,84 @@
       filled[key] = true;
     });
 
-    // 2. Leaders with no matching slot → overflow grid (same navy-card style)
     var extras = leaders.filter(function(l) {
       return !filled[(l.slot||'').trim().toLowerCase()];
     });
-    if (!extras.length) return;   // All slots filled — done (grid already cleared)
-    if (!grid) return;
 
-    grid.style.cssText = 'display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:2rem;margin-bottom:2rem;';
-    grid.innerHTML = extras.map(function(l) {
+    if (extras.length === 0) return; /* all slots filled — done */
+
+    /* ── if ALL leaders are extras (old HTML, no slot IDs) ────── */
+    /* rebuild the entire section with proper blue card grids      */
+    var noSlotsAtAll = Object.keys(filled).length === 0;
+
+    if (noSlotsAtAll) {
+      /* Ordered role groups */
+      var GROUPS = [
+        {title:'Pastoral Team',       slots:['senior-pastor','first-lady','associate-pastor','executive-pastor']},
+        {title:'Ministry Directors',  slots:['worship-director','prayer-director','youth-pastor','childrens-director','outreach-director','media-director','finance-director','education-director']},
+        {title:'Board of Elders',     slots:['elder-1','elder-2','elder-3']},
+        {title:'Deacon Board',        slots:['deacon-1','deacon-2']}
+      ];
+      var bySlot = {};
+      leaders.forEach(function(l){ bySlot[(l.slot||'').toLowerCase()]=l; });
+
+      /* Find the section to inject into */
+      var target = document.querySelector('.section .container, main .container, section .container');
+      if (!target) target = document.querySelector('.section, main, section');
+      if (!target) target = document.body;
+
+      /* Clear existing static leader-card grids in this section */
+      target.querySelectorAll('.grid-4,.grid-3,.grid-2').forEach(function(g){
+        if (g.querySelector('.leader-card')) g.innerHTML='';
+      });
+
+      /* Build and inject grouped grids */
+      GROUPS.forEach(function(group) {
+        var members = group.slots.map(function(s){return bySlot[s];}).filter(Boolean);
+        if (!members.length) return;
+
+        var hdr = document.createElement('div');
+        hdr.style.cssText='text-align:center;margin-top:2.5rem;margin-bottom:1.2rem;';
+        hdr.innerHTML='<h3 style="font-family:var(--font-display);color:var(--navy);font-size:1.2rem;'
+          +'border-bottom:2px solid var(--gold);padding-bottom:.4rem;display:inline-block;padding:0 2rem .4rem;">'+group.title+'</h3>';
+        target.appendChild(hdr);
+
+        var cols = members.length>=4?'grid-4':members.length===3?'grid-3':'grid-2';
+        var grid = document.createElement('div');
+        grid.className = cols+' reveal';
+        grid.style.marginBottom='2rem';
+        members.forEach(function(l){ grid.appendChild(makeCard(l)); });
+        target.appendChild(grid);
+      });
+
+      /* Any ungrouped leaders */
+      var placed={};
+      GROUPS.forEach(function(g){g.slots.forEach(function(s){placed[s]=true;});});
+      var ungrouped=leaders.filter(function(l){return !placed[(l.slot||'').toLowerCase()];});
+      if(ungrouped.length){
+        var grid=document.createElement('div');
+        grid.className='grid-4 reveal';
+        grid.style.marginBottom='2rem';
+        ungrouped.forEach(function(l){grid.appendChild(makeCard(l));});
+        target.appendChild(grid);
+      }
+      return;
+    }
+
+    /* ── MODE A overflow: some slots exist but others don't ──── */
+    /* render extras as blue card boxes in the overflow grid       */
+    if (!overflowGrid) return;
+    overflowGrid.style.cssText='display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:2rem;margin-bottom:2rem;';
+    overflowGrid.innerHTML = extras.map(function(l){
       return '<div class="leader-card">'+cardInner(l)+'</div>';
     }).join('');
   }
 
+
   /* ── ANNOUNCEMENTS ─────────────────────────────────────────── */
   function doAnnouncements() {
     var items = published('announcements'); if (!items.length) return;
-    var el = document.getElementById('cms-announcements-grid'); if (!el) return;
+    var el = document.getElementById('cms-announcements-grid') || findOrCreate('cms-announcements-grid','div','grid-2');
     // Use ann-card class to match the existing announcements page card design exactly
     el.className = 'grid-2';
     el.style.cssText = 'margin-bottom:1.5rem;';
@@ -287,7 +414,7 @@
   /* ── EVENTS ────────────────────────────────────────────────── */
   function doEvents() {
     var items = published('events'); if (!items.length) return;
-    var el = document.getElementById('cms-events-grid'); if (!el) return;
+    var el = document.getElementById('cms-events-grid') || findOrCreate('cms-events-grid','div','events-list');
     // Hide static event-card siblings so only CMS events show
     if (el.parentElement) {
       Array.prototype.forEach.call(el.parentElement.children, function(child) {
@@ -354,6 +481,8 @@
     // Inject CMS cards into cms-sermons-injected; hide static sermon-card children
     var grid = document.getElementById('sermonGrid');
     var cmsTarget = document.getElementById('cms-sermons-injected');
+    if (!grid) grid = findOrCreate('sermonGrid','div','sermon-grid');
+    if (!cmsTarget) { cmsTarget = document.createElement('div'); cmsTarget.id='cms-sermons-injected'; grid.insertBefore(cmsTarget, grid.firstChild); }
     if (!grid || !cmsTarget) return;
     Array.prototype.forEach.call(grid.children, function(child) {
       if (child.id !== 'cms-sermons-injected') child.style.display = 'none';
@@ -393,8 +522,8 @@
   /* ── GALLERY ───────────────────────────────────────────────── */
   function doGallery() {
     var items = published('gallery'); if (!items.length) return;
-    // Inject directly into the masonry grid — replaces static emoji placeholders
-    var grid = document.getElementById('galleryGrid'); if (!grid) return;
+    // Inject into masonry grid if it exists, else create a grid before the footer
+    var grid = document.getElementById('galleryGrid') || findOrCreate('galleryGrid','div','masonry-grid');
     grid.innerHTML = items.map(function(g) {
       var src = photo(g); if (!src) return '';
       var cat   = (g.category||g.cat||'worship').toLowerCase();
@@ -419,7 +548,7 @@
   /* ── MINISTRIES ────────────────────────────────────────────── */
   function doMinistries() {
     var items = published('ministries'); if (!items.length) return;
-    var el = document.getElementById('cms-ministries-grid'); if (!el) return;
+    var el = document.getElementById('cms-ministries-grid') || findOrCreate('cms-ministries-grid','div','grid-3');
     // Hide all static ministry sections; CMS content shows instead
     each('.section-header', function(h) {
       if (!h.contains(el)) h.style.display = 'none';
@@ -446,7 +575,7 @@
   /* ── DEPARTMENTS ───────────────────────────────────────────── */
   function doDepartments() {
     var items = published('departments'); if (!items.length) return;
-    var el = document.getElementById('cms-departments-grid'); if (!el) return;
+    var el = document.getElementById('cms-departments-grid') || findOrCreate('cms-departments-grid','div','grid-3');
     each('.cms-static-depts', function(e){ e.style.display='none'; });
     el.style.cssText = 'display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1.5rem;';
     items.sort(function(a,b){ return (a.order||99)-(b.order||99); });
