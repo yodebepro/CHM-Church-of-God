@@ -109,6 +109,7 @@
     // Reject only explicit placeholder strings
     if (p.includes('[photo-stored') || p.includes('[stored-locally]') ||
         p.includes('[media-in-local') || p.includes('[stored]')) return '';
+    if (p === '__local_only__') return ''; // stripped by GitHub push
     return p; // Accepts both https:// and data:image/... base64
   }
 
@@ -119,12 +120,18 @@
   function photoHtml(item) {
     var src = photo(item);
     if (!src) return '<div class="leader-img-placeholder">&#128100;</div>';
-    return '<div class="leader-img-placeholder" style="position:relative;">&#128100;'
-      +'<img src="'+esc(src)+'" '
-      +'style="position:absolute;top:0;left:0;right:0;bottom:0;width:100%;height:100%;'
-      +'object-fit:cover;display:block;z-index:1;" '
-      +'onerror="this.style.display=\'none\'">'
-      +'</div>';
+    /* Reliable photo-in-frame approach:
+       - Keep the .leader-img-placeholder div (navy gradient background)
+       - Override display:flex → display:block so the img fills width naturally
+       - img uses width:100% + aspect-ratio:1 to match the placeholder square
+       - onerror: clears the inline style (restores flex) and shows silhouette
+         Uses simple property assignments — no class= inside attribute → no HTML quoting bugs */
+    return '<div class="leader-img-placeholder"'
+      + ' style="display:block;overflow:hidden;padding:0;font-size:0;line-height:0;">'
+      + '<img src="' + esc(src) + '" loading="lazy"'
+      + ' style="width:100%;aspect-ratio:1;object-fit:cover;display:block;"'
+      + ' onerror="var p=this.parentElement;p.style.cssText=\'\';p.innerHTML=\'&#128100;\'">'
+      + '</div>';
   }
 
   /* ── ROUTE ─────────────────────────────────────────────────── */
@@ -268,7 +275,7 @@
       var isPinned = a.pinned || a.category === 'Important' || a.category === 'Giving Campaign';
       return '<div class="ann-card '+(isPinned?'pinned':'')+' reveal">'
         +(isPinned?'<div class="ann-pin">&#128204;</div>':'')
-        +(ph?'<div style="overflow:hidden;border-radius:10px;margin-bottom:.85rem;height:160px;"><img src="'+esc(ph)+'" style="width:100%;height:100%;object-fit:cover;" onerror="this.parentElement.remove()"/></div>':'')
+        +(ph?'<div style="overflow:hidden;border-radius:10px;margin-bottom:.85rem;height:160px;"><img src="'+esc(ph)+'" style="width:100%;height:100%;object-fit:cover;" onerror="this.parentElement.style.display='none'"/></div>':'')
         +'<div class="ann-cat">'+esc(a.category||'Announcement')+'</div>'
         +'<h3 class="ann-title">'+esc(a.title||'')+'</h3>'
         +'<p class="ann-body">'+esc(a.body||a.summary||'')+'</p>'
@@ -299,7 +306,7 @@
       return '<div class="event-card reveal" data-category="'+esc(cat)+'">'
         +'<div class="event-date-col"><div class="event-month">'+esc(mon)+'</div><div class="event-day">'+esc(day)+'</div><div class="event-year">'+esc(yr)+'</div></div>'
         +'<div class="event-body">'
-        +(ph?'<div style="overflow:hidden;border-radius:10px;margin-bottom:.75rem;height:140px;"><img src="'+esc(ph)+'" style="width:100%;height:100%;object-fit:cover;" onerror="this.parentElement.remove()"/></div>':'')
+        +(ph?'<div style="overflow:hidden;border-radius:10px;margin-bottom:.75rem;height:140px;"><img src="'+esc(ph)+'" style="width:100%;height:100%;object-fit:cover;" onerror="this.parentElement.style.display='none'"/></div>':'')
         +'<div class="event-cat">'+esc(ev.category||'Event')+'</div>'
         +'<h3 class="event-title">'+esc(ev.name||ev.title||'')+'</h3>'
         +'<div class="event-meta">'
@@ -394,7 +401,7 @@
       var title = esc(g.title||g.name||'');
       var desc  = esc((g.desc||g.body||'').slice(0,80));
       return '<div class="masonry-item reveal" data-cat="'+esc(cat)+'">'
-        +'<div class="masonry-img" style="position:relative;overflow:hidden;">'
+        +'<div class="masonry-img" style="height:240px;overflow:hidden;">'
         +'<img src="'+esc(src)+'" alt="'+title+'" loading="lazy" '
         +'style="width:100%;height:100%;object-fit:cover;display:block;'
         +'position:absolute;top:0;left:0;" '
@@ -426,7 +433,7 @@
       var ph = photo(m);
       var cat = (m.category||m.cat||'core').toLowerCase().replace(/[^a-z]/g,'-');
       return '<div class="ministry-card reveal" data-category="'+esc(cat)+'">'
-        +(ph?'<div style="overflow:hidden;height:140px;border-radius:10px 10px 0 0;margin:-1.5rem -1.5rem 1rem;"><img src="'+esc(ph)+'" style="width:100%;height:100%;object-fit:cover;" onerror="this.parentElement.remove()"/></div>':'')
+        +(ph?'<div style="overflow:hidden;height:140px;border-radius:10px 10px 0 0;margin:-1.5rem -1.5rem 1rem;"><img src="'+esc(ph)+'" style="width:100%;height:100%;object-fit:cover;" onerror="this.parentElement.style.display='none'"/></div>':'')
         +'<div class="min-icon">'+esc(m.icon||'&#9962;')+'</div>'
         +'<h3 class="min-title">'+esc(m.name||m.title||'')+'</h3>'
         +'<p class="min-desc">'+esc(m.desc||m.body||'')+'</p>'
@@ -446,7 +453,7 @@
     el.innerHTML = items.map(function(d) {
       var ph = photo(d);
       return '<div style="background:#fff;border-radius:14px;padding:1.75rem;box-shadow:0 2px 10px rgba(0,0,0,.08);">'
-        +(ph?'<div style="overflow:hidden;height:120px;border-radius:10px;margin:-1.75rem -1.75rem 1rem;"><img src="'+esc(ph)+'" style="width:100%;height:100%;object-fit:cover;" onerror="this.parentElement.remove()"/></div>':'')
+        +(ph?'<div style="overflow:hidden;height:120px;border-radius:10px;margin:-1.75rem -1.75rem 1rem;"><img src="'+esc(ph)+'" style="width:100%;height:100%;object-fit:cover;" onerror="this.parentElement.style.display='none'"/></div>':'')
         +'<div style="font-size:2rem;margin-bottom:.5rem;">'+esc(d.icon||'&#9962;')+'</div>'
         +'<h3 style="font-size:1rem;font-weight:700;color:var(--navy);margin-bottom:.5rem;">'+esc(d.name||d.title||'')+'</h3>'
         +'<p style="font-size:.85rem;color:#6b7280;line-height:1.7;">'+esc(d.desc||d.body||'')+'</p>'
@@ -473,7 +480,7 @@
     grid.innerHTML = items.map(function(t) {
       var ph = photo(t);
       return '<div style="background:#fff;border-radius:14px;padding:1.5rem;box-shadow:0 2px 10px rgba(0,0,0,.08);">'
-        +(ph?'<div style="overflow:hidden;height:100px;border-radius:10px;margin-bottom:1rem;"><img src="'+esc(ph)+'" style="width:100%;height:100%;object-fit:cover;" onerror="this.parentElement.remove()"/></div>':'')
+        +(ph?'<div style="overflow:hidden;height:100px;border-radius:10px;margin-bottom:1rem;"><img src="'+esc(ph)+'" style="width:100%;height:100%;object-fit:cover;" onerror="this.parentElement.style.display='none'"/></div>':'')
         +'<div style="font-size:2rem;margin-bottom:.6rem;">'+esc(t.icon||'&#128101;')+'</div>'
         +'<h3 style="font-size:1rem;font-weight:700;color:var(--navy);margin-bottom:.5rem;">'+esc(t.name||t.title||'')+'</h3>'
         +'<p style="font-size:.85rem;color:#6b7280;line-height:1.6;">'+esc(t.desc||t.body||'')+'</p>'
@@ -498,7 +505,7 @@
     grid.innerHTML = items.map(function(loc) {
       var ph = photo(loc);
       return '<div style="background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,.08);">'
-        +(ph?'<div style="height:160px;overflow:hidden;"><img src="'+esc(ph)+'" style="width:100%;height:100%;object-fit:cover;" onerror="this.parentElement.remove()"/></div>':'')
+        +(ph?'<div style="height:160px;overflow:hidden;"><img src="'+esc(ph)+'" style="width:100%;height:100%;object-fit:cover;" onerror="this.parentElement.style.display='none'"/></div>':'')
         +'<div style="padding:1.4rem;">'
         +'<h3 style="font-size:1.1rem;font-weight:700;color:var(--navy);margin-bottom:.5rem;">'+esc(loc.name||loc.title||'Location')+'</h3>'
         +(loc.address?'<p style="font-size:.85rem;color:#6b7280;margin-bottom:.4rem;">&#128205; '+esc(loc.address)+'</p>':'')
