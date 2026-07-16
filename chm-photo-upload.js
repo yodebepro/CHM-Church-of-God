@@ -60,7 +60,7 @@
     /* File upload button */
     var fileInput = document.createElement('input');
     fileInput.type = 'file';
-    fileInput.accept = 'image/*,video/*';
+    fileInput.accept = 'image/*,video/*,audio/*';
     fileInput.className = 'chm-file-input';
 
     var btn = document.createElement('label');
