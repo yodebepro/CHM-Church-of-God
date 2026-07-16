@@ -7,7 +7,7 @@
    Also removes any email addresses that leaked into public cards.
    ───────────────────────────────────────────────────────────────── */
 (function () {
-  var KILL = '[data-cms-live], .chm-cms-live-home, .chm-cms-card';
+  var KILL = '[data-cms-live], .chm-cms-live-home, .chm-cms-card, .chm-admin-public-filled, .chm-mapped-media-filled, [data-cms-section], .chm-cms-section';
 
   function clean() {
     document.querySelectorAll(KILL).forEach(function (el) {
