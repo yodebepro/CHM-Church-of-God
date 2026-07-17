@@ -1,4 +1,1 @@
-/* chm-admin-public-map-fix.js — DISABLED  
-   Rendering is handled by cms-public.js which correctly places
-   all content inside the proper blue slot frames.
-   This file is kept so existing <script> tags do not 404. */
+/* Compatibility shim: proper admin-to-public rendering is handled by cms-public.js. */

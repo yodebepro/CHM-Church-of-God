@@ -1,0 +1,10 @@
+{
+  "_version": 3,
+  "_app": "CHM Church of God",
+  "_section": "Giving",
+  "_collection": "giving",
+  "_exportedAt": "",
+  "_note": "Upload as chm-giving-records.json to GitHub repo root \u2014 auto-loaded by corresponding page",
+  "giving": [],
+  "hero": []
+}

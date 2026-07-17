@@ -116,8 +116,8 @@
       </div>
       <div class="modal-footer">
         <button class="btn btn-outline btn-sm" data-close="sM">Cancel</button>
-        <button class="btn btn-save btn-sm" onclick="sSave('draft')">Save Draft</button>
-        <button class="btn btn-publish btn-sm" onclick="sSave('published')">Publish Globally</button>
+        <button type="button" class="btn btn-save btn-sm" onclick="sSave('draft')">Save Draft</button>
+        <button type="button" class="btn btn-publish btn-sm" onclick="sSave('published')">Publish Globally</button>
       </div>
     </div></div>
   </div>
@@ -126,10 +126,22 @@
 <script src="admin.js"></script>
 <script>requireAuth();
 const SC='sermons';
-// Audio upload
-document.getElementById('sAudFile')?.addEventListener('change',async function(){const f=this.files[0];if(!f)return;const st=document.getElementById('sAudSt');const url=await uploadFileToCloud(f,st);if(url){document.getElementById('sAu').value=url;st.textContent='Audio uploaded to Google Cloud!';}});document.getElementById('sAu').value=b64;st.textContent='Audio ready! ('+Math.round(f.size/1024)+' KB)';});
-// Video upload
-document.getElementById('sVidFile')?.addEventListener('change',async function(){const f=this.files[0];if(!f)return;const st=document.getElementById('sVidSt');const url=await uploadFileToCloud(f,st);if(url){document.getElementById('sVi').value=url;st.textContent='Video uploaded to Google Cloud!';}});document.getElementById('sVi').value=b64;st.textContent='Video ready! ('+Math.round(f.size/1024/1024*10)/10+' MB)';});
+// Audio upload — uploads media globally and stores the returned public URL
+const sAudInput=document.getElementById('sAudFile');
+if(sAudInput)sAudInput.addEventListener('change',async function(){
+  const f=this.files&&this.files[0];if(!f)return;
+  const st=document.getElementById('sAudSt');
+  const url=await uploadFileToCloud(f,st);
+  if(url){document.getElementById('sAu').value=url;st.textContent='✅ Audio uploaded globally and ready to save.';}
+});
+// Video upload — uploads media globally and stores the returned public URL
+const sVidInput=document.getElementById('sVidFile');
+if(sVidInput)sVidInput.addEventListener('change',async function(){
+  const f=this.files&&this.files[0];if(!f)return;
+  const st=document.getElementById('sVidSt');
+  const url=await uploadFileToCloud(f,st);
+  if(url){document.getElementById('sVi').value=url;st.textContent='✅ Video uploaded globally and ready to save.';}
+});
 document.querySelectorAll('#sC .chip').forEach(c=>c.addEventListener('click',()=>{document.querySelectorAll('#sC .chip').forEach(x=>x.classList.remove('active'));c.classList.add('active');sLoad();}));
 document.getElementById('sQ').addEventListener('input',sLoad);
 async function sLoad(){
@@ -157,7 +169,7 @@ async function sSave(status){
   const t=document.getElementById('sTi').value.trim();if(!t){toast('Title required','error');return;}
   const id=document.getElementById('sId').value||null;
   await cmsSave(SC,id,{icon:document.getElementById('sIc').value,title:t,speaker:document.getElementById('sSp').value,date:document.getElementById('sDt').value,series:document.getElementById('sSr').value,scripture:document.getElementById('sSc').value,video:document.getElementById('sVi').value,audio:document.getElementById('sAu').value,desc:document.getElementById('sDe').value},status);
-  const ok=await pushToGitHub();
+  const ok=await CHMTrueCMS.pushSiteData('sermons');
   if(ok&&status==='published')toast('Sermon published globally! Live within 60 seconds.','success');
   else if(ok)toast('Draft saved to GitHub.','success');
   else toast('Saved locally only. Open github-setup.html to publish globally.','warning');
@@ -177,4 +189,6 @@ sLoad();
 
 <script src="chm-data-tools.js"></script>
 <script src="chm-photo-upload.js"></script>
+
+<script src="chm-all-sections-sync.js"></script>
 </body></html>

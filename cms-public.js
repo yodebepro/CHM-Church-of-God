@@ -68,6 +68,7 @@
         if (localData && Object.keys(localData).length > 2) {
           siteData = localData;
           applyAll(); // Show immediately — don't wait for GitHub
+          loadNamedSection();
         }
       } catch(e) {}
     }
@@ -99,6 +100,7 @@
       } catch(e) {}
     }
     // GitHub unreachable — localStorage content already shown above
+    loadNamedSection();
   }
 
   /* Restore photos from localStorage when GitHub data has placeholder markers */
@@ -249,7 +251,7 @@
   function injectHeroVideo(url) {
     var heroEl = qs('.hero') || qs('.page-hero') || qs('[data-hero]');
     if (!heroEl) return;
-    if (heroEl.querySelector('.cms-hero-video')) return; // already injected
+    var old=heroEl.querySelector('.cms-hero-video'); if(old) old.remove();
     var v = document.createElement('video');
     v.className = 'cms-hero-video'; v.autoplay = true; v.muted = true; v.loop = true; v.playsInline = true;
     v.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0;opacity:.35;pointer-events:none;';
@@ -684,46 +686,41 @@
   /* Also keep doAbout alias for legacy calls */
   function doAbout() { doAboutFull(); }
 
-  /* ── START ─────────────────────────────────────────────────── */
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', load);
-  } else {
-    load();
-  }
 
-})();
-  /* ── Named section file loading ─────────────────────────────────
-     chm-gallery.json, chm-leaders.json, etc. (exported per page)
-     override site-data.json for their specific collection.         */
-  var _SMAP = {
-    'announcements.html':{c:'announcements',f:'chm-announcements.json'},
-    'gallery.html':      {c:'gallery',      f:'chm-gallery.json'},
-    'events.html':       {c:'events',       f:'chm-events.json'},
-    'sermons.html':      {c:'sermons',      f:'chm-sermons.json'},
-    'leaders.html':      {c:'leaders',      f:'chm-leaders.json'},
-    'ministries.html':   {c:'ministries',   f:'chm-ministries.json'},
-    'departments.html':  {c:'departments',  f:'chm-departments.json'},
-    'teams.html':        {c:'teams',        f:'chm-teams.json'},
-    'about.html':        {c:'about',        f:'chm-about.json'},
-    'locations.html':    {c:'locations',    f:'chm-locations.json'},
-    'give.html':         {c:'give',         f:'chm-give.json'},
-    'sacred.html':       {c:'sacred',       f:'chm-sacred.json'}
-  };
+  /* Load the matching named section JSON inside this renderer scope. */
   async function loadNamedSection() {
-    var pn = (location.pathname.split('/').pop()||'index.html');
-    var info = _SMAP[pn]; if(!info) return;
-    var urls2 = [
+    var map={
+      'announcements.html':{c:'announcements',f:'chm-announcements.json'},
+      'gallery.html':{c:'gallery',f:'chm-gallery.json'},
+      'events.html':{c:'events',f:'chm-events.json'},
+      'sermons.html':{c:'sermons',f:'chm-sermons.json'},
+      'leaders.html':{c:'leaders',f:'chm-leaders.json'},
+      'ministries.html':{c:'ministries',f:'chm-ministries.json'},
+      'departments.html':{c:'departments',f:'chm-departments.json'},
+      'teams.html':{c:'teams',f:'chm-teams.json'},
+      'about.html':{c:'about',f:'chm-about.json'},
+      'locations.html':{c:'locations',f:'chm-locations.json'}
+    };
+    var pn=(location.pathname.split('/').pop()||'index.html').toLowerCase();
+    var info=map[pn];if(!info)return;
+    var urls=[
       'https://raw.githubusercontent.com/'+OWNER+'/'+REPO+'/'+BRANCH+'/'+info.f+'?_='+Date.now(),
-      'https://cdn.jsdelivr.net/gh/'+OWNER+'/'+REPO+'@'+BRANCH+'/'+info.f+'?_='+Date.now()
+      'https://cdn.jsdelivr.net/gh/'+OWNER+'/'+REPO+'@'+BRANCH+'/'+info.f+'?_='+Date.now(),
+      info.f+'?_='+Date.now()
     ];
-    for(var i=0;i<urls2.length;i++){
+    for(var i=0;i<urls.length;i++){
       try{
-        var r=await fetch(urls2[i],{cache:'no-store'});
+        var r=await fetch(urls[i],{cache:'no-store'});
         if(r.ok){
           var sd=await r.json();
-          if(sd && sd[info.c]){
+          if(sd&&Array.isArray(sd[info.c])){
+            siteData=siteData||{};
             siteData[info.c]=sd[info.c];
-            applyAll(); // Re-render with section data
+            if(info.c==='about'&&sd.site_config&&sd.site_config.page_about){
+              siteData.site_config=siteData.site_config||{};
+              siteData.site_config.page_about=sd.site_config.page_about;
+            }
+            applyAll();
           }
           return;
         }
@@ -731,4 +728,11 @@
     }
   }
 
+  /* ── START ─────────────────────────────────────────────────── */
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', load);
+  } else {
+    load();
+  }
 
+})()

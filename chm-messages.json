@@ -1,0 +1,10 @@
+{
+  "_version": 3,
+  "_app": "CHM Church of God",
+  "_section": "Messages",
+  "_collection": "messages",
+  "_exportedAt": "",
+  "_note": "Upload as chm-messages.json to GitHub repo root \u2014 auto-loaded by corresponding page",
+  "messages": [],
+  "hero": []
+}

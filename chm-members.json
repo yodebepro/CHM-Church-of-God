@@ -1,0 +1,34 @@
+{
+  "_version": 3,
+  "_app": "CHM Church of God",
+  "_section": "Members",
+  "_collection": "members",
+  "_exportedAt": "",
+  "_note": "Upload as chm-members.json to GitHub repo root \u2014 auto-loaded by corresponding page",
+  "members": [
+    {
+      "first": "Nancy",
+      "last": "Marcel",
+      "email": "Marcelnancy80@gmail.com",
+      "phone": "9732804573",
+      "join": "",
+      "status": "active",
+      "ministry": "001",
+      "bday": "2026-06-28",
+      "notes": "ijojinkk",
+      "id": "mqyblpvls1fdh",
+      "collection": "members",
+      "_status": "active",
+      "archived": false,
+      "mediaUrl": "",
+      "imageUrl": "",
+      "photoUrl": "",
+      "thumbnailUrl": "",
+      "_updatedAt": 1782683289921,
+      "updatedAt": 1782683289921,
+      "_publishedAt": "",
+      "publishedAt": ""
+    }
+  ],
+  "hero": []
+}
