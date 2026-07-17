@@ -17,12 +17,28 @@ function ensure(d){['hero','leaders','leadership','announcements','events','serm
 async function load(){if(window._data)return window._data; const g=gh(); const local=localStorage.getItem('chm_sitedata'); if(local)try{window._data=JSON.parse(local)}catch(e){}; for(const u of[`https://raw.githubusercontent.com/${g.owner}/${g.repo}/${g.branch}/site-data.json?_=${Date.now()}`,`https://cdn.jsdelivr.net/gh/${g.owner}/${g.repo}@${g.branch}/site-data.json?_=${Date.now()}`]){try{const r=await fetch(u,{cache:'no-store'});if(r.ok){const fresh=await r.json(); if(!window._data||(fresh._updated||'')>=(window._data._updated||'')){window._data=ensure(fresh); localStorage.setItem('chm_sitedata',JSON.stringify(window._data));} return window._data;}}catch(e){}} if(!window._data)window._data=empty(); return ensure(window._data);}
 async function saveLocal(d){d=d||window._data||await load(); d._updated=new Date().toISOString(); ensure(d); window._data=d; localStorage.setItem('chm_sitedata',JSON.stringify(d)); localStorage.setItem('chm_sd_bk',JSON.stringify(d)); return d;}
 async function push(){const d=await saveLocal(); const content=btoa(unescape(encodeURIComponent(JSON.stringify(d,null,2)))); await putFile('site-data.json',content,'CHM CMS: publish site data'); status('✅ Published globally. Public pages will update shortly.','success'); return true;}
-async function upload(file,section='general'){
-  /* Always convert to base64 data URL – stored in the JSON so the
-     file travels globally when you export & upload site-data.json.
-     We never push binary files via the GitHub API because that requires
-     repo:contents write scope which most PATs do not have. */
-  if(!file) return '';
+async function upload(file, section='general') {
+  if (!file) return '';
+
+  const MB = file.size / (1024 * 1024);
+
+  /* ─── Size guard ─────────────────────────────────────────────── */
+  if (MB > 100) {
+    throw new Error(
+      'File is ' + MB.toFixed(1) + ' MB — too large to embed. '
+      + 'For videos/audio over 100 MB, paste a direct URL (YouTube, '
+      + 'SoundCloud, Vimeo, Google Drive direct link) instead.'
+    );
+  }
+
+  /* Large-file warning (console only — caller handles UI) */
+  if (MB > 10) {
+    console.warn('[CHM upload] Large file ' + MB.toFixed(1) + ' MB — '
+      + 'will be embedded as base64 in JSON. '
+      + 'Consider hosting large videos on YouTube/Vimeo.');
+  }
+
+  /* Convert to base64 data URL — works for images, audio, video */
   return await dataurl(file);
 }
 function norm(col,item,status='published'){const now=Date.now(); const media=item.mediaUrl||item.imageUrl||item.photoUrl||item.thumbnailUrl||item.videoUrl||item.audioUrl||''; return{...item,id:item.id||(Date.now().toString(36)+Math.random().toString(36).slice(2,7)),collection:col,_status:status,status,archived:status==='archived',mediaUrl:media,imageUrl:item.imageUrl||media,photoUrl:item.photoUrl||media,thumbnailUrl:item.thumbnailUrl||media,_updatedAt:now,updatedAt:now,_publishedAt:status==='published'?now:(item._publishedAt||''),publishedAt:status==='published'?now:(item.publishedAt||'')};}
@@ -30,18 +46,46 @@ function mirror(col,item){try{const f=JSON.parse(localStorage.getItem('chm_publi
 async function saveItem(col,item,status='draft'){const d=ensure(await load()); const doc=norm(col,item,status); const i=d[col].findIndex(x=>x.id===doc.id); if(i>=0)d[col][i]=doc; else d[col].unshift(doc); await saveLocal(d); mirror(col,doc); return doc;}
 async function publishItem(col,id){const d=ensure(await load()); const i=(d[col]||[]).findIndex(x=>x.id===id); if(i<0)throw new Error('Item not found.'); d[col][i]=norm(col,d[col][i],'published'); await saveLocal(d); mirror(col,d[col][i]); return await push();}
 async function publishNew(col,fields,file){status('Publishing globally...','info'); let media=fields.mediaUrl||fields.imageUrl||''; if(file)media=await upload(file,col); const item=await saveItem(col,{...fields,mediaUrl:media,imageUrl:media},'published'); await push(); return item;}
-window.loadData=load; window.saveLocal=saveLocal; window.pushToGitHub=push; window.uploadFileToCloud=async(file,el)=>{
-  if(!file) return null;
+window.loadData=load; window.saveLocal=saveLocal; window.pushToGitHub=push; window.uploadFileToCloud = async (file, el) => {
+  if (!file) return null;
+
+  const mb  = (file.size / 1024 / 1024).toFixed(1);
+  const type = file.type.startsWith('video/') ? 'Video'
+             : file.type.startsWith('audio/') ? 'Audio'
+             : 'Photo';
+
   try {
-    const mb = (file.size/1024/1024).toFixed(1);
-    if(el) el.textContent = 'Loading ' + file.name + ' (' + mb + ' MB)…';
-    const url = await upload(file,'admin');
-    if(el) el.innerHTML = '✅ ' + file.name + ' loaded ('+ mb +' MB). '
-      + '<b>Save the form</b> then use <b>📤 Export JSON → upload to GitHub</b> '
-      + 'to publish globally.';
+    /* Size pre-check before reading the file */
+    if (parseFloat(mb) > 100) {
+      const msg = '❌ ' + type + ' is ' + mb + ' MB (too large to embed). '
+        + 'Please paste a direct URL instead:<br>'
+        + '<small>YouTube share link, SoundCloud URL, Google Drive direct link, etc.</small>';
+      if (el) el.innerHTML = msg;
+      return null;
+    }
+
+    if (el) {
+      el.innerHTML = (parseFloat(mb) > 10 ? '⏳ ' : '⏳ ')
+        + 'Loading ' + type + ': <b>' + file.name + '</b> (' + mb + ' MB)…'
+        + (parseFloat(mb) > 10
+          ? '<br><small>Large file — this may take a few seconds…</small>'
+          : '');
+    }
+
+    const url = await upload(file, 'admin');
+
+    if (el) {
+      el.innerHTML = '✅ ' + type + ' loaded: <b>' + file.name + '</b> (' + mb + ' MB)<br>'
+        + 'Save the form then click <b>📤 Export JSON</b> → upload to GitHub → '
+        + 'goes live globally 🌐';
+    }
     return url;
-  } catch(e) {
-    if(el) el.innerHTML = '❌ Could not read file: ' + e.message;
+
+  } catch (e) {
+    if (el) {
+      el.innerHTML = '❌ ' + e.message + '<br>'
+        + '<small>Tip: For large videos, paste a YouTube or Vimeo URL in the URL field instead.</small>';
+    }
     return null;
   }
 }; window.uploadPhoto=window.uploadFileToCloud;

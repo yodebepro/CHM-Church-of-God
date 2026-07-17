@@ -93,6 +93,7 @@
           siteData = freshData;
           try { localStorage.setItem('chm_sd_bk', JSON.stringify(freshData)); } catch(e) {}
           applyAll(); // Re-apply with fresh data
+          loadNamedSection();
           return;
         }
       } catch(e) {}
@@ -691,3 +692,43 @@
   }
 
 })();
+  /* ── Named section file loading ─────────────────────────────────
+     chm-gallery.json, chm-leaders.json, etc. (exported per page)
+     override site-data.json for their specific collection.         */
+  var _SMAP = {
+    'announcements.html':{c:'announcements',f:'chm-announcements.json'},
+    'gallery.html':      {c:'gallery',      f:'chm-gallery.json'},
+    'events.html':       {c:'events',       f:'chm-events.json'},
+    'sermons.html':      {c:'sermons',      f:'chm-sermons.json'},
+    'leaders.html':      {c:'leaders',      f:'chm-leaders.json'},
+    'ministries.html':   {c:'ministries',   f:'chm-ministries.json'},
+    'departments.html':  {c:'departments',  f:'chm-departments.json'},
+    'teams.html':        {c:'teams',        f:'chm-teams.json'},
+    'about.html':        {c:'about',        f:'chm-about.json'},
+    'locations.html':    {c:'locations',    f:'chm-locations.json'},
+    'give.html':         {c:'give',         f:'chm-give.json'},
+    'sacred.html':       {c:'sacred',       f:'chm-sacred.json'}
+  };
+  async function loadNamedSection() {
+    var pn = (location.pathname.split('/').pop()||'index.html');
+    var info = _SMAP[pn]; if(!info) return;
+    var urls2 = [
+      'https://raw.githubusercontent.com/'+OWNER+'/'+REPO+'/'+BRANCH+'/'+info.f+'?_='+Date.now(),
+      'https://cdn.jsdelivr.net/gh/'+OWNER+'/'+REPO+'@'+BRANCH+'/'+info.f+'?_='+Date.now()
+    ];
+    for(var i=0;i<urls2.length;i++){
+      try{
+        var r=await fetch(urls2[i],{cache:'no-store'});
+        if(r.ok){
+          var sd=await r.json();
+          if(sd && sd[info.c]){
+            siteData[info.c]=sd[info.c];
+            applyAll(); // Re-render with section data
+          }
+          return;
+        }
+      }catch(e){}
+    }
+  }
+
+
