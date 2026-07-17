@@ -1,0 +1,36 @@
+{
+  "_version": 3,
+  "_app": "CHM Church of God",
+  "_section": "Leadership",
+  "_collection": "leaders",
+  "_exportedAt": "2026-07-17T05:53:06.920Z",
+  "_note": "Upload as chm-leaders.json to GitHub repo root — auto-loaded by Leadership page",
+  "leaders": [
+    {
+      "first": "DAVID",
+      "last": "MARCEL",
+      "slot": "senior-pastor",
+      "role": "Senior Pastor",
+      "dept": "",
+      "de": "",
+      "email": "yodebepro@gmail.com",
+      "phone": "8569004153",
+      "bio": "",
+      "photo": "https://i1.sndcdn.com/avatars-000052923995-ytdqem-t240x240.jpg",
+      "id": "mqy9oianf18jc",
+      "collection": "leaders",
+      "_status": "published",
+      "status": "published",
+      "archived": false,
+      "mediaUrl": "",
+      "imageUrl": "",
+      "photoUrl": "",
+      "thumbnailUrl": "",
+      "_updatedAt": 1782682809635,
+      "updatedAt": 1782682809635,
+      "_publishedAt": 1782682809635,
+      "publishedAt": 1782682809635
+    }
+  ],
+  "hero": []
+}

@@ -1,0 +1,49 @@
+{
+  "_version": 3,
+  "_app": "CHM Church of God",
+  "_section": "Announcements",
+  "_collection": "announcements",
+  "_exportedAt": "2026-07-17T05:51:54.575Z",
+  "_note": "Upload as chm-announcements.json to GitHub repo root — auto-loaded by Announcements page",
+  "announcements": [
+    {
+      "title": "kjhkhkhkk",
+      "body": "jkkjknjkkj",
+      "category": "kkkknk",
+      "date": "2026-06-28",
+      "id": "mqycbnopa97em",
+      "collection": "announcements",
+      "_status": "published",
+      "status": "published",
+      "archived": false,
+      "mediaUrl": "",
+      "imageUrl": "",
+      "photoUrl": "",
+      "thumbnailUrl": "",
+      "_updatedAt": 1782684500137,
+      "updatedAt": 1782684500137,
+      "_publishedAt": 1782684500137,
+      "publishedAt": 1782684500137
+    },
+    {
+      "title": "kjhkhkhkk",
+      "body": "jkkjknjkkj",
+      "category": "kkkknk",
+      "date": "2026-06-28",
+      "id": "mqycbmj5sjutf",
+      "collection": "announcements",
+      "_status": "draft",
+      "status": "draft",
+      "archived": false,
+      "mediaUrl": "",
+      "imageUrl": "",
+      "photoUrl": "",
+      "thumbnailUrl": "",
+      "_updatedAt": 1782684498641,
+      "updatedAt": 1782684498641,
+      "_publishedAt": "",
+      "publishedAt": ""
+    }
+  ],
+  "hero": []
+}

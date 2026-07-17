@@ -1,0 +1,31 @@
+{
+  "_version": 3,
+  "_app": "CHM Church of God",
+  "_section": "Gallery",
+  "_collection": "gallery",
+  "_exportedAt": "2026-07-17T05:52:14.817Z",
+  "_note": "Upload as chm-gallery.json to GitHub repo root — auto-loaded by Gallery page",
+  "gallery": [
+    {
+      "title": "nnkk",
+      "url": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRTMcEbNMMhl6caRPQiS6LbShQBwqA-a-Gnvg&s",
+      "category": "Leadership",
+      "date": "2026-06-28",
+      "desc": "nknknk",
+      "id": "mqyc28iro72a1",
+      "collection": "gallery",
+      "_status": "published",
+      "status": "published",
+      "archived": false,
+      "mediaUrl": "",
+      "imageUrl": "",
+      "photoUrl": "",
+      "thumbnailUrl": "",
+      "_updatedAt": 1782684060579,
+      "updatedAt": 1782684060579,
+      "_publishedAt": 1782684060579,
+      "publishedAt": 1782684060579
+    }
+  ],
+  "hero": []
+}
