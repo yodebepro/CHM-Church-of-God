@@ -97,6 +97,18 @@
             </div>
           </div>
         </div>
+        <!-- SUPPORTING FILE -->
+        <div style="border:2px dashed var(--border);border-radius:var(--radius);padding:1rem;background:var(--off-white);margin-bottom:1rem;">
+          <label class="form-label" style="margin-bottom:.55rem;">📎 Ministry File / Document (optional)</label>
+          <div style="display:grid;gap:.5rem;">
+            <label class="form-label" style="font-size:.74rem;">Upload PDF, Word, Audio, Video, Flyer, or Other File</label>
+            <input type="file" id="mnAtFile" accept="image/*,video/*,audio/*,.pdf,.doc,.docx,.ppt,.pptx,.txt" style="width:100%;font-size:.8rem;"/>
+            <div id="mnAtSt" style="font-size:.74rem;color:var(--text-muted);"></div>
+            <label class="form-label" style="font-size:.74rem;">OR Paste File URL</label>
+            <input type="url" class="fi" id="mnAt" placeholder="https://... file or document URL" style="font-size:.82rem;"/>
+            <a id="mnAtPrev" href="#" target="_blank" rel="noopener" style="display:none;font-size:.76rem;color:var(--navy);font-weight:700;">Open current file ↗</a>
+          </div>
+        </div>
         <div class="form-row">
           <div class="form-group"><label class="form-label">Icon / Emoji</label><input type="text" class="fi" id="mnIc" placeholder="e.g. &#127925; &#128591;"/></div>
           <div class="form-group"><label class="form-label">Ministry Name <span class="req">*</span></label><input type="text" class="fi" id="mnNm"/></div>
@@ -183,6 +195,26 @@ function mnUpdatePrev(url){
   p.innerHTML=url?`<img src="${url}" style="width:100%;height:100%;object-fit:cover;border-radius:10px;" onerror="this.parentElement.innerHTML='&#9962;'"/>`:'&#9962;';
 }
 
+// Supporting file upload / replacement
+document.getElementById('mnAtFile')?.addEventListener('change',async function(){
+  const f=this.files[0];if(!f)return;
+  const st=document.getElementById('mnAtSt');
+  if(st)st.textContent='Uploading file...';
+  let url='';
+  try{
+    if(typeof uploadFileToCloud==='function')url=await uploadFileToCloud(f,st);
+    else url=await uploadPhoto(f,st);
+  }catch(e){if(st)st.textContent='Upload failed: '+e.message;}
+  if(url){document.getElementById('mnAt').value=url;mnUpdateAttachment(url);}
+});
+document.getElementById('mnAt')?.addEventListener('input',function(){mnUpdateAttachment(this.value.trim());});
+function mnUpdateAttachment(url){
+  const a=document.getElementById('mnAtPrev');
+  if(!a)return;
+  if(url){a.href=url;a.style.display='inline-flex';a.textContent='Open current file ↗';}
+  else{a.removeAttribute('href');a.style.display='none';}
+}
+
 document.querySelectorAll('#mnC .chip').forEach(c=>c.addEventListener('click',()=>{document.querySelectorAll('#mnC .chip').forEach(x=>x.classList.remove('active'));c.classList.add('active');mnLoad();}));
 document.getElementById('mnCF')?.addEventListener('change',mnLoad);
 document.getElementById('mnQ')?.addEventListener('input',mnLoad);
@@ -202,6 +234,7 @@ async function mnLoad(){
         <div style="font-weight:700;font-size:.85rem;color:var(--navy);margin-bottom:.2rem;">${m.name}</div>
         <div style="font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--gold);margin-bottom:.3rem;">${m.category||''}</div>
         <div style="font-size:.74rem;color:var(--text-muted);line-height:1.5;margin-bottom:.5rem;">${(m.desc||'').slice(0,70)}...</div>
+        ${(m.attachmentUrl||m.fileUrl)?`<a href="${m.attachmentUrl||m.fileUrl}" target="_blank" rel="noopener" style="display:inline-flex;margin-bottom:.45rem;font-size:.7rem;font-weight:700;color:var(--navy);">📎 Open File ↗</a>`:''}
         <div style="margin-bottom:.4rem;">${badge(m._status)}</div>
         <div style="display:flex;gap:.3rem;flex-wrap:wrap;">
           ${m._status!=='published'?`<button class="act act-publish" onclick="mnSetStatus('${m.id}','published')" style="font-size:.7rem;">Publish</button>`:`<button class="act act-unpublish" onclick="mnSetStatus('${m.id}','draft')" style="font-size:.7rem;">Unpublish</button>`}
@@ -231,14 +264,16 @@ async function mnEdit(id){
   document.getElementById('mnDe').value=d.desc||'';
   document.getElementById('mnLe').value=d.leader||'';
   document.getElementById('mnMe').value=d.meeting||'';
-  const ph=d.photo||'';document.getElementById('mnPo').value=ph;mnUpdatePrev(ph);
+  const ph=d.photo||d.imageUrl||d.photoUrl||'';document.getElementById('mnPo').value=ph;mnUpdatePrev(ph);
+  const at=d.attachmentUrl||d.fileUrl||'';document.getElementById('mnAt').value=at;mnUpdateAttachment(at);
   document.getElementById('mnPhFile').value='';document.getElementById('mnPhSt').textContent='';
+  document.getElementById('mnAtFile').value='';document.getElementById('mnAtSt').textContent='';
   document.getElementById('mnMT').textContent='Edit Ministry';openModal('mnM');
 }
 async function mnSave(status){
   const name=document.getElementById('mnNm').value.trim();if(!name){toast('Name required','error');return;}
   const id=document.getElementById('mnId').value||null;
-  await cmsSave(MNC,id,{icon:document.getElementById('mnIc').value,name,category:document.getElementById('mnCt').value,count:parseInt(document.getElementById('mnCo').value)||0,desc:document.getElementById('mnDe').value,leader:document.getElementById('mnLe').value,meeting:document.getElementById('mnMe').value,photo:document.getElementById('mnPo').value.trim(),order:99},status);
+  await cmsSave(MNC,id,{icon:document.getElementById('mnIc').value,name,category:document.getElementById('mnCt').value,count:parseInt(document.getElementById('mnCo').value)||0,desc:document.getElementById('mnDe').value,leader:document.getElementById('mnLe').value,meeting:document.getElementById('mnMe').value,photo:document.getElementById('mnPo').value.trim(),imageUrl:document.getElementById('mnPo').value.trim(),photoUrl:document.getElementById('mnPo').value.trim(),attachmentUrl:document.getElementById('mnAt').value.trim(),fileUrl:document.getElementById('mnAt').value.trim(),order:99},status);
   const ok=await pushToGitHub();
   if(ok&&status==='published')toast('Ministry published globally! Live within 60 seconds.','success');
   else if(ok)toast('Draft saved.','success');
@@ -250,20 +285,23 @@ async function loadDefaults(){
   toast('Loading ministries...','info');
   for(let i=0;i<DEFAULT_MINISTRIES.length;i++){
     const m=DEFAULT_MINISTRIES[i];
-    await cmsSave(MNC,null,{icon:m.icon,name:m.name,desc:m.desc,category:m.category,order:m.order,count:0,leader:'',meeting:'',photo:''},'draft');
+    await cmsSave(MNC,null,{icon:m.icon,name:m.name,desc:m.desc,category:m.category,order:m.order,count:0,leader:'',meeting:'',photo:'',attachmentUrl:'',fileUrl:''},'draft');
   }
   const ok=await pushToGitHub();
   toast(ok?'All 33 ministries loaded! Edit and publish each one.':'Ministries saved locally. Set up GitHub token to go global.',ok?'success':'warning');
   mnLoad();
 }
 document.querySelector('[data-open="mnM"]')?.addEventListener('click',()=>{
-  ['mnId','mnIc','mnNm','mnDe','mnLe','mnMe','mnPo'].forEach(f=>{const el=document.getElementById(f);if(el)el.value='';});
+  ['mnId','mnIc','mnNm','mnDe','mnLe','mnMe','mnPo','mnAt'].forEach(f=>{const el=document.getElementById(f);if(el)el.value='';});
   document.getElementById('mnCt').value='Core Spiritual';
   document.getElementById('mnCo').value='0';
   document.getElementById('mnMT').textContent='Add Ministry';
   document.getElementById('mnPhPrev').innerHTML='&#9962;';
   document.getElementById('mnPhFile').value='';
   document.getElementById('mnPhSt').textContent='';
+  document.getElementById('mnAtFile').value='';
+  document.getElementById('mnAtSt').textContent='';
+  mnUpdateAttachment('');
 });
 mnLoad();
 </script>
