@@ -65,7 +65,103 @@ function slotMatch(cards,x){const slot=String(x.slot||x.role||x.category||'').to
 function nameMatch(cards,x){const n=String(title(x)||'').toLowerCase().replace(/[^a-z0-9]/g,'');if(!n)return null;return cards.find(c=>{const te=c.querySelector('.min-title,.department-title,.team-name,.card-title,h3,h4');const h=String(te?.textContent||c.textContent||'').toLowerCase().replace(/[^a-z0-9]/g,'');return h===n||h.includes(n)||n.includes(h)})||null}
 function fillCard(c,x,isLeader){c.classList.add('chm-sync-filled');const u=media(x),t=title(x),s=subtitle(x),b=body(x);let mediaBox=c.querySelector('.leader-img-placeholder,.leader-photo,.team-photo,.gallery-img,.event-img,.sermon-img,.min-icon,.department-img,.image-placeholder,.placeholder,.card-image,img');if(u){if(!mediaBox){mediaBox=document.createElement('div');mediaBox.className=isLeader?'leader-img-placeholder':'chm-sync-media';c.insertBefore(mediaBox,c.firstChild)}if(mediaBox.tagName?.toLowerCase()==='img'){mediaBox.src=u;mediaBox.alt=t}else{mediaBox.innerHTML=mediaHtml(u,t);mediaBox.classList.add('chm-sync-media-active')}}let te=c.querySelector('.leader-name,.team-name,.event-title,.sermon-title,.gallery-title,.min-title,.department-title,.card-title,h3,h4');if(te)te.textContent=t;else{te=document.createElement('h3');te.textContent=t;c.appendChild(te)}let se=c.querySelector('.leader-title,.team-role,.tag,.badge,.category');if(s){if(se)se.textContent=s;else{se=document.createElement('div');se.className='tag';se.textContent=s;c.appendChild(se)}}let be=c.querySelector('.leader-bio,.team-bio,.event-desc,.sermon-desc,.gallery-desc,.min-desc,.department-desc,.card-text,p');if(b){if(be)be.textContent=b;else{be=document.createElement('p');be.textContent=b;c.appendChild(be)}}const a=attachment(x);if(a){let link=c.querySelector('.chm-ministry-file-link');if(!link){link=document.createElement('a');link.className='chm-ministry-file-link';link.target='_blank';link.rel='noopener';link.textContent='📎 Open Ministry File ↗';c.appendChild(link)}link.href=a}}
 function card(x){return`<article class="feature-card chm-sync-filled">${media(x)?`<div class="chm-sync-media">${mediaHtml(media(x),title(x))}</div>`:''}${subtitle(x)?`<span class="tag">${subtitle(x)}</span>`:''}<h3>${title(x)}</h3>${body(x)?`<p>${body(x)}</p>`:''}${attachment(x)?`<a class="chm-ministry-file-link" href="${attachment(x)}" target="_blank" rel="noopener">📎 Open Ministry File ↗</a>`:''}</article>`}
-async function renderPage(){const p=page();const cfg=PAGES[p];if(!cfg)return;const d=await publicData(cfg);let list=[];for(const col of cfg.cols){const key=col==='leadership'?'leaders':col;if(Array.isArray(d[key]))list=list.concat(d[key].filter(published))}const seen=new Set();list=list.filter(x=>{if(seen.has(x.id))return false;seen.add(x.id);return true}).sort((a,b)=>(Number(a.order)||999)-(Number(b.order)||999));if(!list.length)return;const c=findContainer(cfg);if(!c)return;const cards=candidateCards(c);list.forEach((x,i)=>{const target=(p==='leaders'?slotMatch(cards,x):p==='ministries'?nameMatch(cards,x):null)||cards[i];if(target)fillCard(target,x,p==='leaders');else c.insertAdjacentHTML('beforeend',card(x))})}
+function ministryCardName(card){
+  const el=card.querySelector('.min-title,.card-title,h3,h4');
+  return String(el?.textContent||'').trim().toLowerCase().replace(/[^a-z0-9]/g,'');
+}
+function ministryCategoryGrid(name){
+  const wanted=String(name||'').trim().toLowerCase();
+  if(!wanted)return null;
+  const headings=Array.from(document.querySelectorAll('.section-header,.ministry-category-header,[data-ministry-category]'));
+  for(const h of headings){
+    const text=String(h.textContent||'').trim().toLowerCase();
+    if(text.includes(wanted)){
+      let n=h.nextElementSibling;
+      while(n){
+        if(n.matches?.('.grid-3,.grid-4,.ministries-grid,[data-cms-section="ministries"]'))return n;
+        if(n.matches?.('.section-header,.ministry-category-header'))break;
+        n=n.nextElementSibling;
+      }
+    }
+  }
+  return null;
+}
+function ensureCustomMinistrySection(category,subtitle){
+  const key=String(category||'Additional Ministries').trim();
+  let grid=ministryCategoryGrid(key);
+  if(grid)return grid;
+  const section=document.createElement('div');
+  section.className='chm-custom-ministry-category';
+  section.setAttribute('data-custom-ministry-category',key);
+  section.innerHTML=`<div class="section-header" style="margin-bottom:1.5rem">
+    <span class="section-label">${subtitle||'Custom Ministry Section'}</span>
+    <h2 class="section-title">${key}</h2>
+    <div class="gold-line"></div>
+  </div>
+  <div class="grid-3 chm-custom-ministry-grid"></div>`;
+  const footer=document.querySelector('footer');
+  const host=document.querySelector('main .container,.section .container,main')||document.body;
+  if(footer&&footer.parentNode)footer.parentNode.insertBefore(section,footer);
+  else host.appendChild(section);
+  return section.querySelector('.chm-custom-ministry-grid');
+}
+function recordKey(x){
+  return String(x?.id||`${title(x)}|${x?.category||''}`).trim().toLowerCase().replace(/[^a-z0-9|_-]/g,'');
+}
+function existingRecordCard(cards,x,p){
+  const id=recordKey(x);
+  let target=cards.find(c=>c.dataset?.chmRecordId===id);
+  if(target)return target;
+  if(p==='leaders')target=slotMatch(cards,x)||nameMatch(cards,x);
+  else target=nameMatch(cards,x);
+  return target||null;
+}
+function markRecord(cardEl,x){
+  if(cardEl&&cardEl.dataset)cardEl.dataset.chmRecordId=recordKey(x);
+}
+async function renderPage(){
+  const p=page();const cfg=PAGES[p];if(!cfg)return;
+  const d=await publicData(cfg);let list=[];
+  for(const col of cfg.cols){
+    const key=col==='leadership'?'leaders':col;
+    if(Array.isArray(d[key]))list=list.concat(d[key].filter(published));
+  }
+  const seen=new Set();
+  list=list.filter(x=>{
+    const k=recordKey(x);
+    if(seen.has(k))return false;
+    seen.add(k);return true;
+  }).sort((a,b)=>(Number(a.order)||999)-(Number(b.order)||999));
+  if(!list.length)return;
+
+  if(p==='ministries'){
+    const allCards=Array.from(document.querySelectorAll('.ministry-card,.feature-card[data-category]'));
+    list.forEach(x=>{
+      const target=existingRecordCard(allCards,x,p);
+      if(target){
+        fillCard(target,x,false);markRecord(target,x);return;
+      }
+      const category=x.category||'Additional Ministries';
+      const grid=ensureCustomMinistrySection(category,x.sectionSubtitle||x.categorySubtitle||'Custom Ministry Section');
+      if(grid&&!grid.querySelector(`[data-chm-record-id="${recordKey(x)}"]`)){
+        grid.insertAdjacentHTML('beforeend',card(x));
+        const added=grid.lastElementChild;markRecord(added,x);
+      }
+    });
+    return;
+  }
+
+  const c=findContainer(cfg);if(!c)return;
+  const cards=candidateCards(c);
+  list.forEach(x=>{
+    const target=existingRecordCard(cards,x,p);
+    if(target){fillCard(target,x,p==='leaders');markRecord(target,x);return;}
+    if(!c.querySelector(`[data-chm-record-id="${recordKey(x)}"]`)){
+      c.insertAdjacentHTML('beforeend',card(x));
+      const added=c.lastElementChild;markRecord(added,x);
+    }
+  });
+}
 async function applyAboutAndSettings(){const d=await fetchJSON('site-data.json')||{};const p=page();if(p==='about'){const a=d.site_config?.page_about||{};const map={heroTitle:'.page-hero h1,.hero h1',heroEye:'.page-hero p,.hero p',storyTitle:'[data-cms="story-title"],.story-title',storyP1:'[data-cms="story-p1"]',storyP2:'[data-cms="story-p2"]',mission:'[data-cms="mission"]',vision:'[data-cms="vision"]'};for(const[k,s]of Object.entries(map)){const e=document.querySelector(s);if(e&&a[k])e.textContent=a[k]}}
  const colors=d.site_config?.colors||{};const root=document.documentElement;for(const[k,v]of Object.entries(colors)){if(v)root.style.setProperty('--'+k.replace(/[A-Z]/g,m=>'-'+m.toLowerCase()),v)}
  const nav=d.navigation_items||[];if(nav.some(published)){const host=document.querySelector('nav ul,.nav-links,.main-nav');if(host){host.innerHTML=nav.filter(published).sort((a,b)=>(a.order||0)-(b.order||0)).map(n=>`<a href="${n.url||n.href||'#'}">${n.label||n.title||n.name||'Link'}</a>`).join('')}}
@@ -73,3 +169,4 @@ async function applyAboutAndSettings(){const d=await fetchJSON('site-data.json')
 function css(){if(document.getElementById('chmAllSyncCss'))return;const s=document.createElement('style');s.id='chmAllSyncCss';s.textContent='.chm-sync-media{width:100%;height:230px;overflow:hidden;background:#102857;margin-bottom:1rem}.chm-sync-media img,.chm-sync-media video,.chm-sync-media-active img,.chm-sync-media-active video,.leader-img-placeholder img{width:100%;height:100%;object-fit:cover;display:block}.chm-sync-filled{overflow:hidden}.leader-img-placeholder.chm-sync-media-active{aspect-ratio:1;width:100%;height:auto;overflow:hidden}.min-icon.chm-sync-media-active{width:100%;height:190px;overflow:hidden;border-radius:12px;margin-bottom:1rem;font-size:0}.min-icon.chm-sync-media-active img,.min-icon.chm-sync-media-active video{width:100%;height:100%;object-fit:cover}.chm-ministry-file-link{display:inline-flex;margin-top:.75rem;padding:.55rem .8rem;border-radius:999px;background:rgba(200,145,58,.12);color:var(--navy);font-size:.76rem;font-weight:800;text-decoration:none}.chm-ministry-file-link:hover{background:var(--gold);color:var(--navy)}';document.head.appendChild(s)}
 document.addEventListener('DOMContentLoaded',()=>{css();renderPage();applyAboutAndSettings()});
 })();
+(function(){document.addEventListener('DOMContentLoaded',()=>{const s=document.createElement('style');s.textContent="\n/* Ministry card photo replacement and duplicate prevention */\n.ministry-card .min-icon.chm-sync-media-active{\n  width:100%!important;\n  height:220px!important;\n  min-height:220px!important;\n  border-radius:12px!important;\n  overflow:hidden!important;\n  display:block!important;\n  margin:0 0 1rem!important;\n  padding:0!important;\n  background:#102857!important;\n}\n.ministry-card .min-icon.chm-sync-media-active img,\n.ministry-card .min-icon.chm-sync-media-active video{\n  width:100%!important;\n  height:100%!important;\n  object-fit:cover!important;\n  display:block!important;\n}\n#cms-ministries-grid:empty{display:none!important}\n.chm-custom-ministry-category{margin:3rem auto;max-width:1200px;padding:0 1rem}\n";document.head.appendChild(s);});})();

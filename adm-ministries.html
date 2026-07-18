@@ -114,12 +114,18 @@
           <div class="form-group"><label class="form-label">Ministry Name <span class="req">*</span></label><input type="text" class="fi" id="mnNm"/></div>
         </div>
         <div class="form-row">
-          <div class="form-group"><label class="form-label">Category</label>
-            <select class="fs" id="mnCt">
-              <option>Sacred Ordinances</option><option>Core Spiritual</option><option>Family &amp; Life</option>
-              <option>Outreach &amp; Care</option><option>Healing &amp; Restoration</option><option>Events &amp; Media</option>
-            </select></div>
+          <div class="form-group"><label class="form-label">Category / Section Name</label>
+            <input class="fi" id="mnCt" list="mnCategoryList" placeholder="Select or type a new category"/>
+            <datalist id="mnCategoryList">
+              <option value="Sacred Ordinances"></option><option value="Core Spiritual"></option><option value="Family &amp; Life"></option>
+              <option value="Outreach &amp; Care"></option><option value="Healing &amp; Restoration"></option><option value="Events &amp; Media"></option>
+            </datalist>
+            <small style="display:block;margin-top:.35rem;color:var(--text-muted)">You may type a completely new section name.</small>
+          </div>
           <div class="form-group"><label class="form-label">Member Count</label><input type="number" class="fi" id="mnCo" min="0" value="0"/></div>
+        </div>
+        <div class="form-group"><label class="form-label">Section Subtitle <span style="font-weight:400;color:var(--text-muted)">(optional, for a new category)</span></label>
+          <input type="text" class="fi" id="mnCs" placeholder="Example: Serving Our Community & World"/>
         </div>
         <div class="form-group"><label class="form-label">Description</label><textarea class="ft" id="mnDe" rows="3"></textarea></div>
         <div class="form-row">
@@ -260,6 +266,7 @@ async function mnEdit(id){
   document.getElementById('mnIc').value=d.icon||'';
   document.getElementById('mnNm').value=d.name||'';
   document.getElementById('mnCt').value=d.category||'Core Spiritual';
+  document.getElementById('mnCs').value=d.sectionSubtitle||d.categorySubtitle||'';
   document.getElementById('mnCo').value=d.count||0;
   document.getElementById('mnDe').value=d.desc||'';
   document.getElementById('mnLe').value=d.leader||'';
@@ -273,7 +280,7 @@ async function mnEdit(id){
 async function mnSave(status){
   const name=document.getElementById('mnNm').value.trim();if(!name){toast('Name required','error');return;}
   const id=document.getElementById('mnId').value||null;
-  await cmsSave(MNC,id,{icon:document.getElementById('mnIc').value,name,category:document.getElementById('mnCt').value,count:parseInt(document.getElementById('mnCo').value)||0,desc:document.getElementById('mnDe').value,leader:document.getElementById('mnLe').value,meeting:document.getElementById('mnMe').value,photo:document.getElementById('mnPo').value.trim(),imageUrl:document.getElementById('mnPo').value.trim(),photoUrl:document.getElementById('mnPo').value.trim(),attachmentUrl:document.getElementById('mnAt').value.trim(),fileUrl:document.getElementById('mnAt').value.trim(),order:99},status);
+  await cmsSave(MNC,id,{icon:document.getElementById('mnIc').value,name,category:document.getElementById('mnCt').value.trim()||'Additional Ministries',sectionSubtitle:document.getElementById('mnCs').value.trim(),count:parseInt(document.getElementById('mnCo').value)||0,desc:document.getElementById('mnDe').value,leader:document.getElementById('mnLe').value,meeting:document.getElementById('mnMe').value,photo:document.getElementById('mnPo').value.trim(),imageUrl:document.getElementById('mnPo').value.trim(),photoUrl:document.getElementById('mnPo').value.trim(),attachmentUrl:document.getElementById('mnAt').value.trim(),fileUrl:document.getElementById('mnAt').value.trim(),order:99},status);
   const ok=await pushToGitHub();
   if(ok&&status==='published')toast('Ministry published globally! Live within 60 seconds.','success');
   else if(ok)toast('Draft saved.','success');
@@ -292,7 +299,7 @@ async function loadDefaults(){
   mnLoad();
 }
 document.querySelector('[data-open="mnM"]')?.addEventListener('click',()=>{
-  ['mnId','mnIc','mnNm','mnDe','mnLe','mnMe','mnPo','mnAt'].forEach(f=>{const el=document.getElementById(f);if(el)el.value='';});
+  ['mnId','mnIc','mnNm','mnCs','mnDe','mnLe','mnMe','mnPo','mnAt'].forEach(f=>{const el=document.getElementById(f);if(el)el.value='';});
   document.getElementById('mnCt').value='Core Spiritual';
   document.getElementById('mnCo').value='0';
   document.getElementById('mnMT').textContent='Add Ministry';
