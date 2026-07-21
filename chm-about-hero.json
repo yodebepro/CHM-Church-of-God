@@ -1,0 +1,71 @@
+{
+  "_version": 3,
+  "site_config": {
+    "page_about": {
+      "storyTitle": "Founded in Faith, Sustained by Grace...",
+      "storyP1": "CHM Church of God was established with a singular vision: to be a house of prayer for all nations, where lives are transformed by the power of God's Word and Spirit. From humble beginnings, God has grown this congregation into a vibrant, multicultural family serving West Orange, New Jersey and extending its reach around the world...",
+      "storyP2": "We believe that every person — regardless of background, language, or nationality — is created in the image of God and deserves to hear the Good News of Jesus Christ. This conviction drives everything we do.",
+      "mission": "To glorify God by making disciples of all nations through prayer, preaching, holiness, and service — transforming communities one life at a time.",
+      "vision": "To be a lighthouse of God's glory — a multicultural, Spirit-filled congregation that reflects the Kingdom of Heaven and impacts the earth.",
+      "values": [
+        "Prayer as a Lifestyle",
+        "Holiness of Heart & Life",
+        "Spirit-Led Worship",
+        "Biblical Authority",
+        "Community & Unity",
+        "Global Missions"
+      ],
+      "beliefs": [
+        {
+          "title": "The Holy Scriptures",
+          "text": "The Bible is the inspired, infallible, and authoritative Word of God — our sole rule of faith and practice."
+        },
+        {
+          "title": "Salvation by Grace",
+          "text": "We believe in one God, eternally existing in three persons: Father, Son, and Holy Spirit."
+        },
+        {
+          "title": "The Church",
+          "text": "Salvation is by grace through faith in Jesus Christ alone — His death, burial, and resurrection."
+        },
+        {
+          "title": "Water Baptism",
+          "text": "Believers are filled with the Holy Spirit, evidenced by speaking in tongues and a life of power and witness."
+        },
+        {
+          "title": "The Church",
+          "text": "The Church is the body of Christ, called to worship, fellowship, discipleship, ministry, and evangelism."
+        },
+        {
+          "title": "Divine Healing",
+          "text": "God heals the sick in response to faith and prayer, as demonstrated throughout Scripture and still today."
+        },
+        {
+          "title": "Water Baptism",
+          "text": "Baptism by immersion is an outward sign of an inward transformation, following faith in Jesus Christ."
+        },
+        {
+          "title": "The Return of Christ",
+          "text": "Jesus Christ will return personally, bodily, and visibly to establish His eternal Kingdom."
+        }
+      ],
+      "stat1n": "11",
+      "stat1l": "Languages",
+      "stat2n": "63+",
+      "stat2l": "Ministries",
+      "stat3n": "Global",
+      "stat3l": "Reach",
+      "heroEye": "A Spirit-filled community rooted in prayer, holiness, and the transforming power of Jesus Christ.",
+      "heroTitle": "About CHM Church of God",
+      "_updatedAt": 1784267342649,
+      "updatedAt": 1784267342649
+    },
+    "hero": {
+      "videoUrl": "https://drive.google.com/file/d/1T_XDRuX9xovrLBL4Cl9tex7ngDcuFSbf/view?usp=drivesdk",
+      "_updatedAt": 1784628531815,
+      "updatedAt": 1784628531815,
+      "video": "https://drive.google.com/file/d/1T_XDRuX9xovrLBL4Cl9tex7ngDcuFSbf/view?usp=drivesdk",
+      "sourceType": "drive"
+    }
+  }
+}
