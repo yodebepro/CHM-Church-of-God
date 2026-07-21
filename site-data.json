@@ -4,7 +4,7 @@
   "_dept": "Announcements",
   "_col": "announcements",
   "_exportedAt": "2026-07-17T05:49:54.737Z",
-  "_note": "Full site data \u2014 upload as site-data.json to GitHub",
+  "_note": "Full site data — upload as site-data.json to GitHub",
   "_updated": "2026-07-17T05:49:03.254Z",
   "leaders": [
     {
@@ -172,20 +172,24 @@
       "sun": "8:00 AM & 11:30 AM EST",
       "wed": "7:00 PM EST",
       "fri": "7:30 PM EST",
-      "sat": "Varies \u2014 See Announcements",
+      "sat": "Varies — See Announcements",
       "_updatedAt": 1784178215111,
       "updatedAt": 1784178215111
     },
     "hero": {
       "videoUrl": "https://drive.google.com/file/d/10ZG6uHU_ytikNvnHwYuejYVXL5GRDyGl/view?usp=sharing&t=72.237",
       "_updatedAt": 1782683996933,
-      "updatedAt": 1782683996933
+      "updatedAt": 1782683996933,
+      "muted": true,
+      "volume": 0,
+      "loop": true,
+      "autoplay": true
     },
     "page_home": {
       "eyebrow": "",
       "title": "",
       "verse": "",
-      "btn1": "\u25b6 Watch Live",
+      "btn1": "▶ Watch Live",
       "btn2": "Our Story",
       "_updatedAt": 1782680839729,
       "updatedAt": 1782680839729
@@ -193,9 +197,9 @@
     "page_about": {
       "storyTitle": "Founded in Faith, Sustained by Grace...",
       "storyP1": "CHM Church of God was established with a singular vision: to be a house of prayer for all nations, where lives are transformed by the power of God's Word and Spirit. From humble beginnings, God has grown this congregation into a vibrant, multicultural family serving West Orange, New Jersey and extending its reach around the world...",
-      "storyP2": "We believe that every person \u2014 regardless of background, language, or nationality \u2014 is created in the image of God and deserves to hear the Good News of Jesus Christ. This conviction drives everything we do.",
-      "mission": "To glorify God by making disciples of all nations through prayer, preaching, holiness, and service \u2014 transforming communities one life at a time.",
-      "vision": "To be a lighthouse of God's glory \u2014 a multicultural, Spirit-filled congregation that reflects the Kingdom of Heaven and impacts the earth.",
+      "storyP2": "We believe that every person — regardless of background, language, or nationality — is created in the image of God and deserves to hear the Good News of Jesus Christ. This conviction drives everything we do.",
+      "mission": "To glorify God by making disciples of all nations through prayer, preaching, holiness, and service — transforming communities one life at a time.",
+      "vision": "To be a lighthouse of God's glory — a multicultural, Spirit-filled congregation that reflects the Kingdom of Heaven and impacts the earth.",
       "values": [
         "Prayer as a Lifestyle",
         "Holiness of Heart & Life",
@@ -207,7 +211,7 @@
       "beliefs": [
         {
           "title": "The Holy Scriptures",
-          "text": "The Bible is the inspired, infallible, and authoritative Word of God \u2014 our sole rule of faith and practice."
+          "text": "The Bible is the inspired, infallible, and authoritative Word of God — our sole rule of faith and practice."
         },
         {
           "title": "Salvation by Grace",
@@ -215,7 +219,7 @@
         },
         {
           "title": "The Church",
-          "text": "Salvation is by grace through faith in Jesus Christ alone \u2014 His death, burial, and resurrection."
+          "text": "Salvation is by grace through faith in Jesus Christ alone — His death, burial, and resurrection."
         },
         {
           "title": "Water Baptism",
@@ -265,9 +269,9 @@
     "page_about_draft": {
       "storyTitle": "Founded in Faith, Sustained by Grace...",
       "storyP1": "CHM Church of God was established with a singular vision: to be a house of prayer for all nations, where lives are transformed by the power of God's Word and Spirit. From humble beginnings, God has grown this congregation into a vibrant, multicultural family serving West Orange, New Jersey and extending its reach around the world...",
-      "storyP2": "We believe that every person \u2014 regardless of background, language, or nationality \u2014 is created in the image of God and deserves to hear the Good News of Jesus Christ. This conviction drives everything we do.",
-      "mission": "To glorify God by making disciples of all nations through prayer, preaching, holiness, and service \u2014 transforming communities one life at a time.",
-      "vision": "To be a lighthouse of God's glory \u2014 a multicultural, Spirit-filled congregation that reflects the Kingdom of Heaven and impacts the earth.",
+      "storyP2": "We believe that every person — regardless of background, language, or nationality — is created in the image of God and deserves to hear the Good News of Jesus Christ. This conviction drives everything we do.",
+      "mission": "To glorify God by making disciples of all nations through prayer, preaching, holiness, and service — transforming communities one life at a time.",
+      "vision": "To be a lighthouse of God's glory — a multicultural, Spirit-filled congregation that reflects the Kingdom of Heaven and impacts the earth.",
       "values": [
         "Prayer as a Lifestyle",
         "Holiness of Heart & Life",
@@ -279,7 +283,7 @@
       "beliefs": [
         {
           "title": "The Holy Scriptures",
-          "text": "The Bible is the inspired, infallible, and authoritative Word of God \u2014 our sole rule of faith and practice."
+          "text": "The Bible is the inspired, infallible, and authoritative Word of God — our sole rule of faith and practice."
         },
         {
           "title": "Salvation by Grace",
@@ -287,7 +291,7 @@
         },
         {
           "title": "The Church",
-          "text": "Salvation is by grace through faith in Jesus Christ alone \u2014 His death, burial, and resurrection."
+          "text": "Salvation is by grace through faith in Jesus Christ alone — His death, burial, and resurrection."
         },
         {
           "title": "Water Baptism",
@@ -373,7 +377,7 @@
   ],
   "teams": [
     {
-      "icon": "\ud83d\ude4f",
+      "icon": "🙏",
       "name": "Intercessory Prayer Team",
       "category": "Prayer & Worship",
       "order": 99,
