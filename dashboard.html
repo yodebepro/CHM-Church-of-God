@@ -69,13 +69,13 @@
   <div class="vid-card-body">
     <div>
       <div class="form-group" style="margin-bottom:.6rem;">
-        <label class="form-label">Direct MP4 Video URL</label>
+        <label class="form-label">Hero Background Video</label>
         <label class="form-label" style="font-size:.74rem;margin-bottom:.3rem;">📁 Upload Video from Computer (under 50 MB)</label>
         <input type="file" id="hvFile" accept="video/mp4,video/*" style="width:100%;font-size:.82rem;margin-bottom:.4rem;"/>
         <div id="hvFileSt" style="font-size:.74rem;color:rgba(255,255,255,.5);margin-bottom:.5rem;"></div>
-        <label class="form-label" style="font-size:.74rem;margin-bottom:.3rem;">🔗 — OR — Paste Direct MP4 URL</label>
-        <input type="url" class="fi" id="hvUrl" placeholder="https://… paste a direct .mp4 link"/>
-        <div class="form-hint">Paste any public direct MP4 URL. It will loop silently behind your homepage hero.</div>
+        <label class="form-label" style="font-size:.74rem;margin-bottom:.3rem;">🔗 — OR — Paste Video Link</label>
+        <input type="url" class="fi" id="hvUrl" placeholder="Direct MP4, Google Drive, YouTube, or Vimeo link"/>
+        <div class="form-hint">Supports direct MP4 links, public Google Drive video links, YouTube, and Vimeo. Google Drive sharing must be set to Anyone with the link.</div>
       </div>
       <div style="display:flex;gap:.5rem;flex-wrap:wrap;">
         <button class="btn btn-publish btn-sm" onclick="saveHV()">💾 Save & Activate</button>
@@ -84,7 +84,7 @@
       </div>
       <div id="hvSt" style="margin-top:.45rem;font-size:.75rem;color:rgba(255,255,255,.45);"></div>
     </div>
-    <div id="hvPW" style="display:none;"><video id="hvVid" muted controls style="width:100%;border-radius:10px;background:#000;aspect-ratio:16/9;"></video></div>
+    <div id="hvPW" style="display:none;"><div id="hvPreview"></div></div>
   </div>
 </div>
 
@@ -142,11 +142,12 @@ async function saveHV(){
   else{await cfgSave('hero',{videoUrl:'',video:''});document.getElementById('hvSt').textContent='Removed.';toast('Video removed','warning');}
 }
 function prevHV(){
-  const url=hvIn.value.trim();if(!url){toast('Enter a URL first','warning');return;}
-  const w=document.getElementById('hvPW');const v=document.getElementById('hvVid');
-  v.src=url;w.style.display='block';v.play().catch(()=>document.getElementById('hvSt').textContent='⚠️ Cannot load. Use a direct MP4 URL.');
+  const url=hvIn.value.trim();if(!url){toast('Enter a video link first','warning');return;}
+  const w=document.getElementById('hvPW');w.style.display='block';
+  CHMHeroVideo.preview(document.getElementById('hvPreview'),url);
+  document.getElementById('hvSt').textContent='Preview loaded. Google Drive videos must be shared with Anyone with the link.';
 }
-function clearHV(){localStorage.removeItem('chm_hero_video');cfgSave('hero',{videoUrl:'',video:''});hvIn.value='';document.getElementById('hvPW').style.display='none';document.getElementById('hvSt').textContent='Removed.';toast('Cleared','warning');}
+function clearHV(){localStorage.removeItem('chm_hero_video');cfgSave('hero',{videoUrl:'',video:''});hvIn.value='';document.getElementById('hvPW').style.display='none';document.getElementById('hvPreview').innerHTML='';document.getElementById('hvSt').textContent='Removed.';toast('Cleared','warning');}
 </script>
 
 
@@ -154,6 +155,7 @@ function clearHV(){localStorage.removeItem('chm_hero_video');cfgSave('hero',{vid
 <script src="contact-direct-send.js"></script>
 
 <script src="chm-true-cms.js"></script>
+<script src="chm-hero-video.js"></script>
 
 <script src="chm-admin-button-fix.js"></script>
 
