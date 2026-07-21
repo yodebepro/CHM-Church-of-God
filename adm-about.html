@@ -8,6 +8,12 @@
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 <script src="firebase-config.js"></script>
+
+<style id="chm-about-tabs-fix-style">
+.tab-nav{position:relative!important;z-index:30!important;overflow-x:auto!important;overflow-y:hidden!important;display:flex!important;touch-action:pan-x!important}
+.tab-nav .tab-btn{position:relative!important;z-index:31!important;pointer-events:auto!important}
+.tab-pane[hidden]{display:none!important}.tab-pane.active{display:block!important}
+</style>
 </head>
 <body>
 <div class="admin-wrap">
@@ -288,4 +294,5 @@ async function pushAboutHeroGitHub(){try{await CHMTrueCMS.pushSiteData();documen
 <script src="chm-photo-upload.js"></script>
 
 <script src="chm-all-sections-sync.js"></script>
+<script src="chm-about-tabs-fix.js"></script>
 </body></html>

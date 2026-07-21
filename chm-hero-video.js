@@ -15,7 +15,7 @@ function volume(v){const n=Number(v);return Number.isFinite(n)?Math.max(0,Math.m
 function normalizeOptions(raw={}){return{muted:bool(raw.muted,true),loop:bool(raw.loop,true),volume:volume(raw.volume??0),autoplay:bool(raw.autoplay,true)}}
 function identify(url,opts={}){
   url=String(url||'').trim();const o=normalizeOptions(opts);const mute=o.muted?1:0,loop=o.loop?1:0;
-  const did=driveId(url);if(did)return{type:'drive',original:url,id:did,directCandidates:['https://drive.google.com/uc?export=download&id='+did,'https://drive.usercontent.google.com/download?id='+did+'&export=download&confirm=t'],embed:'https://drive.google.com/file/d/'+did+'/preview?autoplay='+(o.autoplay?1:0)+'&mute='+mute};
+  const did=driveId(url);if(did)return{type:'drive',original:url,id:did,directCandidates:['https://drive.usercontent.google.com/download?id='+did+'&export=download&authuser=0&confirm=t','https://drive.google.com/uc?export=download&id='+did+'&confirm=t','https://drive.google.com/uc?id='+did+'&export=download'],embed:'https://drive.google.com/file/d/'+did+'/preview?autoplay='+(o.autoplay?1:0)+'&mute='+mute};
   const yid=youtubeId(url);if(yid)return{type:'youtube',original:url,id:yid,embed:'https://www.youtube-nocookie.com/embed/'+yid+'?autoplay='+(o.autoplay?1:0)+'&mute='+mute+'&loop='+loop+'&playlist='+yid+'&controls=0&modestbranding=1&playsinline=1'};
   const vid=vimeoId(url);if(vid)return{type:'vimeo',original:url,id:vid,embed:'https://player.vimeo.com/video/'+vid+'?autoplay='+(o.autoplay?1:0)+'&muted='+mute+'&loop='+loop+'&background=1'};
   return{type:'direct',original:url,direct:url};
