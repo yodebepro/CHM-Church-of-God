@@ -397,6 +397,11 @@ p{margin-bottom:1rem}p:last-child{margin-bottom:0}
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 <script src="firebase-config.js"></script>
 <script src="cms-public.js"></script>
+
+<style id="chm-home-leadership-reflection-style">
+.leader-card .leader-img-placeholder.chm-home-leader-media{width:100%!important;height:305px!important;min-height:305px!important;overflow:hidden!important;margin:0!important;padding:0!important;background:#173466!important;display:block!important}
+.leader-card .leader-img-placeholder.chm-home-leader-media img,.leader-card .leader-img-placeholder.chm-home-leader-media video{width:100%!important;height:100%!important;display:block!important;object-fit:cover!important}
+</style>
 </head>
 <body>
 <div id="chm-header"></div>
@@ -646,10 +651,10 @@ p{margin-bottom:1rem}p:last-child{margin-bottom:0}
       <div class="gold-line center"></div>
     </div>
     <div class="grid-4 reveal">
-      <div class="leader-card"><div class="leader-img-placeholder">👤</div><div class="leader-body"><h4 class="leader-name">Senior Pastor</h4><div class="leader-title">Lead Pastor</div><p class="leader-bio">Appointed by God to lead CHM with vision, prayer, and the Word of truth.</p></div></div>
-      <div class="leader-card"><div class="leader-img-placeholder">👤</div><div class="leader-body"><h4 class="leader-name">Executive Pastor</h4><div class="leader-title">Executive Leadership</div><p class="leader-bio">Overseeing church operations, administration, and ministry alignment.</p></div></div>
-      <div class="leader-card"><div class="leader-img-placeholder">👤</div><div class="leader-body"><h4 class="leader-name">Worship Director</h4><div class="leader-title">Worship & Arts</div><p class="leader-bio">Leading our congregation into the presence of God through anointed worship.</p></div></div>
-      <div class="leader-card"><div class="leader-img-placeholder">👤</div><div class="leader-body"><h4 class="leader-name">Outreach Director</h4><div class="leader-title">Missions & Outreach</div><p class="leader-bio">Championing the Great Commission locally and globally.</p></div></div>
+      <div class="leader-card" data-home-leader-slot="senior-pastor"><div class="leader-img-placeholder">👤</div><div class="leader-body"><h4 class="leader-name">Senior Pastor</h4><div class="leader-title">Lead Pastor</div><p class="leader-bio">Appointed by God to lead CHM with vision, prayer, and the Word of truth.</p></div></div>
+      <div class="leader-card" data-home-leader-slot="executive-pastor"><div class="leader-img-placeholder">👤</div><div class="leader-body"><h4 class="leader-name">Executive Pastor</h4><div class="leader-title">Executive Leadership</div><p class="leader-bio">Overseeing church operations, administration, and ministry alignment.</p></div></div>
+      <div class="leader-card" data-home-leader-slot="worship-director"><div class="leader-img-placeholder">👤</div><div class="leader-body"><h4 class="leader-name">Worship Director</h4><div class="leader-title">Worship & Arts</div><p class="leader-bio">Leading our congregation into the presence of God through anointed worship.</p></div></div>
+      <div class="leader-card" data-home-leader-slot="outreach-director"><div class="leader-img-placeholder">👤</div><div class="leader-body"><h4 class="leader-name">Outreach Director</h4><div class="leader-title">Missions & Outreach</div><p class="leader-bio">Championing the Great Commission locally and globally.</p></div></div>
     </div>
     <div class="text-center" style="margin-top:2.5rem"><a href="leaders.html" class="btn btn-primary">Meet All Leaders</a></div>
   </div>
@@ -1254,4 +1259,5 @@ function setHomeRadioVol(v) {
 
 <script src="chm-no-duplicates.js"></script>
 <script src="chm-hero-video.js"></script>
+<script src="chm-home-leadership-reflection.js"></script>
 </body></html>

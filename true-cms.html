@@ -8,4 +8,5 @@ async function cmsExportJSON(){const d=await CHMTrueCMS.loadSiteData();cmsDownlo
 async function cmsImportJSON(file){if(!file)return;try{const d=JSON.parse(await file.text());await CHMTrueCMS.saveLocal(d);document.getElementById('cmsToolMsg').textContent='✅ JSON imported. Reloading…';setTimeout(()=>location.reload(),700)}catch(e){document.getElementById('cmsToolMsg').textContent='❌ '+e.message}}
 async function cmsPushAll(){try{document.getElementById('cmsToolMsg').textContent='⏳ Pushing site-data.json and named JSON files…';await CHMTrueCMS.pushSiteData();document.getElementById('cmsToolMsg').textContent='✅ All CMS data pushed to GitHub.'}catch(e){document.getElementById('cmsToolMsg').textContent='❌ '+e.message}}
 </script>
+<script src="chm-true-cms-hero-sync-fix.js"></script>
 </body></html>
