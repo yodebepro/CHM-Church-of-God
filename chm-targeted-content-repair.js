@@ -73,7 +73,26 @@ async function renderLeadership(){
   const named=await get('chm-leaders.json')||{};const site=await get('site-data.json')||{};
   // Exact named section wins; site data only fills a missing slot.
   const records=[...arr(named,'leaders'),...arr(named,'leadership'),...arr(site,'leaders'),...arr(site,'leadership')].filter(pub);
-  const best=new Map();records.forEach(x=>{const s=slot(x);if(!s||best.has(s))return;best.set(s,x)});
+  function leaderScore(x,s){
+    const full=norm([x.first,x.last,x.name,x.title,x.role].filter(Boolean).join(' '));
+    let score=0;
+    // Prefer the real named senior-pastor record over placeholder/test records that share the same slot.
+    if(s==='senior-pastor'){
+      if(full.includes('davidmarcel'))score+=1000;
+      if(norm(x.first)==='david'&&norm(x.last)==='marcel')score+=1000;
+      if(/^(dc|ldr|deacon|elder|name|nm)/i.test(String(x.first||'')))score-=500;
+      if(/deacon|elder/i.test(full))score-=500;
+    }
+    if(x.photo||x.imageUrl||x.photoUrl||x.mediaUrl)score+=50;
+    score+=Number(x._publishedAt||x.publishedAt||x._updatedAt||x.updatedAt||0)/1e13;
+    return score;
+  }
+  const best=new Map();
+  records.forEach(x=>{
+    const s=slot(x);if(!s)return;
+    const current=best.get(s);
+    if(!current||leaderScore(x,s)>leaderScore(current,s))best.set(s,x);
+  });
   if(PAGE==='index.html'||PAGE===''){
     for(const s of ['senior-pastor','executive-pastor','worship-director','outreach-director'])fillLeader(document.querySelector(`[data-home-leader-slot="${s}"]`),best.get(s));
   }
