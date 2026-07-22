@@ -172,22 +172,17 @@ async function aLoad() {
   : '<tr><td colspan="5" style="text-align:center;padding:2.5rem;color:var(--text-muted);">No announcements yet. Click <strong>+ New Announcement</strong> to add one.</td></tr>';
 }
 
-async function aSetStatus(id, status) {
-  const d = await loadData();
-  const idx = (d[AC]||[]).findIndex(x => x.id === id);
-  if (idx >= 0) { d[AC][idx]._status = status; if(status==='published') d[AC][idx]._publishedAt = Date.now(); }
-  const ok = await pushToGitHub();
-  const msg = status==='published' ? 'Published globally! Live on website within 60 seconds.'
-            : status==='draft'     ? 'Hidden from website.'
-            : 'Archived.';
-  toast(ok ? msg : 'Saved locally only. Set up GitHub token to go global.', ok?'success':'warning');
-  aLoad();
+async function aSetStatus(id,status){
+  const d=await loadData();const idx=(d[AC]||[]).findIndex(x=>x.id===id);
+  if(idx>=0){const a=d[AC][idx];a._status=status;a.status=status;a.pinned=status==='pinned';a.archived=status==='archived';a._updatedAt=Date.now();if(status==='published'||status==='pinned')a._publishedAt=Date.now();}
+  await saveLocal(d);const ok=await CHMRepairSync(AC);toast(ok?'Announcement updated globally.':'Saved locally only.',ok?'success':'warning');aLoad();
 }
 
 async function aDel(id) {
   const d = await loadData();
   if (d[AC]) d[AC] = d[AC].filter(x => x.id !== id);
-  const ok = await pushToGitHub();
+  await saveLocal(d);
+  const ok = await CHMRepairSync(AC);
   toast(ok ? 'Deleted.' : 'Deleted locally.', 'error');
   aLoad();
 }
@@ -213,11 +208,12 @@ async function aSave(status) {
   await cmsSave(AC, id, {
     title: t, body: b,
     category: document.getElementById('aCat').value,
-    date: document.getElementById('aDt').value || new Date().toISOString().slice(0,10)
+    date: document.getElementById('aDt').value || new Date().toISOString().slice(0,10),
+    pinned: status==='pinned'
   }, status);
 
   // Push to GitHub -- same pattern as Leadership
-  const ok = await pushToGitHub();
+  const ok = await CHMRepairSync(AC);
   if (ok && status === 'published') toast('Announcement published globally! Live within 60 seconds.', 'success');
   else if (ok)                      toast('Draft saved to GitHub.', 'success');
   else                              toast('Saved locally only. Open github-setup.html to publish globally.', 'warning');
@@ -246,4 +242,6 @@ aLoad();
 <script src="chm-photo-upload.js"></script>
 
 <script src="chm-all-sections-sync.js"></script>
+
+<script src="chm-admin-targeted-sync.js"></script>
 </body></html>

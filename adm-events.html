@@ -118,14 +118,14 @@ async function eLoad(){
     </div></td></tr>`).join('')
   :'<tr><td colspan="6" style="text-align:center;padding:2.5rem;color:var(--text-muted);">No events yet.</td></tr>';
 }
-async function eSetStatus(id,status){const d=await loadData();const idx=(d[EC]||[]).findIndex(x=>x.id===id);if(idx>=0){d[EC][idx]._status=status;if(status==='published')d[EC][idx]._publishedAt=Date.now();}const ok=await pushToGitHub();toast(ok?(status==='published'?'Event published globally!':'Updated.'):'Saved locally only. Set up GitHub token.', ok?'success':'warning');eLoad();}
-async function eDel(id){const d=await loadData();if(d[EC])d[EC]=d[EC].filter(x=>x.id!==id);await pushToGitHub();toast('Deleted','error');eLoad();}
+async function eSetStatus(id,status){const d=await loadData();const idx=(d[EC]||[]).findIndex(x=>x.id===id);if(idx>=0){d[EC][idx]._status=status;d[EC][idx].status=status;d[EC][idx].archived=status==='archived';d[EC][idx]._updatedAt=Date.now();if(status==='published')d[EC][idx]._publishedAt=Date.now();}await saveLocal(d);const ok=await CHMRepairSync(EC);toast(ok?'Event updated globally.':'Saved locally only.',ok?'success':'warning');eLoad();}
+async function eDel(id){const d=await loadData();if(d[EC])d[EC]=d[EC].filter(x=>x.id!==id);await saveLocal(d);await CHMRepairSync(EC);toast('Deleted','error');eLoad();}
 async function eEdit(id){const d=(await cmsGet(EC)).find(x=>x.id===id);if(!d)return;document.getElementById('eId').value=d.id;document.getElementById('eNm').value=d.name||'';document.getElementById('eDt').value=d.date||'';document.getElementById('eTm').value=d.time||'';document.getElementById('eLc').value=d.location||'';document.getElementById('eCt').value=d.category||'';document.getElementById('eTy').value=d.type||'upcoming';document.getElementById('eDe').value=d.desc||'';document.getElementById('eMT').textContent='Edit Event';openModal('eM');}
 async function eSave(status){
   const name=document.getElementById('eNm').value.trim();if(!name){toast('Event name required','error');return;}
   const id=document.getElementById('eId').value||null;
   await cmsSave(EC,id,{name,date:document.getElementById('eDt').value,time:document.getElementById('eTm').value,location:document.getElementById('eLc').value,category:document.getElementById('eCt').value,type:document.getElementById('eTy').value,desc:document.getElementById('eDe').value},status);
-  const ok=await pushToGitHub();
+  const ok=await CHMRepairSync(EC);
   if(ok&&status==='published')toast('Event published globally! Live within 60 seconds.','success');
   else if(ok)toast('Draft saved to GitHub.','success');
   else toast('Saved locally only. Open github-setup.html to publish globally.','warning');
@@ -147,4 +147,6 @@ eLoad();
 <script src="chm-photo-upload.js"></script>
 
 <script src="chm-all-sections-sync.js"></script>
+
+<script src="chm-admin-targeted-sync.js"></script>
 </body></html>

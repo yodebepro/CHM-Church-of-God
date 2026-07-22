@@ -131,7 +131,7 @@ const sAudInput=document.getElementById('sAudFile');
 if(sAudInput)sAudInput.addEventListener('change',async function(){
   const f=this.files&&this.files[0];if(!f)return;
   const st=document.getElementById('sAudSt');
-  const url=await uploadFileToCloud(f,st);
+  const url=await CHMRepairUpload(f,'sermons/audio',st);
   if(url){document.getElementById('sAu').value=url;st.textContent='✅ Audio uploaded globally and ready to save.';}
 });
 // Video upload — uploads media globally and stores the returned public URL
@@ -139,7 +139,7 @@ const sVidInput=document.getElementById('sVidFile');
 if(sVidInput)sVidInput.addEventListener('change',async function(){
   const f=this.files&&this.files[0];if(!f)return;
   const st=document.getElementById('sVidSt');
-  const url=await uploadFileToCloud(f,st);
+  const url=await CHMRepairUpload(f,'sermons/video',st);
   if(url){document.getElementById('sVi').value=url;st.textContent='✅ Video uploaded globally and ready to save.';}
 });
 document.querySelectorAll('#sC .chip').forEach(c=>c.addEventListener('click',()=>{document.querySelectorAll('#sC .chip').forEach(x=>x.classList.remove('active'));c.classList.add('active');sLoad();}));
@@ -161,15 +161,15 @@ async function sLoad(){
     </div></td></tr>`).join('')
   :'<tr><td colspan="7" style="text-align:center;padding:2.5rem;color:var(--text-muted);">No sermons yet.</td></tr>';
 }
-async function sSetStatus(id,status){const d=await loadData();const idx=(d[SC]||[]).findIndex(x=>x.id===id);if(idx>=0){d[SC][idx]._status=status;if(status==='published')d[SC][idx]._publishedAt=Date.now();}const ok=await pushToGitHub();toast(ok?(status==='published'?'Sermon published globally! Live within 60 seconds.':'Updated.'):'Saved locally only. Set up GitHub token.',ok?'success':'warning');sLoad();}
-async function sDel(id){const d=await loadData();if(d[SC])d[SC]=d[SC].filter(x=>x.id!==id);await pushToGitHub();toast('Deleted','error');sLoad();}
+async function sSetStatus(id,status){const d=await loadData();const idx=(d[SC]||[]).findIndex(x=>x.id===id);if(idx>=0){d[SC][idx]._status=status;d[SC][idx].status=status;d[SC][idx].archived=status==='archived';d[SC][idx]._updatedAt=Date.now();if(status==='published')d[SC][idx]._publishedAt=Date.now();}await saveLocal(d);const ok=await CHMRepairSync(SC);toast(ok?'Sermon updated globally.':'Saved locally only.',ok?'success':'warning');sLoad();}
+async function sDel(id){const d=await loadData();if(d[SC])d[SC]=d[SC].filter(x=>x.id!==id);await saveLocal(d);await CHMRepairSync(SC);toast('Deleted','error');sLoad();}
 async function sEdit(id){const d=(await cmsGet(SC)).find(x=>x.id===id);if(!d)return;document.getElementById('sId').value=d.id;document.getElementById('sIc').value=d.icon||'';
   document.getElementById('sTi').value=d.title||'';document.getElementById('sSp').value=d.speaker||'';document.getElementById('sDt').value=d.date||'';document.getElementById('sSr').value=d.series||'Sunday';document.getElementById('sSc').value=d.scripture||'';document.getElementById('sVi').value=d.video||'';document.getElementById('sAu').value=d.audio||'';document.getElementById('sDe').value=d.desc||'';['sAudFile','sVidFile'].forEach(f=>{const el=document.getElementById(f);if(el)el.value='';});['sAudSt','sVidSt'].forEach(f=>{const el=document.getElementById(f);if(el)el.textContent='';});document.getElementById('sMT').textContent='Edit Sermon';openModal('sM');}
 async function sSave(status){
   const t=document.getElementById('sTi').value.trim();if(!t){toast('Title required','error');return;}
   const id=document.getElementById('sId').value||null;
-  await cmsSave(SC,id,{icon:document.getElementById('sIc').value,title:t,speaker:document.getElementById('sSp').value,date:document.getElementById('sDt').value,series:document.getElementById('sSr').value,scripture:document.getElementById('sSc').value,video:document.getElementById('sVi').value,audio:document.getElementById('sAu').value,desc:document.getElementById('sDe').value},status);
-  const ok=await CHMTrueCMS.pushSiteData('sermons');
+  await cmsSave(SC,id,{icon:document.getElementById('sIc').value,title:t,speaker:document.getElementById('sSp').value,date:document.getElementById('sDt').value,series:document.getElementById('sSr').value,scripture:document.getElementById('sSc').value,video:document.getElementById('sVi').value.trim(),videoUrl:document.getElementById('sVi').value.trim(),audio:document.getElementById('sAu').value.trim(),audioUrl:document.getElementById('sAu').value.trim(),desc:document.getElementById('sDe').value},status);
+  const ok=await CHMRepairSync('sermons');
   if(ok&&status==='published')toast('Sermon published globally! Live within 60 seconds.','success');
   else if(ok)toast('Draft saved to GitHub.','success');
   else toast('Saved locally only. Open github-setup.html to publish globally.','warning');
@@ -191,4 +191,6 @@ sLoad();
 <script src="chm-photo-upload.js"></script>
 
 <script src="chm-all-sections-sync.js"></script>
+
+<script src="chm-admin-targeted-sync.js"></script>
 </body></html>
