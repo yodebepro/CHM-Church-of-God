@@ -133,7 +133,7 @@ async function gSave(status){
   const t=document.getElementById('gTi').value.trim(),url=document.getElementById('gUr').value.trim();
   if(!t){toast('Title required','error');return;}if(!url){toast('Photo required','error');return;}
   const id=document.getElementById('gId').value||null;
-  await cmsSave(GC,id,{title:t,url,category:document.getElementById('gCt').value,date:document.getElementById('gDt').value||new Date().toISOString().slice(0,10),desc:document.getElementById('gDe').value},status);
+  await cmsSave(GC,id,{title:t,url,imageUrl:url,photoUrl:url,mediaUrl:url,category:document.getElementById('gCt').value,date:document.getElementById('gDt').value||new Date().toISOString().slice(0,10),desc:document.getElementById('gDe').value},status);
   const ok=await pushToGitHub();
   if(ok&&status==='published')toast('Photo published globally to gallery!','success');
   else if(ok)toast('Draft saved to GitHub.','success');
@@ -156,4 +156,6 @@ gLoad();
 <script src="chm-photo-upload.js"></script>
 
 <script src="chm-all-sections-sync.js"></script>
+
+<script src="chm-admin-persistence-fix.js"></script>
 </body></html>

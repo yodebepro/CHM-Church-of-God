@@ -1,0 +1,2 @@
+/* Refresh-safe Admin persistence helper. */
+(function(){document.addEventListener('DOMContentLoaded',async()=>{try{if(typeof loadData==='function'){window._data=null;await loadData();const names=['sLoad','gLoad','dLoad','tLoad','msgLoad','prLoad','gvLoad'];for(const n of names)if(typeof window[n]==='function')await window[n]()}}catch(e){console.warn(e)}})})();

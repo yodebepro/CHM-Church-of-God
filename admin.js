@@ -51,6 +51,37 @@ async function loadData() {
 
   // Both failed — use localStorage copy or empty
   if (!_data) _data = empty();
+
+  // Merge named JSON exports so every Admin page repopulates after refresh/deployment.
+  const namedFiles = {
+    sermons:'chm-sermons.json', gallery:'chm-gallery.json', departments:'chm-departments.json',
+    teams:'chm-teams.json', leaders:'chm-leaders.json', announcements:'chm-announcements.json',
+    events:'chm-events.json', ministries:'chm-ministries.json', messages:'chm-messages.json',
+    giving:'chm-giving-records.json', prayer_requests:'chm-prayer-requests.json'
+  };
+  for (const [col,file] of Object.entries(namedFiles)) {
+    try {
+      const r=await fetch(file+'?_='+Date.now(),{cache:'no-store'});
+      if(r.ok){
+        const j=await r.json();
+        const arr=Array.isArray(j)?j:(j[col]||j[col==='prayer_requests'?'prayerRequests':col]||[]);
+        if(Array.isArray(arr)&&arr.length){
+          const map=new Map(((_data[col]||[])).map(x=>[x.id||((x.title||x.name||'')+'|'+(x.date||'')),x]));
+          arr.forEach(x=>{const k=x.id||((x.title||x.name||'')+'|'+(x.date||'')); const old=map.get(k); if(!old||Number(x._updatedAt||x.updatedAt||0)>=Number(old._updatedAt||old.updatedAt||0))map.set(k,x)});
+          _data[col]=Array.from(map.values());
+        }
+      }
+    }catch(e){}
+  }
+  // Mirror public contact/prayer submissions saved by the public forms.
+  try {
+    const inbox=JSON.parse(localStorage.getItem('chm_public_inbox')||'{}');
+    ['messages','prayer_requests'].forEach(col=>{
+      const arr=inbox[col]||[]; if(!Array.isArray(arr)||!arr.length)return;
+      const map=new Map(((_data[col]||[])).map(x=>[x.id,x])); arr.forEach(x=>map.set(x.id,x)); _data[col]=Array.from(map.values());
+    });
+  }catch(e){}
+  await saveLocal();
   return _data;
 }
 
