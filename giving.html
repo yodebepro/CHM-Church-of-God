@@ -45,7 +45,7 @@
     </div>
   </div>
 </aside>
-<div class="main-content"><div class="top-bar"><div class="top-bar-left"><button class="hamburger" id="hamburger"><span></span><span></span><span></span></button><h1 class="top-bar-title">💰 Giving Records</h1></div><div class="top-bar-actions"><button class="btn btn-gold btn-sm" data-open="gvM">+ Record Gift</button></div></div><div class="page-body"><div class="stats-grid" style="grid-template-columns:repeat(4,1fr);">
+<div class="main-content"><div class="top-bar"><div class="top-bar-left"><button class="hamburger" id="hamburger"><span></span><span></span><span></span></button><h1 class="top-bar-title">💰 Giving Records</h1></div><div class="top-bar-actions"><button class="btn btn-outline btn-sm" onclick="gvExport()">⬇ Export JSON</button><label class="btn btn-outline btn-sm" style="cursor:pointer">⬆ Import JSON<input type="file" accept="application/json,.json" style="display:none" onchange="gvImport(this.files[0])"></label><button class="btn btn-gold btn-sm" data-open="gvModal">+ Record Gift</button></div></div><div class="page-body"><div class="stats-grid" style="grid-template-columns:repeat(4,1fr);">
   <div class="stat-card"><div class="stat-icon">💰</div><div class="stat-value">$<span id="gvT">0</span></div><div class="stat-label">Total Given</div></div>
   <div class="stat-card green"><div class="stat-icon">📅</div><div class="stat-value">$<span id="gvM">0</span></div><div class="stat-label">This Month</div></div>
   <div class="stat-card blue"><div class="stat-icon">🏛</div><div class="stat-value">$<span id="gvTi">0</span></div><div class="stat-label">Tithes</div></div>
@@ -55,16 +55,16 @@
   <div class="chips" id="gvC"><button class="chip active" data-f="">All Funds</button><button class="chip" data-f="General / Tithes">Tithes</button><button class="chip" data-f="Building Fund">Building</button><button class="chip" data-f="Missions Fund">Missions</button></div>
   <div class="search-box"><span class="si">🔍</span><input type="text" id="gvQ" placeholder="Search donor…"/></div>
 </div><div class="card"><div class="table-wrap"><table><thead><tr><th>Donor</th><th>Amount</th><th>Fund</th><th>Method</th><th>Date</th><th>Reference</th><th>Actions</th></tr></thead><tbody id="gvB"></tbody></table></div></div>
-<div class="modal-overlay" id="gvM"><div class="modal">
-  <div class="modal-header"><h2 class="modal-title" id="gvMT">Record Gift</h2><button class="modal-close" data-close="gvM">✕</button></div>
+<div class="modal-overlay" id="gvModal"><div class="modal">
+  <div class="modal-header"><h2 class="modal-title" id="gvMT">Record Gift</h2><button class="modal-close" data-close="gvModal">✕</button></div>
   <div class="modal-body">
     <input type="hidden" id="gvId"/>
     <div class="form-row"><div class="form-group"><label class="form-label">Donor Name</label><input type="text" class="fi" id="gvNm" placeholder="Full name or Anonymous"/></div><div class="form-group"><label class="form-label">Amount ($) <span class="req">*</span></label><input type="number" class="fi" id="gvAm" placeholder="0.00" min="0" step="0.01"/></div></div>
-    <div class="form-row"><div class="form-group"><label class="form-label">Fund</label><select class="fs" id="gvFu"><option>General / Tithes</option><option>Building Fund</option><option>Missions Fund</option><option>Children & Youth</option><option>Benevolence</option><option>Media Ministry</option><option>Scholarship Fund</option><option>Other</option></select></div><div class="form-group"><label class="form-label">Payment Method</label><select class="fs" id="gvMe"><option>Cash</option><option>Check</option><option>Zelle</option><option>Online</option><option>Card</option><option>Other</option></select></div></div>
+    <div class="form-row"><div class="form-group"><label class="form-label">Gift Type / Fund</label><select class="fs" id="gvFu"><option>Tithe</option><option>Offering</option><option>Donation</option><option>Special Gift</option><option>General Fund</option><option>Building Fund</option><option>Mission</option><option>Children & Youth</option><option>Benevolence</option><option>Media Ministry</option><option>Scholarship</option><option>Other</option></select></div><div class="form-group"><label class="form-label">Payment Method</label><select class="fs" id="gvMe"><option>Cash</option><option>Check</option><option>Zelle</option><option>Online</option><option>Card</option><option>Other</option></select></div></div>
     <div class="form-row"><div class="form-group"><label class="form-label">Date</label><input type="date" class="fi" id="gvDt"/></div><div class="form-group"><label class="form-label">Reference # / Check #</label><input type="text" class="fi" id="gvRf"/></div></div>
     <div class="form-group"><label class="form-label">Notes</label><textarea class="ft" id="gvNo" rows="2"></textarea></div>
   </div>
-  <div class="modal-footer"><button class="btn btn-outline btn-sm" data-close="gvM">Cancel</button><button class="btn btn-publish btn-sm" onclick="gvSave()">💾 Save Record</button></div>
+  <div class="modal-footer"><button class="btn btn-outline btn-sm" data-close="gvModal">Cancel</button><button class="btn btn-publish btn-sm" onclick="gvSave()">💾 Save Record</button></div>
 </div></div></div></div></div><script src="admin.js"></script>
 <script>requireAuth();
 const GVC = 'giving';
@@ -111,7 +111,7 @@ async function gvLoad_edit(id) {
   document.getElementById('gvRf').value=d.ref||'';
   document.getElementById('gvNo').value=d.notes||'';
   document.getElementById('gvMT').textContent='Edit Record';
-  openModal('gvM');
+  openModal('gvModal');
 }
 
 async function gvSave() {
@@ -129,15 +129,19 @@ async function gvSave() {
   },'active');
   const ok=await pushToGitHub();
   toast(ok?'✅ Giving record saved globally!':'Saved locally','success');
-  closeModal('gvM'); gvLoad();
+  closeModal('gvModal'); gvLoad();
 }
+
+
+async function gvExport(){const d=await loadData();const blob=new Blob([JSON.stringify({giving:d.giving||[]},null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='chm-giving-records.json';a.click();URL.revokeObjectURL(a.href)}
+async function gvImport(file){if(!file)return;try{const j=JSON.parse(await file.text());const arr=Array.isArray(j)?j:(j.giving||j.givingRecords||[]);if(!Array.isArray(arr))throw new Error('No giving records found');const d=await loadData();d.giving=arr;await saveLocal();toast('Giving records imported','success');gvLoad()}catch(e){toast(e.message,'error')}}
 
 document.querySelectorAll('#gvC .chip').forEach(c=>c.addEventListener('click',()=>{
   document.querySelectorAll('#gvC .chip').forEach(x=>x.classList.remove('active'));
   c.classList.add('active'); gvLoad();
 }));
 document.getElementById('gvQ')?.addEventListener('input', gvLoad);
-document.querySelector('[data-open="gvM"]')?.addEventListener('click',()=>{
+document.querySelector('[data-open="gvModal"]')?.addEventListener('click',()=>{
   ['gvId','gvNm','gvAm','gvRf','gvNo'].forEach(f=>{const el=document.getElementById(f);if(el)el.value='';});
   const dt=document.getElementById('gvDt'); if(dt) dt.value=new Date().toISOString().slice(0,10);
   document.getElementById('gvFu').value='General / Tithes';
@@ -155,4 +159,6 @@ gvLoad();
 <script src="chm-admin-button-fix.js"></script>
 
 <script src="chm-all-sections-sync.js"></script>
+
+<script src="chm-admin-persistence-fix.js"></script>
 </body></html>
