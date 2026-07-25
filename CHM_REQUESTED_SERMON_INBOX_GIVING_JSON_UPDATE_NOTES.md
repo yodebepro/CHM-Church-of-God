@@ -1,0 +1,1 @@
+Only requested areas changed: designed sermon-card media playback; Messages, Prayer Requests and Giving mirroring; Giving Receipt form; Navigation JSON; Page Content JSON. Everything else remains unchanged.
