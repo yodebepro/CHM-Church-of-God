@@ -27,6 +27,7 @@
     <a href="adm-events.html" class="sidebar-link"><span class="icon">📅</span> Events</a>
     <a href="adm-sermons.html" class="sidebar-link"><span class="icon">🎙</span> Sermons</a>
     <a href="adm-gallery.html" class="sidebar-link"><span class="icon">🖼</span> Gallery</a>
+    <a href="adm-media-settings.html" class="sidebar-link"><span class="icon">📡</span> Media Control</a>
     <a href="pages.html" class="sidebar-link"><span class="icon">📄</span> Page Content</a>
     <a href="adm-departments.html" class="sidebar-link"><span class="icon">&#127970;</span> Departments</a>
     <a href="navigation.html" class="sidebar-link"><span class="icon">🧭</span> Navigation</a>
@@ -63,7 +64,7 @@
   <div class="page-body">
     <div class="filter-bar">
       <div class="chips" id="gC"><button class="chip active" data-f="">All</button><button class="chip" data-f="published">Published</button><button class="chip" data-f="draft">Draft</button></div>
-      <select class="fs" id="gCF" style="max-width:150px;border-radius:20px;padding:.42rem .85rem;"><option value="">All Categories</option><option>Worship</option><option>Youth</option><option>Outreach</option><option>Events</option><option>Leadership</option><option>Missions</option></select>
+      <select class="fs" id="gCF" style="max-width:170px;border-radius:20px;padding:.42rem .85rem;"><option value="">All Categories</option><option>Worship</option><option>Outreach</option><option>Events</option><option>Ministry</option><option>Youth</option><option>Baptism</option></select>
     </div>
     <div id="gGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:1rem;"></div>
     <div class="modal-overlay" id="gM"><div class="modal">
@@ -85,7 +86,7 @@
         </div>
         <div class="form-group"><label class="form-label">Photo Title <span class="req">*</span></label><input type="text" class="fi" id="gTi"/></div>
         <div class="form-row">
-          <div class="form-group"><label class="form-label">Category</label><select class="fs" id="gCt"><option>Worship</option><option>Youth</option><option>Outreach</option><option>Events</option><option>Leadership</option><option>Missions</option><option>Other</option></select></div>
+          <div class="form-group"><label class="form-label">Category</label><select class="fs" id="gCt"><option>Worship</option><option>Outreach</option><option>Events</option><option>Ministry</option><option>Youth</option><option>Baptism</option></select></div>
           <div class="form-group"><label class="form-label">Date</label><input type="date" class="fi" id="gDt"/></div>
         </div>
         <div class="form-group"><label class="form-label">Caption</label><textarea class="ft" id="gDe" rows="2"></textarea></div>
@@ -101,8 +102,9 @@
 </div>
 <script src="admin.js"></script>
 <script>requireAuth();
-const GC='gallery';let gF='';
-const ICONS={Worship:'&#127925;',Youth:'&#9889;',Outreach:'&#127757;',Events:'&#127881;',Leadership:'&#128081;',Missions:'&#9992;',Other:'&#128247;'};
+const GC='gallery';
+function normalizeGalleryCategory(v){v=String(v||'').trim().toLowerCase();const m={leadership:'Ministry',missions:'Ministry',mission:'Ministry',other:'Ministry',event:'Events',events:'Events',worship:'Worship',outreach:'Outreach',ministry:'Ministry',youth:'Youth',baptism:'Baptism'};return m[v]||'Worship';}let gF='';
+const ICONS={Worship:'&#127925;',Outreach:'&#127757;',Events:'&#127881;',Ministry:'&#9962;',Youth:'&#9889;',Baptism:'&#128167;'};
 document.getElementById('gPhFile')?.addEventListener('change',async function(){const f=this.files[0];if(!f)return;const url=await uploadPhoto(f,document.getElementById('gPhSt'));if(url){document.getElementById('gUr').value=url;gUpdatePrev(url);}});
 document.getElementById('gUr')?.addEventListener('input',function(){gUpdatePrev(this.value.trim());});
 function gUpdatePrev(url){const p=document.getElementById('gPhPrev');if(!p)return;p.innerHTML=url?`<img src="${url}" style="width:100%;height:100%;object-fit:cover;border-radius:10px;" onerror="this.parentElement.innerHTML='&#128444;'"/>`:'&#128444;';}
@@ -128,12 +130,12 @@ async function gLoad(){
 }
 async function gSetStatus(id,status){const d=await loadData();const idx=(d[GC]||[]).findIndex(x=>x.id===id);if(idx>=0){d[GC][idx]._status=status;if(status==='published')d[GC][idx]._publishedAt=Date.now();}const ok=await pushToGitHub();toast(ok?(status==='published'?'Photo published globally!':'Unpublished.'):'Saved locally only. Set up GitHub token.',ok?'success':'warning');gLoad();}
 async function gDel(id){const d=await loadData();if(d[GC])d[GC]=d[GC].filter(x=>x.id!==id);await pushToGitHub();toast('Deleted','error');gLoad();}
-async function gEdit(id){const d=(await cmsGet(GC)).find(x=>x.id===id);if(!d)return;document.getElementById('gId').value=d.id;document.getElementById('gTi').value=d.title||'';document.getElementById('gCt').value=d.category||'Worship';document.getElementById('gDt').value=d.date||'';document.getElementById('gDe').value=d.desc||'';const url=d.url||'';document.getElementById('gUr').value=url;gUpdatePrev(url);document.getElementById('gPhFile').value='';document.getElementById('gPhSt').textContent='';document.getElementById('gMT').textContent='Edit Photo';openModal('gM');}
+async function gEdit(id){const d=(await cmsGet(GC)).find(x=>x.id===id);if(!d)return;document.getElementById('gId').value=d.id;document.getElementById('gTi').value=d.title||'';document.getElementById('gCt').value=normalizeGalleryCategory(d.category||'Worship');document.getElementById('gDt').value=d.date||'';document.getElementById('gDe').value=d.desc||'';const url=d.url||'';document.getElementById('gUr').value=url;gUpdatePrev(url);document.getElementById('gPhFile').value='';document.getElementById('gPhSt').textContent='';document.getElementById('gMT').textContent='Edit Photo';openModal('gM');}
 async function gSave(status){
   const t=document.getElementById('gTi').value.trim(),url=document.getElementById('gUr').value.trim();
   if(!t){toast('Title required','error');return;}if(!url){toast('Photo required','error');return;}
   const id=document.getElementById('gId').value||null;
-  await cmsSave(GC,id,{title:t,url,imageUrl:url,photoUrl:url,mediaUrl:url,category:document.getElementById('gCt').value,date:document.getElementById('gDt').value||new Date().toISOString().slice(0,10),desc:document.getElementById('gDe').value},status);
+  await cmsSave(GC,id,{title:t,url,imageUrl:url,photoUrl:url,mediaUrl:url,category:normalizeGalleryCategory(document.getElementById('gCt').value),date:document.getElementById('gDt').value||new Date().toISOString().slice(0,10),desc:document.getElementById('gDe').value},status);
   const ok=await pushToGitHub();
   if(ok&&status==='published')toast('Photo published globally to gallery!','success');
   else if(ok)toast('Draft saved to GitHub.','success');

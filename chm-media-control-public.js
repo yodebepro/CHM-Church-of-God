@@ -1,0 +1,14 @@
+/* CHM public media source renderer */
+(function(){
+ function yt(u){const m=String(u||'').match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|live\/|shorts\/))([\w-]{6,})/i);return m?m[1]:''}
+ function vm(u){const m=String(u||'').match(/vimeo\.com\/(?:video\/)?(\d+)/i);return m?m[1]:''}
+ function drive(u){const m=String(u||'').match(/(?:file\/d\/|videos\/d\/|[?&]id=)([\w-]{10,})/i);return m?m[1]:''}
+ function embed(u){const y=yt(u);if(y)return'https://www.youtube.com/embed/'+y+'?rel=0&playsinline=1';const v=vm(u);if(v)return'https://player.vimeo.com/video/'+v;const d=drive(u);if(d)return'https://drive.google.com/file/d/'+d+'/preview';return u}
+ function isAudio(u){return /\.(mp3|wav|ogg|m4a|aac)(\?|#|$)/i.test(u)||/soundcloud/i.test(u)}
+ async function load(){let d={};try{const r=await fetch('site-data.json?_='+Date.now(),{cache:'no-store'});if(r.ok)d=await r.json()}catch(e){};try{const l=JSON.parse(localStorage.getItem('chm_sitedata')||'{}');if((l._updated||'')>(d._updated||''))d=l}catch(e){}return(d.media_sources||[]).filter(x=>(x._status||x.status)==='published'&&!x.archived)}
+ async function watch(){if(!/watch-live\.html/i.test(location.pathname))return;const a=(await load()).filter(x=>x.destination==='watch');if(!a.length)return;const x=a[0],u=x.url||x.mediaUrl||x.videoUrl||'';const frame=document.getElementById('cmsYouTubeFrame');if(frame){frame.src=embed(u);frame.title=x.title||'CHM Live'}const label=document.querySelector('.live-label span,[data-live-title]');if(label)label.textContent='● LIVE — '+(x.title||'CHM Church of God')}
+ async function listen(){if(!/listen-live\.html/i.test(location.pathname))return;const a=(await load()).filter(x=>x.destination==='listen');if(!a.length)return;const host=document.querySelector('.playlist-card');if(host){host.innerHTML='<div class="playlist-header">🎵 CHM Audio Sources</div>'+a.map((x,i)=>`<div class="playlist-item" data-url="${x.url||x.mediaUrl||x.audioUrl||''}" onclick="CHMPlayMediaSource(this)"><div class="playlist-num">${i+1}</div><div class="playlist-info"><div class="playlist-title">${x.title||'Audio Source'}</div><div class="playlist-meta">${x.category||'Audio'}</div></div><div class="playlist-duration">▶</div></div>`).join('')}
+ }
+ window.CHMPlayMediaSource=function(el){const u=el.dataset.url||'';let a=document.getElementById('chmDynamicAudio');if(!a){a=document.createElement('audio');a.id='chmDynamicAudio';a.controls=true;a.style.width='100%';const p=document.querySelector('.audio-player');p&&p.appendChild(a)};const d=drive(u);a.src=d?'https://drive.google.com/uc?export=download&id='+d:u;a.play().catch(()=>window.open(embed(u),'_blank'))}
+ document.addEventListener('DOMContentLoaded',()=>{watch();listen()});
+})();

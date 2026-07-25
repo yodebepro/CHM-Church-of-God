@@ -1,83 +1,13 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-<title>Live Video / Radio / Media Control | CHM Admin</title>
-<link rel="stylesheet" href="admin.css"/>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
-<script src="firebase-config.js"></script>
-</head><body onload="requireAuth()"><div class="admin-wrap">
-<aside class="sidebar" id="sidebar">
-  <div class="sidebar-brand">
-    <img src="logo-dark.png" alt="CHM" class="brand-logo" onerror="this.outerHTML='<div class=&quot;brand-logo-fallback&quot;>✝</div>'"/>
-    <div class="brand-text"><span class="brand-name">CHM Church of God</span><span class="brand-sub">Admin Panel</span></div>
-  </div>
-  <div class="sidebar-conn"><span class="firebase-status status-offline">🟡 Checking…</span></div>
-  <div class="sidebar-section"><div class="sidebar-section-label">Main</div>
-    <a href="dashboard.html" class="sidebar-link"><span class="icon">🏠</span> Dashboard</a>
-    <a href="true-cms.html" class="sidebar-link"><span class="icon">🌍</span> Global Publisher</a>
-    <a href="github-setup.html" class="sidebar-link"><span class="icon">🔑</span> GitHub Setup</a>
-  </div>
-  <div class="sidebar-section"><div class="sidebar-section-label">Content</div>
-    <a href="adm-announcements.html" class="sidebar-link"><span class="icon">📢</span> Announcements</a>
-    <a href="adm-events.html" class="sidebar-link"><span class="icon">📅</span> Events</a>
-    <a href="adm-sermons.html" class="sidebar-link"><span class="icon">🎙</span> Sermons</a>
-    <a href="adm-gallery.html" class="sidebar-link"><span class="icon">🖼</span> Gallery</a>
-    <a href="pages.html" class="sidebar-link"><span class="icon">📄</span> Page Content</a>
-    <a href="navigation.html" class="sidebar-link"><span class="icon">🧭</span> Navigation</a>
-  </div>
-  <div class="sidebar-section"><div class="sidebar-section-label">People</div>
-    <a href="adm-leaders.html" class="sidebar-link"><span class="icon">👤</span> Leadership</a>
-    <a href="members.html" class="sidebar-link"><span class="icon">👥</span> Members</a>
-    <a href="adm-ministries.html" class="sidebar-link"><span class="icon">⛪</span> Ministries</a>
-  
-    <a href="adm-home.html" class="sidebar-link"><span class="icon">🏡</span> Home Page</a>
-    <a href="adm-about.html" class="sidebar-link"><span class="icon">ℹ️</span> About Page</a>
-    <a href="adm-teams.html" class="sidebar-link"><span class="icon">🧩</span> Teams</a>
-    <a href="adm-departments.html" class="sidebar-link"><span class="icon">🏛️</span> Departments</a>
-    <a href="adm-sacred.html" class="sidebar-link"><span class="icon">✝️</span> Sacred Ministries</a>
-    <a href="adm-locations.html" class="sidebar-link"><span class="icon">🌍</span> Locations / Campuses</a>
-    <a href="adm-give.html" class="sidebar-link"><span class="icon">💝</span> Give Page</a>
-    <a href="adm-media-settings.html" class="sidebar-link"><span class="icon">📡</span> Live Media Settings</a>
-    <a href="adm-uploads.html" class="sidebar-link"><span class="icon">⬆️</span> Media Uploads</a>
-    <a href="adm-blueprint.html" class="sidebar-link"><span class="icon">📘</span> Blueprint Sections</a>
-</div>
-  <div class="sidebar-section"><div class="sidebar-section-label">Inbox</div>
-    <a href="prayer-requests.html" class="sidebar-link"><span class="icon">🙏</span> Prayer Requests</a>
-    <a href="messages.html" class="sidebar-link"><span class="icon">✉️</span> Messages</a>
-    <a href="giving.html" class="sidebar-link"><span class="icon">💰</span> Giving Records</a>
-  </div>
-  <div class="sidebar-section"><div class="sidebar-section-label">System</div>
-    
-    <a href="adm-navigation.html" class="sidebar-link"><span class="icon">🧭</span> Navigation Menus</a>
-    <a href="adm-footer.html" class="sidebar-link"><span class="icon">⬇️</span> Footer Content</a>
-    <a href="adm-languages.html" class="sidebar-link"><span class="icon">🌐</span> Languages</a>
-    <a href="settings.html" class="sidebar-link"><span class="icon">⚙️</span> Settings & Colors</a>
-    <a href="index.html" class="sidebar-link" target="_blank"><span class="icon">🌐</span> View Public Site ↗</a>
-  </div>
-  <div class="sidebar-footer">
-    <div class="sidebar-user">
-      <div class="sidebar-avatar">A</div>
-      <div><span class="sidebar-user-name">Administrator</span><span class="sidebar-user-role">Super Admin</span></div>
-      <button class="sidebar-logout" data-logout title="Sign Out">⏻</button>
-    </div>
-  </div>
-</aside>
-<main class="main-content">
-  <div class="topbar-admin"><button id="hamburger" class="hamburger">☰</button><div class="topbar-title">Live Video / Radio / Media Control</div><button class="btn btn-ghost" data-logout>Logout</button></div>
-  <div class="page-body"><div data-blueprint-crud="adm_media_settings"></div></div>
-</main>
-</div><script src="admin.js"></script>
-
-
-<script src="contact-direct-send.js"></script>
-
-<script src="chm-true-cms.js"></script>
-
-<script src="chm-admin-button-fix.js"></script>
-
-
-<script src="chm-data-tools.js"></script>
-<script src="chm-photo-upload.js"></script>
-
-<script src="chm-all-sections-sync.js"></script>
-</body></html>
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Media Control | CHM Admin</title><link rel="stylesheet" href="admin.css"><style>.media-grid{display:grid;grid-template-columns:1fr 1.35fr;gap:20px}.media-card{background:#fff;border:1px solid var(--border);border-radius:16px;padding:18px}.media-table{width:100%;border-collapse:collapse}.media-table th,.media-table td{padding:10px;border-bottom:1px solid #e5e7eb;text-align:left}.pill{padding:4px 9px;border-radius:999px;background:#eef2ff;font-size:.72rem}.preview{width:120px;height:75px;object-fit:cover;background:#0a1f44;border-radius:8px}@media(max-width:900px){.media-grid{grid-template-columns:1fr}}</style></head><body onload="requireAuth()"><div class="admin-wrap"><aside class="sidebar" id="sidebar"><div class="sidebar-brand"><img src="logo-dark.png" class="brand-logo"><div class="brand-text"><span class="brand-name">CHM Church of God</span><span class="brand-sub">Admin Panel</span></div></div><div class="sidebar-section"><div class="sidebar-section-label">Main</div><a href="dashboard.html" class="sidebar-link">🏠 Dashboard</a><a href="true-cms.html" class="sidebar-link">🌍 Global Publisher</a><a href="github-setup.html" class="sidebar-link">🔑 GitHub Setup</a></div><div class="sidebar-section"><div class="sidebar-section-label">Content</div><a href="adm-announcements.html" class="sidebar-link">📢 Announcements</a><a href="adm-events.html" class="sidebar-link">📅 Events</a><a href="adm-sermons.html" class="sidebar-link">🎙 Sermons</a><a href="adm-gallery.html" class="sidebar-link">🖼 Gallery</a><a href="adm-media-settings.html" class="sidebar-link active">📡 Media Control</a></div><div class="sidebar-section"><div class="sidebar-section-label">Public Media</div><a href="watch-live.html" class="sidebar-link" target="_blank">📺 View Watch Live ↗</a><a href="listen-live.html" class="sidebar-link" target="_blank">🎧 View Listen Live ↗</a></div></aside><main class="main-content"><div class="top-bar"><h1 class="top-bar-title">📡 Media, Watch Live & Listen Live</h1></div><div class="page-body"><div class="media-grid"><section class="media-card"><h2 id="mTitle">Add Media Source</h2><input id="mId" type="hidden"><div class="form-group"><label class="form-label">Destination</label><select id="mDest" class="fs"><option value="watch">Watch Live</option><option value="listen">Listen Live</option><option value="media">General Media</option></select></div><div class="form-group"><label class="form-label">Title</label><input id="mName" class="fi"></div><div class="form-group"><label class="form-label">Category</label><input id="mCategory" class="fi" placeholder="YouTube, Radio, Worship, Sermon Audio..."></div><div class="form-group"><label class="form-label">Source Link</label><input id="mUrl" class="fi" placeholder="YouTube, Vimeo, Google Drive, MP3, M3U8, MP4, iframe URL..."></div><div class="form-group"><label class="form-label">Or Upload File</label><input id="mFile" type="file" accept="video/*,audio/*,image/*,.m3u8"></div><div class="form-group"><label class="form-label">Description</label><textarea id="mDesc" class="ft"></textarea></div><div style="display:flex;gap:.5rem;flex-wrap:wrap"><button class="btn btn-save" onclick="mSave('draft')">Save Draft</button><button class="btn btn-publish" onclick="mSave('published')">Publish Globally</button><button class="btn btn-outline" onclick="mClear()">Clear</button></div><hr style="margin:20px 0"><div style="display:flex;gap:.5rem;flex-wrap:wrap"><button class="btn btn-outline" onclick="mExport()">Export JSON</button><button class="btn btn-outline" onclick="document.getElementById('mImport').click()">Import JSON</button><input id="mImport" type="file" accept=".json" hidden onchange="mImportJSON(this.files[0])"></div></section><section class="media-card"><h2>Saved Media Sources</h2><div style="overflow:auto"><table class="media-table"><thead><tr><th>Title</th><th>Destination</th><th>Status</th><th>Actions</th></tr></thead><tbody id="mRows"></tbody></table></div></section></div></div></main></div><script src="admin.js"></script><script src="chm-true-cms.js"></script><script>
+const MC='media_sources';
+function nurl(x){return x.url||x.mediaUrl||x.videoUrl||x.audioUrl||''}
+async function mLoad(){const d=await loadData();const a=d[MC]||[];document.getElementById('mRows').innerHTML=a.length?a.map(x=>`<tr><td><strong>${x.title||'Untitled'}</strong><br><small>${x.category||''}</small></td><td>${x.destination||'media'}</td><td><span class="pill">${x._status||x.status||'draft'}</span></td><td><button class="act act-edit" onclick="mEdit('${x.id}')">Edit</button> <button class="act act-archive" onclick="mStatus('${x.id}','archived')">Archive</button> <button class="act act-delete" onclick="mDelete('${x.id}')">Delete</button></td></tr>`).join(''):'<tr><td colspan="4">No media sources yet.</td></tr>'}
+function mClear(){['mId','mName','mCategory','mUrl','mDesc'].forEach(i=>document.getElementById(i).value='');document.getElementById('mDest').value='watch';document.getElementById('mFile').value='';document.getElementById('mTitle').textContent='Add Media Source'}
+async function mSave(status){let url=document.getElementById('mUrl').value.trim();const f=document.getElementById('mFile').files[0];if(f)url=await CHMTrueCMS.uploadMedia(f,'media');const title=document.getElementById('mName').value.trim();if(!title||!url){alert('Title and source link/file are required.');return}const d=await loadData();if(!Array.isArray(d[MC]))d[MC]=[];const id=document.getElementById('mId').value||Date.now().toString(36);const obj={id,title,category:document.getElementById('mCategory').value,destination:document.getElementById('mDest').value,url,mediaUrl:url,videoUrl:url,audioUrl:url,description:document.getElementById('mDesc').value,_status:status,status,archived:status==='archived',_updatedAt:Date.now()};const i=d[MC].findIndex(x=>x.id===id);if(i>=0)d[MC][i]=obj;else d[MC].unshift(obj);await saveLocal(d);await mLoad();mClear();if(status==='published'){try{await CHMTrueCMS.pushSiteData()}catch(e){alert('Saved locally. GitHub push needs a valid token.')}}}
+async function mEdit(id){const d=await loadData(),x=(d[MC]||[]).find(x=>x.id===id);if(!x)return;document.getElementById('mId').value=x.id;document.getElementById('mName').value=x.title||'';document.getElementById('mCategory').value=x.category||'';document.getElementById('mDest').value=x.destination||'media';document.getElementById('mUrl').value=nurl(x);document.getElementById('mDesc').value=x.description||'';document.getElementById('mTitle').textContent='Edit Media Source'}
+async function mStatus(id,s){const d=await loadData(),x=(d[MC]||[]).find(x=>x.id===id);if(x){x._status=x.status=s;x.archived=s==='archived';x._updatedAt=Date.now();await saveLocal(d);await mLoad()}}
+async function mDelete(id){if(!confirm('Delete this media source?'))return;const d=await loadData();d[MC]=(d[MC]||[]).filter(x=>x.id!==id);await saveLocal(d);await mLoad()}
+async function mExport(){const d=await loadData(),a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify({media_sources:d[MC]||[]},null,2)],{type:'application/json'}));a.download='chm-media-sources.json';a.click()}
+async function mImportJSON(f){if(!f)return;const j=JSON.parse(await f.text()),d=await loadData();d[MC]=j.media_sources||j||[];await saveLocal(d);await mLoad()}
+document.addEventListener('DOMContentLoaded',mLoad);
+</script></body></html>
