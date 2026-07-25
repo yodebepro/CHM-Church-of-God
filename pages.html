@@ -45,7 +45,7 @@
     </div>
   </div>
 </aside>
-<div class="main-content"><div class="top-bar"><div class="top-bar-left"><button class="hamburger" id="hamburger"><span></span><span></span><span></span></button><h1 class="top-bar-title">📄 Page Content Editor</h1></div><div class="top-bar-actions"></div></div><div class="page-body"><div class="tab-nav">
+<div class="main-content"><div class="top-bar"><div class="top-bar-left"><button class="hamburger" id="hamburger"><span></span><span></span><span></span></button><h1 class="top-bar-title">📄 Page Content Editor</h1></div><div class="top-bar-actions"><button class="btn btn-outline btn-sm" onclick="chmSectionExport('page_content','chm-page-content.json')">⬇ Export JSON</button><button class="btn btn-outline btn-sm" onclick="document.getElementById('page_contentJsonImport').click()">⬆ Import JSON</button><input id="page_contentJsonImport" type="file" accept=".json" hidden onchange="chmSectionImport('page_content',this.files[0])"></div></div><div class="page-body"><div class="tab-nav">
   <button class="tab-btn active" onclick="switchTab(this,'home')">🏠 Home</button>
   <button class="tab-btn" onclick="switchTab(this,'about')">ℹ️ About</button>
   <button class="tab-btn" onclick="switchTab(this,'footer')">🔻 Footer</button>
@@ -170,4 +170,4 @@ loadPC();</script>
 <script src="chm-true-cms.js"></script>
 
 <script src="chm-admin-button-fix.js"></script>
-</body></html>
+<script>async function chmSectionExport(key,name){const d=await loadData();const p={_version:1,_section:key,_exportedAt:new Date().toISOString()};p[key]=key==='page_content'?(d.page_content||d.pages||[]):(d.site_config?.[key]||d[key]||{});const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(p,null,2)],{type:'application/json'}));a.download=name;a.click();URL.revokeObjectURL(a.href)}async function chmSectionImport(key,file){if(!file)return;try{const j=JSON.parse(await file.text()),v=j[key]??j.data??j,d=await loadData();if(key==='page_content')d.page_content=Array.isArray(v)?v:(v.page_content||v.pages||[]);else{d.site_config=d.site_config||{};d.site_config[key]=v}await saveLocal(d);alert('JSON imported and saved.');location.reload()}catch(e){alert('Import failed: '+e.message)}}</script></body></html>

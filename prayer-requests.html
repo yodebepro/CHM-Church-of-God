@@ -135,4 +135,6 @@ prLoad();
 <script src="chm-all-sections-sync.js"></script>
 
 <script src="chm-admin-persistence-fix.js"></script>
+<script src="chm-admin-collection-sync.js"></script>
+<script>document.addEventListener('DOMContentLoaded',async()=>{await CHMHydrateAdminCollection?.('prayer_requests','chm-prayer-requests.json');if(typeof prLoad==='function')await prLoad()});</script>
 </body></html>

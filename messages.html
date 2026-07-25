@@ -129,4 +129,6 @@ msgLoad();
 <script src="chm-all-sections-sync.js"></script>
 
 <script src="chm-admin-persistence-fix.js"></script>
+<script src="chm-admin-collection-sync.js"></script>
+<script>document.addEventListener('DOMContentLoaded',async()=>{await CHMHydrateAdminCollection?.('messages','chm-messages.json');if(typeof msgLoad==='function')await msgLoad()});</script>
 </body></html>
