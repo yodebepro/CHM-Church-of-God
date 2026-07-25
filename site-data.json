@@ -2450,5 +2450,24 @@
   ],
   "_true_cms": "enabled",
   "_admin_public_mapping_fix": "enabled",
-  "_all_sections_sync": "enabled"
+  "_all_sections_sync": "enabled",
+  "media_sources": [
+    {
+      "id": "chm-live-service",
+      "title": "CHM Live Service",
+      "description": "CHM Church of God · Live Broadcast",
+      "category": "CHM Live",
+      "destination": "listen",
+      "url": "",
+      "mediaUrl": "",
+      "audioUrl": "",
+      "permanentUrl": "",
+      "order": 1,
+      "isPrimary": false,
+      "primary": false,
+      "_status": "published",
+      "status": "published",
+      "archived": false
+    }
+  ]
 }
