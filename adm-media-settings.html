@@ -31,9 +31,14 @@
 <div class="top-bar"><h1 class="top-bar-title">📡 Media Control</h1><div class="top-bar-actions"><button class="btn btn-publish btn-sm" onclick="pushAllMedia()">🌐 Push Media to GitHub</button></div></div>
 <div class="page-body">
 <div class="media-tabs">
-<button class="media-tab active" data-dest="listen" onclick="switchMediaTab('listen')">🎧 Listen Live Settings</button>
-<button class="media-tab" data-dest="watch" onclick="switchMediaTab('watch')">📺 Watch Live Settings</button>
-<button class="media-tab" data-dest="media" onclick="switchMediaTab('media')">🗂 General Media</button>
+<button type="button" class="media-tab active" data-dest="listen">🎧 Listen Live Settings</button>
+<button type="button" class="media-tab" data-dest="watch">📺 Watch Live Settings</button>
+<button type="button" class="media-tab" data-dest="media">🗂 General Media</button>
+</div>
+<div class="toolbar" style="margin:0 0 1rem 0">
+<button type="button" class="btn btn-outline" onclick="mExportCurrent()">⬇ Export Current Tab JSON</button>
+<button type="button" class="btn btn-outline" onclick="mExportAll()">⬇ Export All Media JSON</button>
+<button type="button" class="btn btn-outline" onclick="document.getElementById('mImport').click()">⬆ Import JSON</button>
 </div>
 
 <div class="media-grid">
@@ -118,9 +123,29 @@ async function switchMediaTab(dest){
  await mLoad();mClear(false);
 }
 async function mLoad(){
- const d=await loadData(),a=(d[MC]||[]).filter(x=>(x.destination||'media')===currentDest).sort((x,y)=>(Number(y.isPrimary||y.primary)-Number(x.isPrimary||x.primary))||(Number(x.order)||999)-(Number(y.order)||999));
+ const d=await loadData();
+ const a=(d[MC]||[]).filter(x=>(x.destination||'media')===currentDest).sort((x,y)=>(Number(y.isPrimary||y.primary)-Number(x.isPrimary||x.primary))||(Number(x.order)||999)-(Number(y.order)||999));
  document.getElementById('savedCount').textContent=a.length;
- document.getElementById('mRows').innerHTML=a.length?a.map(x=>`<tr><td><strong>${esc(x.title||'Untitled')}</strong> ${x.id==='chm-live-service'?'<span class="protected">Protected #1</span>':''}<br><small>${esc(x.category||x.description||'')}</small></td><td>${x.order||''}${(x.isPrimary||x.primary)?' · Default':''}</td><td><span class="pill">${esc(x._status||x.status||'draft')}</span></td><td><button class="act act-edit" onclick="mEdit('${x.id}')">Edit</button> <button class="act act-archive" onclick="mStatus('${x.id}','archived')">Archive</button> ${x.id==='chm-live-service'?'':'<button class="act act-delete" onclick="mDelete(\\''+x.id+'\\')">Delete</button>'}</td></tr>`).join(''):'<tr><td colspan="4" style="text-align:center;padding:2rem;color:var(--text-muted)">No saved sources for this section.</td></tr>';
+ const rows=document.getElementById('mRows');
+ rows.innerHTML='';
+ if(!a.length){
+   rows.innerHTML='<tr><td colspan="4" style="text-align:center;padding:2rem;color:var(--text-muted)">No saved sources for this section.</td></tr>';
+   return;
+ }
+ a.forEach(x=>{
+   const tr=document.createElement('tr');
+   const tdTitle=document.createElement('td');
+   tdTitle.innerHTML='<strong>'+esc(x.title||'Untitled')+'</strong> '+(x.id==='chm-live-service'?'<span class="protected">Protected #1</span>':'')+'<br><small>'+esc(x.category||x.description||'')+'</small>';
+   const tdOrder=document.createElement('td');tdOrder.textContent=String(x.order||'')+((x.isPrimary||x.primary)?' · Default':'');
+   const tdStatus=document.createElement('td');tdStatus.innerHTML='<span class="pill">'+esc(x._status||x.status||'draft')+'</span>';
+   const tdActions=document.createElement('td');
+   const edit=document.createElement('button');edit.className='act act-edit';edit.textContent='Edit';edit.onclick=()=>mEdit(x.id);tdActions.appendChild(edit);
+   const archive=document.createElement('button');archive.className='act act-archive';archive.textContent='Archive';archive.style.marginLeft='.35rem';archive.onclick=()=>mStatus(x.id,'archived');tdActions.appendChild(archive);
+   if(x.id!=='chm-live-service'){
+     const del=document.createElement('button');del.className='act act-delete';del.textContent='Delete';del.style.marginLeft='.35rem';del.onclick=()=>mDelete(x.id);tdActions.appendChild(del);
+   }
+   tr.append(tdTitle,tdOrder,tdStatus,tdActions);rows.appendChild(tr);
+ });
 }
 function mClear(resetDest=true){
  ['mId','mName','mCategory','mUrl','mArtist','mDuration','mPoster','mDesc'].forEach(i=>{const e=document.getElementById(i);if(e)e.value=''});
@@ -159,6 +184,6 @@ async function mExportCurrent(){const d=await loadData();downloadJson(`chm-${cur
 async function mExportAll(){const d=await loadData();downloadJson('chm-media-sources.json',{media_sources:d[MC]||[]})}
 async function mImportJSON(f){if(!f)return;try{const j=JSON.parse(await f.text()),incoming=j.media_sources||j;if(!Array.isArray(incoming))throw new Error('JSON must contain a media_sources array.');const d=await loadData();if(!Array.isArray(d[MC]))d[MC]=[];for(const x of incoming){const i=d[MC].findIndex(y=>y.id===x.id);if(i>=0)d[MC][i]=x;else d[MC].push(x)}await saveLocal(d);await mLoad();alert('JSON imported and saved.')}catch(e){alert('Import failed: '+e.message)}finally{document.getElementById('mImport').value=''}}
 async function pushAllMedia(){try{await CHMTrueCMS.pushSiteData();alert('All media settings pushed to GitHub.')}catch(e){alert('Push failed: '+e.message)}}
-document.addEventListener('DOMContentLoaded',()=>switchMediaTab('listen'));
+document.addEventListener('DOMContentLoaded',()=>{document.querySelectorAll('.media-tab').forEach(btn=>btn.addEventListener('click',()=>switchMediaTab(btn.dataset.dest)));switchMediaTab('listen');});
 </script>
 </body></html>
