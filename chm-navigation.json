@@ -1,10 +1,93 @@
 {
-  "_version": 3,
-  "_app": "CHM Church of God",
-  "_section": "Navigation Items",
-  "_collection": "navigation_items",
-  "_exportedAt": "",
-  "_note": "Upload as chm-navigation.json to GitHub repo root \u2014 auto-loaded by corresponding page",
-  "navigation_items": [],
-  "hero": []
+  "_version": 1,
+  "_section": "navigation",
+  "_exportedAt": "2026-07-25T17:01:05.786Z",
+  "navigation": {
+    "items": [
+      {
+        "label": "Home",
+        "url": "index.html",
+        "dropdown": []
+      },
+      {
+        "label": "About",
+        "url": "about.html",
+        "dropdown": [
+          {
+            "label": "Our Story & Beliefs",
+            "url": "about.html"
+          },
+          {
+            "label": "Leadership",
+            "url": "leaders.html"
+          },
+          {
+            "label": "Locations",
+            "url": "locations.html"
+          }
+        ]
+      },
+      {
+        "label": "Ministries",
+        "url": "ministries.html",
+        "dropdown": [
+          {
+            "label": "All Ministries",
+            "url": "ministries.html"
+          },
+          {
+            "label": "Teams",
+            "url": "teams.html"
+          },
+          {
+            "label": "Departments",
+            "url": "departments.html"
+          }
+        ]
+      },
+      {
+        "label": "Media",
+        "url": "watch-live.html",
+        "dropdown": [
+          {
+            "label": "Watch Live",
+            "url": "watch-live.html"
+          },
+          {
+            "label": "Listen Live",
+            "url": "listen-live.html"
+          },
+          {
+            "label": "Sermons",
+            "url": "sermons.html"
+          },
+          {
+            "label": "Gallery",
+            "url": "gallery.html"
+          }
+        ]
+      },
+      {
+        "label": "Events",
+        "url": "events.html",
+        "dropdown": [
+          {
+            "label": "All Events",
+            "url": "events.html"
+          },
+          {
+            "label": "Announcements",
+            "url": "announcements.html"
+          }
+        ]
+      },
+      {
+        "label": "Give",
+        "url": "give.html",
+        "dropdown": []
+      }
+    ],
+    "_updatedAt": 1784998851194,
+    "updatedAt": 1784998851194
+  }
 }
