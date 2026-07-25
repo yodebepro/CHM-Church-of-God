@@ -59,7 +59,7 @@
 <div class="main-content">
   <div class="top-bar">
     <div class="top-bar-left"><button class="hamburger" id="hamburger"><span></span><span></span><span></span></button><h1 class="top-bar-title">&#127897; Sermons</h1></div>
-    <div class="top-bar-actions" style="display:flex;gap:.5rem;flex-wrap:wrap"><button class="btn btn-outline btn-sm" onclick="sExportJSON()">Export JSON</button><button class="btn btn-outline btn-sm" onclick="document.getElementById('sermonJsonImport').click()">Import JSON</button><input id="sermonJsonImport" type="file" accept=".json,application/json" hidden onchange="sImportJSON(this.files[0])"><button class="btn btn-gold btn-sm" data-open="sM">+ Add Sermon</button></div>
+    <div class="top-bar-actions" style="display:flex;gap:.5rem;flex-wrap:wrap"><button class="btn btn-outline btn-sm" onclick="sExportJSON()">Export JSON</button><button class="btn btn-outline btn-sm" onclick="document.getElementById('sermonJsonImport').click()">Import JSON</button><input id="sermonJsonImport" type="file" accept=".json,application/json" hidden onchange="sImportJSON(this.files[0])"><button class="btn btn-outline btn-sm" onclick="sExportJSON()">⬇ Export Sermon JSON</button><button class="btn btn-outline btn-sm" onclick="document.getElementById('sImportFile').click()">⬆ Import Sermon JSON</button><input id="sImportFile" type="file" accept=".json" hidden onchange="sImportJSON(this.files[0])"><button class="btn btn-gold btn-sm" data-open="sM">+ Add Sermon</button></div>
   </div>
   <div class="page-body">
     <div class="filter-bar">
