@@ -5,12 +5,12 @@
       "title": "CHMNetwork Live",
       "category": "CHM Live",
       "destination": "watch",
-      "url": "https://www.youtube.com/live/9ai5UXv4Y-Q?si=f82z6H_Nq8LRl7y0",
-      "permanentUrl": "https://www.youtube.com/live/9ai5UXv4Y-Q?si=f82z6H_Nq8LRl7y0",
-      "embedUrl": "https://www.youtube.com/live/9ai5UXv4Y-Q?si=f82z6H_Nq8LRl7y0",
-      "mediaUrl": "https://www.youtube.com/live/9ai5UXv4Y-Q?si=f82z6H_Nq8LRl7y0",
-      "videoUrl": "https://www.youtube.com/live/9ai5UXv4Y-Q?si=f82z6H_Nq8LRl7y0",
-      "audioUrl": "https://www.youtube.com/live/9ai5UXv4Y-Q?si=f82z6H_Nq8LRl7y0",
+      "url": "https://www.youtube.com/embed/jkmbNO08cqM?si=lIDqoWoNxz4JxO3O",
+      "permanentUrl": "https://www.youtube.com/embed/jkmbNO08cqM?si=lIDqoWoNxz4JxO3O",
+      "embedUrl": "https://www.youtube.com/embed/jkmbNO08cqM?si=lIDqoWoNxz4JxO3O",
+      "mediaUrl": "https://www.youtube.com/embed/jkmbNO08cqM?si=lIDqoWoNxz4JxO3O",
+      "videoUrl": "https://www.youtube.com/embed/jkmbNO08cqM?si=lIDqoWoNxz4JxO3O",
+      "audioUrl": "https://www.youtube.com/embed/jkmbNO08cqM?si=lIDqoWoNxz4JxO3O",
       "artist": "",
       "duration": "",
       "streamType": "YouTube",
@@ -24,7 +24,7 @@
       "_status": "draft",
       "status": "draft",
       "archived": false,
-      "_updatedAt": 1785031708741
+      "_updatedAt": 1785033600917
     },
     {
       "id": "ms15sjj4",
